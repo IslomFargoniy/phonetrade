@@ -18,6 +18,10 @@ return [
     // Maxfiylik siyosati va ilova do'konlarida ko'rsatiladigan aloqa manzili.
     'contact_email' => env('APP_CONTACT_EMAIL'),
 
+    // Demo rejimi: mobil ilovadagi "Demo" tugmasi shu telefon raqamli xodim nomidan parolsiz kiradi
+    // (ilova do'konlari sharhlovchilari va tanishish uchun). Bo'sh bo'lsa demo rejimi o'chiq.
+    'demo_phone' => env('APP_DEMO_PHONE'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment

@@ -16,6 +16,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -65,6 +66,21 @@ fun LoginScreen(app: PhoneTradeApp) {
         }
     }
 
+    fun demo() {
+        loading = true
+        error = null
+
+        scope.launch {
+            try {
+                app.session.signIn(app.client.call { demoLogin() })
+            } catch (exception: ApiException) {
+                error = exception.message
+            } finally {
+                loading = false
+            }
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -106,7 +122,12 @@ fun LoginScreen(app: PhoneTradeApp) {
             }
         }
 
-        Spacer(Modifier.height(16.dp))
+        // Akkauntsiz tanishish: namuna do'kon ma'lumoti bilan ishlaydi.
+        TextButton(onClick = ::demo, enabled = !loading, modifier = Modifier.fillMaxWidth()) {
+            Text("Demo rejimida ko'rish", fontWeight = FontWeight.Bold)
+        }
+
+        Spacer(Modifier.height(8.dp))
         Text(
             "Akkauntni do'kon egasi yaratadi. Parolni unutgan bo'lsangiz, egasiga murojaat qiling.",
             fontSize = 13.sp,

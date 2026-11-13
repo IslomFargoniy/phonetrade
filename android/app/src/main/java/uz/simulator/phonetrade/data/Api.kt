@@ -14,6 +14,10 @@ interface Api {
     @POST("login")
     suspend fun login(@Body body: LoginRequest): Profile
 
+    /** Parolsiz demo rejimi: namuna do'konning demo xodimi nomidan kiradi. */
+    @POST("demo-login")
+    suspend fun demoLogin(): Profile
+
     @POST("logout")
     suspend fun logout(): MessageResponse
 

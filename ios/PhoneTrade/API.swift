@@ -61,6 +61,14 @@ final class Session {
         apply(result)
     }
 
+    /// Parolsiz demo rejimi: namuna do'konning demo xodimi nomidan kiradi.
+    func demoSignIn() async throws {
+        let result: Profile = try await post("demo-login")
+        token = result.token
+        Keychain.save(result.token)
+        apply(result)
+    }
+
     func refreshProfile() async throws {
         apply(try await get("me"))
     }
