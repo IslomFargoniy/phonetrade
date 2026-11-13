@@ -2,6 +2,11 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Branch;
+use App\Models\Tenant;
+use App\Models\User;
+use App\Services\Rates\CurrencyRateService;
+use App\Tenancy\CurrentBranch;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -17,16 +22,6 @@ class HandleInertiaRequests extends Middleware
     protected $rootView = 'app';
 
     /**
-     * Determines the current asset version.
-     *
-     * @see https://inertiajs.com/asset-versioning
-     */
-    public function version(Request $request): ?string
-    {
-        return parent::version($request);
-    }
-
-    /**
      * Define the props that are shared by default.
      *
      * @see https://inertiajs.com/shared-data
@@ -35,12 +30,57 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $user instanceof User ? $this->userProps($user) : null,
             ],
+            'store' => $user instanceof User && $user->tenant_id !== null
+                ? fn () => $this->storeProps($user)
+                : null,
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function userProps(User $user): array
+    {
+        return [
+            'id' => $user->id,
+            'name' => $user->name,
+            'phone' => $user->phone,
+            'role' => $user->role->value,
+            'role_label' => $user->role->label(),
+            'two_factor_enabled' => $user->hasEnabledTwoFactorAuthentication(),
+        ];
+    }
+
+    /**
+     * Do'kon ichidagi har sahifaga kerak bo'ladigan ma'lumot: do'kon nomi, filiallar, bugungi kurs.
+     *
+     * @return array<string, mixed>
+     */
+    private function storeProps(User $user): array
+    {
+        $branches = app(CurrentBranch::class);
+        $current = $branches->resolve($user);
+        $rate = app(CurrencyRateService::class)->current();
+
+        return [
+            'name' => Tenant::query()->whereKey($user->tenant_id)->value('name'),
+            'branch' => $current ? ['id' => $current->id, 'name' => $current->name] : null,
+            'branches' => $branches->available($user)
+                ->map(fn (Branch $branch) => ['id' => $branch->id, 'name' => $branch->name])
+                ->values(),
+            'rate' => $rate ? [
+                'usd_uzs' => $rate->usd_uzs,
+                'date' => $rate->date->toDateString(),
+                'is_today' => $rate->date->isToday(),
+            ] : null,
         ];
     }
 }

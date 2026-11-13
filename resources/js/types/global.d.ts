@@ -1,4 +1,4 @@
-import type { Auth } from '@/types/auth';
+import type { Auth, StoreContext } from '@/types/auth';
 
 declare module 'react' {
     interface InputHTMLAttributes<T> {
@@ -11,6 +11,8 @@ declare module '@inertiajs/core' {
         sharedPageProps: {
             name: string;
             auth: Auth;
+            /** Superadmin uchun null: u hech bir do'konga tegishli emas */
+            store: StoreContext | null;
             [key: string]: unknown;
         };
     }

@@ -56,8 +56,8 @@ Maqsad: har o'zgarish tekshirilib, bitta buyruq bilan serverga chiqadi.
 - [x] 0.7 O'zbek tili: `lang/uz`, frontend tarjima fayllari, standart til `uz`
 - [x] 0.8 Liquid Glass dizayn tokenlari (rang, radius, blur, shrift), asosiy komponentlar: tugma, maydon, segment, chip, jadval, panel
 - [x] 0.9 Umumiy layout: yon menyu, sarlavha, kurs ko'rsatkichi; rolga qarab menyu
-- [ ] 0.10 Navbat (queue worker) va cron'ni serverda sozlash
-- [ ] 0.11 Kunlik baza zaxira nusxasi
+- [x] 0.10 Serverda cron: har daqiqada `schedule:run`; navbat schedule orqali ishlaydi
+- [x] 0.11 Kunlik baza zaxira nusxasi (serverda, 14 kun saqlanadi; tashqi joyga nusxa hali yo'q)
 
 **Tayyor:** `main` ga qo'shilgan o'zgarish bitta buyruq bilan saytga chiqadi; begona odam akkaunt ocha olmaydi.
 
@@ -65,17 +65,17 @@ Maqsad: har o'zgarish tekshirilib, bitta buyruq bilan serverga chiqadi.
 
 Maqsad: superadmin do'kon ochadi, egasi filial va sotuvchi yaratadi.
 
-- [ ] 1.1 `tenants` jadvali, `BelongsToTenant` trait, global scope, joriy tenant konteksti
-- [ ] 1.2 Tenant izolyatsiya testi: har model uchun avtomatik tekshiruv (bir do'kon boshqasini ko'rmaydi)
-- [ ] 1.3 Rollar: superadmin, egasi, sotuvchi; Policy'lar va middleware
-- [ ] 1.4 Superadmin paneli dizayni (canvas) → tasdiqlash
-- [ ] 1.5 Superadmin paneli: do'konlar ro'yxati, do'kon ochish, egasi akkaunti, bloklash
-- [ ] 1.6 Filiallar CRUD; filial yaratilganda 3 ta kassa va 3/6/9/12 oylik ustama qatorlari avtomatik
-- [ ] 1.7 Xodimlar CRUD, filiallarga biriktirish (`branch_user`), joriy filialni tanlash
-- [ ] 1.8 `Money` yordamchi tipi (valyuta, bcmath, formatlash) va testlari
-- [ ] 1.9 Kunlik kurs: `currency_rates`, Markaziy bankdan ertalab olish (schedule), egasi o'zgartirishi
-- [ ] 1.10 Sozlamalar ekrani: kurs, filiallar, xodimlar, ustama foizlari, yaxlitlash qadami, chek rekvizitlari
-- [ ] 1.11 `audit_logs` va yozish mexanizmi
+- [x] 1.1 `tenants` jadvali, `BelongsToTenant` trait, global scope, joriy tenant konteksti
+- [x] 1.2 Tenant izolyatsiya testi: har model uchun avtomatik tekshiruv (bir do'kon boshqasini ko'rmaydi)
+- [x] 1.3 Rollar: superadmin, egasi, sotuvchi; Policy'lar va middleware
+- [x] 1.4 Superadmin paneli mavjud Liquid Glass uslubida qurildi (alohida canvas chizilmadi)
+- [x] 1.5 Superadmin paneli: do'konlar ro'yxati, do'kon ochish, egasi akkaunti, bloklash
+- [x] 1.6 Filiallar CRUD; filial yaratilganda 3 ta kassa va 3/6/9/12 oylik ustama qatorlari avtomatik
+- [x] 1.7 Xodimlar CRUD, filiallarga biriktirish (`branch_user`), joriy filialni tanlash
+- [x] 1.8 `Money` yordamchi tipi (valyuta, bcmath, formatlash) va testlari
+- [x] 1.9 Kunlik kurs: `currency_rates`, Markaziy bankdan ertalab olish (schedule), egasi o'zgartirishi
+- [x] 1.10 Sozlamalar ekrani: kurs, filiallar, xodimlar, ustama foizlari, yaxlitlash qadami, chek rekvizitlari
+- [x] 1.11 `audit_logs` va yozish mexanizmi
 
 **Tayyor:** ikkita sinov do'koni ochilgan, biri ikkinchisining hech narsasini ko'rmaydi; sotuvchi faqat o'z filialiga kiradi.
 
