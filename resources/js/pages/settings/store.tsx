@@ -11,6 +11,7 @@ import {
     general,
     installmentRates,
     rate as rateRoute,
+    storefront as storefrontRoute,
 } from '@/routes/store-settings';
 import { unlink as unlinkTelegram } from '@/routes/store-settings/telegram';
 
@@ -34,6 +35,11 @@ type Props = {
     roundStepUsd: string;
     receipt: { name: string; phone: string | null; footer: string | null };
     telegram: { enabled: boolean; linked: boolean; link: string | null };
+    storefront: {
+        enabled: boolean;
+        url: string | null;
+        telegram_link: string | null;
+    };
 };
 
 export default function StoreSettings({
@@ -44,6 +50,7 @@ export default function StoreSettings({
     roundStepUsd,
     receipt,
     telegram,
+    storefront,
 }: Props) {
     return (
         <>
@@ -242,6 +249,81 @@ export default function StoreSettings({
                             )}
                         </div>
                     )}
+                </Panel>
+
+                <Panel
+                    title={t('store.storefront.title')}
+                    description={t('store.storefront.description')}
+                    action={
+                        storefront.enabled ? (
+                            <Chip tone="success">
+                                {t('store.storefront.on')}
+                            </Chip>
+                        ) : undefined
+                    }
+                >
+                    {storefront.enabled && (
+                        <div className="flex flex-col gap-2 text-sm">
+                            {storefront.telegram_link && (
+                                <div>
+                                    <div className="text-xs font-semibold text-muted-foreground">
+                                        {t('store.storefront.telegram_link')}
+                                    </div>
+                                    <a
+                                        href={storefront.telegram_link}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="font-semibold break-all text-primary"
+                                    >
+                                        {storefront.telegram_link}
+                                    </a>
+                                </div>
+                            )}
+                            {storefront.url && (
+                                <div>
+                                    <div className="text-xs font-semibold text-muted-foreground">
+                                        {t('store.storefront.web_link')}
+                                    </div>
+                                    <a
+                                        href={storefront.url}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="font-semibold break-all text-primary"
+                                    >
+                                        {storefront.url}
+                                    </a>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                    <Form
+                        {...storefrontRoute.form()}
+                        options={{ preserveScroll: true }}
+                    >
+                        {({ processing }) => (
+                            <>
+                                <input
+                                    type="hidden"
+                                    name="enabled"
+                                    value={storefront.enabled ? '0' : '1'}
+                                />
+                                <Button
+                                    type="submit"
+                                    variant={
+                                        storefront.enabled
+                                            ? 'outline'
+                                            : 'default'
+                                    }
+                                    disabled={processing}
+                                >
+                                    {processing && <Spinner />}
+                                    {storefront.enabled
+                                        ? t('store.storefront.disable')
+                                        : t('store.storefront.enable')}
+                                </Button>
+                            </>
+                        )}
+                    </Form>
                 </Panel>
 
                 {branches.map((branch) => (

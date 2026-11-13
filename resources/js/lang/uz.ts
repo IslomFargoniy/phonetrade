@@ -63,7 +63,7 @@ export const uz = {
     'billing.col.date': 'Sana',
     'billing.col.period': 'Davr',
     'billing.amount': "Summa, so'm",
-    'billing.months': '{months} oy',
+    'billing.months': ':months oy',
     'billing.months_count': 'Oylar soni',
     'billing.note': 'Izoh (ixtiyoriy)',
     'billing.pay.title': "To'lov qabul qilish",
@@ -83,7 +83,7 @@ export const uz = {
     'plans.max_branches': 'Filiallar soni',
     'plans.max_users': 'Sotuvchilar soni',
     'plans.active': "Yangi to'lovlarda tanlash mumkin",
-    'plans.tenants': "{count} ta do'kon shu tarifda",
+    'plans.tenants': ":count ta do'kon shu tarifda",
     'plans.new': 'Yangi tarif',
     'plans.new.description': "Limit bo'sh qoldirilsa cheklanmaydi.",
     'plans.create': "Tarif qo'shish",
@@ -92,8 +92,8 @@ export const uz = {
     'subscription.expired.owner':
         "Obuna muddati tugagan: do'kon faqat o'qish rejimida. Savdo va boshqa yozuvlar to'lovdan keyin ochiladi.",
     'subscription.grace':
-        "Obuna muddati tugagan. {date} dan boshlab do'kon faqat o'qish rejimiga o'tadi — to'lovni amalga oshiring.",
-    'subscription.ends_soon': 'Obuna muddati {days} kundan keyin tugaydi.',
+        "Obuna muddati tugagan. :date dan boshlab do'kon faqat o'qish rejimiga o'tadi — to'lovni amalga oshiring.",
+    'subscription.ends_soon': 'Obuna muddati :days kundan keyin tugaydi.',
     'subscription.ends_today': 'Obuna muddati bugun tugaydi.',
     'tenants.title': "Do'konlar",
     'tenants.subtitle': "Platformadagi barcha do'konlar",
@@ -159,6 +159,25 @@ export const uz = {
     'store.telegram.unlink': 'Uzish',
     'store.telegram.disabled':
         "Bot hali sozlanmagan. Tizim administratori bot tokenini o'rnatgach, shu yerda ulash tugmasi paydo bo'ladi.",
+    'store.storefront.title': 'Mijozlar uchun vitrina',
+    'store.storefront.description':
+        "Mijozlar do'konda hozir bor tovarlar va narxlarni Telegram ichida ko'radi. Faqat ko'rish uchun: buyurtma berilmaydi, tannarx va IMEI ko'rinmaydi.",
+    'store.storefront.on': 'Ochiq',
+    'store.storefront.enable': 'Vitrinani ochish',
+    'store.storefront.disable': 'Vitrinani yopish',
+    'store.storefront.telegram_link':
+        'Mijozlarga tarqatiladigan havola (Telegram)',
+    'store.storefront.web_link': "To'g'ridan-to'g'ri havola (brauzer)",
+    'storefront.subtitle': ':count xil tovar mavjud',
+    'storefront.search': 'Model yoki xususiyat',
+    'storefront.all': 'Hammasi',
+    'storefront.empty': "Hozircha tovar yo'q.",
+    'storefront.not_found': 'Hech narsa topilmadi.',
+    'storefront.last': 'Oxirgi dona',
+    'storefront.warranty': 'Kafolat :months oy',
+    'storefront.contacts': 'Manzil va aloqa',
+    'storefront.note':
+        "Narxlar va mavjudlik do'kondagi hozirgi holatni ko'rsatadi. Xarid do'konda amalga oshiriladi.",
     'store.general.title': 'Yaxlitlash va chek',
     'store.general.description':
         "Nasiyada oylik to'lov shu qadamga yuqoriga yaxlitlanadi.",

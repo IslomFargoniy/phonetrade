@@ -7,6 +7,7 @@ use App\Models\Branch;
 use App\Models\CurrencyRate;
 use App\Models\InstallmentRate;
 use App\Models\Tenant;
+use App\Services\Catalog\PublicCatalog;
 use App\Services\Rates\CurrencyRateService;
 use App\Services\Telegram\TelegramBot;
 use App\Services\Telegram\TelegramClient;
@@ -23,7 +24,7 @@ use Inertia\Response;
  */
 class StoreSettingsController extends Controller
 {
-    public function edit(Request $request, CurrencyRateService $rates, TelegramBot $bot, TelegramClient $telegram): Response
+    public function edit(Request $request, CurrencyRateService $rates, TelegramBot $bot, TelegramClient $telegram, PublicCatalog $catalog): Response
     {
         $tenant = $this->tenant($request);
         $linked = $request->user()->telegram_chat_id !== null;
@@ -65,7 +66,31 @@ class StoreSettingsController extends Controller
                 // Bir martalik havola: 30 daqiqa amal qiladi, faqat shu foydalanuvchini ulaydi.
                 'link' => $linked ? null : $bot->linkFor($request->user(), $telegram),
             ],
+            'storefront' => [
+                'enabled' => $catalog->isEnabled($tenant),
+                'url' => $catalog->url($tenant),
+                // Telegram ichida ochiladigan havola: bot "Katalogni ochish" tugmasini yuboradi.
+                'telegram_link' => $catalog->isEnabled($tenant) && $telegram->username() !== null
+                    ? 'https://t.me/'.$telegram->username().'?start=shop_'.$tenant->setting('catalog.code')
+                    : null,
+            ],
         ]);
+    }
+
+    public function updateStorefront(Request $request, PublicCatalog $catalog): RedirectResponse
+    {
+        $enabled = $request->boolean('enabled');
+        $tenant = $this->tenant($request);
+
+        $catalog->setEnabled($tenant, $enabled);
+        Audit::log('store_settings.catalog', $tenant, null, ['enabled' => $enabled]);
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => $enabled ? __('Katalog mijozlarga ochildi.') : __('Katalog yopildi.'),
+        ]);
+
+        return to_route('store-settings.edit');
     }
 
     public function unlinkTelegram(Request $request): RedirectResponse
