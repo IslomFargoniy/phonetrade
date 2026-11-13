@@ -186,13 +186,13 @@ Maqsad: sotuvchi telefon bilan sotadi.
 
 ## 8-bosqich — iOS
 
-- [ ] 8.1 iOS loyiha: SwiftUI, tarmoq qatlami, Keychain, tema
-- [ ] 8.2 Login va filial tanlash
-- [ ] 8.3 Hisobot: ko'rsatkichlar, nasiya, kassalar, kassani bo'shatish
-- [ ] 8.4 Nasiya va qarzdorlar, to'lov qabul qilish
-- [ ] 8.5 Ombor va Mijozlar
-- [ ] 8.6 Sotuv: skaner (VisionKit), savat, to'lov
-- [ ] 8.7 TestFlight, App Store'ga chiqarish
+- [x] 8.1 iOS loyiha: SwiftUI, tarmoq qatlami, Keychain, tema
+- [x] 8.2 Login va filial tanlash
+- [x] 8.3 Hisobot: ko'rsatkichlar, nasiya, kassalar, kassani bo'shatish
+- [x] 8.4 Nasiya va qarzdorlar, to'lov qabul qilish
+- [x] 8.5 Ombor va Mijozlar
+- [x] 8.6 Sotuv: skaner (VisionKit), savat, to'liq to'lov (muddatli shartnoma — Android va web'da)
+- [ ] 8.7 Haqiqiy iPhone'da sinov (skaner), TestFlight, App Store'ga chiqarish — Apple Developer akkaunti kerak
 
 **Tayyor:** egasi iPhone'da hisobot va qarzdorlarni ko'radi, kerak bo'lsa sotadi.
 
