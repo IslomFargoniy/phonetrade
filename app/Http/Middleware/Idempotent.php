@@ -3,7 +3,6 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,9 +27,10 @@ class Idempotent
         $userId = $request->user()?->getAuthIdentifier();
         $where = ['user_id' => $userId, 'key' => $key];
 
-        try {
-            DB::table('idempotency_keys')->insert([...$where, 'path' => $request->path(), 'created_at' => now()]);
-        } catch (UniqueConstraintViolationException) {
+        // insertOrIgnore: takroriy kalit xato chiqarmaydi (PostgreSQL'da xato butun tranzaksiyani buzadi).
+        $created = DB::table('idempotency_keys')->insertOrIgnore([...$where, 'path' => $request->path(), 'created_at' => now()]);
+
+        if ($created === 0) {
             $stored = DB::table('idempotency_keys')->where($where)->first();
 
             // Birinchi so'rov hali tugamagan.
