@@ -11,4 +11,6 @@ export type NavItem = {
     href: NonNullable<InertiaLinkProps['href']>;
     icon?: LucideIcon | null;
     isActive?: boolean;
+    /** Shu yo'l bilan boshlanadigan har sahifada menyu faol ko'rinadi */
+    matchPrefix?: string;
 };

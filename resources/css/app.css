@@ -7,15 +7,20 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * Liquid Glass dizayn tizimi.
+ * Manba: "Telefon do'koni — Liquid Glass" canvas. Ranglar o'sha yerdagi qiymatlar.
+ */
 @theme {
     --font-sans:
-        'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
-        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
-        'Noto Color Emoji';
+        'Inter', -apple-system, 'SF Pro Text', ui-sans-serif, system-ui,
+        sans-serif;
 
     --radius-lg: var(--radius);
     --radius-md: calc(var(--radius) - 2px);
     --radius-sm: calc(var(--radius) - 4px);
+    --radius-panel: 28px;
+    --radius-inner: 18px;
 
     --color-background: var(--background);
     --color-foreground: var(--foreground);
@@ -28,6 +33,7 @@
 
     --color-primary: var(--primary);
     --color-primary-foreground: var(--primary-foreground);
+    --color-primary-strong: var(--primary-strong);
 
     --color-secondary: var(--secondary);
     --color-secondary-foreground: var(--secondary-foreground);
@@ -44,6 +50,20 @@
     --color-border: var(--border);
     --color-input: var(--input);
     --color-ring: var(--ring);
+
+    --color-ink: #1c1c1e;
+    --color-ink-soft: #2c2e36;
+    --color-ink-mid: #3a3d4a;
+
+    /* Holat ranglari: fon + matn juftligi, kontrast 4.5:1 dan yuqori */
+    --color-success-bg: #ddf3e7;
+    --color-success: #145c37;
+    --color-warning-bg: #ffebd2;
+    --color-warning: #7a3e00;
+    --color-danger-bg: #ffe1de;
+    --color-danger: #8e1a12;
+    --color-info-bg: rgb(0 88 194 / 0.14);
+    --color-info: #003f8c;
 
     --color-chart-1: var(--chart-1);
     --color-chart-2: var(--chart-2);
@@ -62,74 +82,42 @@
 }
 
 :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --destructive-foreground: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.87 0 0);
-    --chart-1: oklch(0.646 0.222 41.116);
-    --chart-2: oklch(0.6 0.118 184.704);
-    --chart-3: oklch(0.398 0.07 227.392);
-    --chart-4: oklch(0.828 0.189 84.429);
-    --chart-5: oklch(0.769 0.188 70.08);
-    --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.87 0 0);
-}
+    color-scheme: light;
 
-.dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.145 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.145 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.985 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.396 0.141 25.723);
-    --destructive-foreground: oklch(0.637 0.237 25.331);
-    --border: oklch(0.269 0 0);
-    --input: oklch(0.269 0 0);
-    --ring: oklch(0.439 0 0);
-    --chart-1: oklch(0.488 0.243 264.376);
-    --chart-2: oklch(0.696 0.17 162.48);
-    --chart-3: oklch(0.769 0.188 70.08);
-    --chart-4: oklch(0.627 0.265 303.9);
-    --chart-5: oklch(0.645 0.246 16.439);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.985 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(0.269 0 0);
-    --sidebar-ring: oklch(0.439 0 0);
+    --background: #e9edf5;
+    --foreground: #1c1c1e;
+    --card: rgb(255 255 255 / 0.58);
+    --card-foreground: #1c1c1e;
+    --popover: rgb(255 255 255 / 0.92);
+    --popover-foreground: #1c1c1e;
+    --primary: #0058c2;
+    --primary-strong: #003f8c;
+    --primary-foreground: #ffffff;
+    --secondary: rgb(255 255 255 / 0.62);
+    --secondary-foreground: #1c1c1e;
+    --muted: rgb(118 118 135 / 0.14);
+    --muted-foreground: #525668;
+    --accent: rgb(255 255 255 / 0.8);
+    --accent-foreground: #1c1c1e;
+    --destructive: #b3261e;
+    --destructive-foreground: #8e1a12;
+    --border: rgb(60 60 90 / 0.12);
+    --input: rgb(255 255 255 / 0.9);
+    --ring: rgb(0 88 194 / 0.45);
+    --chart-1: rgb(0 88 194 / 0.85);
+    --chart-2: rgb(0 88 194 / 0.32);
+    --chart-3: #8ee6c4;
+    --chart-4: #ffc48a;
+    --chart-5: #c9a7ff;
+    --radius: 0.875rem;
+    --sidebar: transparent;
+    --sidebar-foreground: #2c2e36;
+    --sidebar-primary: #0058c2;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: rgb(255 255 255 / 0.92);
+    --sidebar-accent-foreground: #0058c2;
+    --sidebar-border: rgb(60 60 90 / 0.12);
+    --sidebar-ring: rgb(0 88 194 / 0.45);
 }
 
 @layer base {
@@ -140,4 +128,31 @@
     body {
         @apply bg-background text-foreground;
     }
+}
+
+/* Asosiy shisha panel: sahifadagi har bir katta blok */
+@utility glass {
+    background: rgb(255 255 255 / 0.58);
+    -webkit-backdrop-filter: blur(30px) saturate(190%);
+    backdrop-filter: blur(30px) saturate(190%);
+    border: 1px solid rgb(255 255 255 / 0.75);
+    border-radius: var(--radius-panel);
+    box-shadow:
+        inset 0 1px 0 rgb(255 255 255 / 0.95),
+        inset 0 -1px 0 rgb(255 255 255 / 0.3),
+        0 10px 40px rgb(28 35 64 / 0.12);
+}
+
+/* Panel ichidagi ikkinchi daraja blok */
+@utility glass-inner {
+    background: rgb(255 255 255 / 0.55);
+    border: 1px solid rgb(255 255 255 / 0.85);
+    border-radius: var(--radius-inner);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.95);
+}
+
+/* Pul va raqamlar: ustunlar tekis turishi uchun */
+@utility num {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
 }

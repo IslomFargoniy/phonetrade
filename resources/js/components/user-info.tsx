@@ -1,13 +1,14 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useInitials } from '@/hooks/use-initials';
+import { formatPhone } from '@/lib/phone';
 import type { User } from '@/types';
 
 export function UserInfo({
     user,
-    showEmail = false,
+    showPhone = false,
 }: {
     user: User;
-    showEmail?: boolean;
+    showPhone?: boolean;
 }) {
     const getInitials = useInitials();
 
@@ -21,9 +22,9 @@ export function UserInfo({
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{user.name}</span>
-                {showEmail && (
+                {showPhone && (
                     <span className="truncate text-xs text-muted-foreground">
-                        {user.email}
+                        {formatPhone(user.phone)}
                     </span>
                 )}
             </div>
