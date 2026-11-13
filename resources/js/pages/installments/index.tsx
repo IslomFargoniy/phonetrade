@@ -5,6 +5,7 @@ import { DataTable, Td, Th } from '@/components/data-table';
 import { Field } from '@/components/field';
 import { Panel } from '@/components/panel';
 import { PlanDetail, PlanStateChip } from '@/components/plan-detail';
+import { ProductImage } from '@/components/product-image';
 import { Segmented } from '@/components/segmented';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -230,6 +231,11 @@ export default function Installments({
                                             </button>
                                         </Td>
                                         <Td className="text-ink-mid">
+                                            <ProductImage
+                                                src={plan.image_url}
+                                                name={plan.product}
+                                                className="float-left mr-2.5 size-9 rounded-[10px]"
+                                            />
                                             {plan.product} ·{' '}
                                             {t('stock.months', {
                                                 count: plan.months,

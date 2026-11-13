@@ -6,6 +6,8 @@ import type { LabelData } from '@/components/barcode-labels';
 import { DataTable, Td, Th } from '@/components/data-table';
 import { Panel } from '@/components/panel';
 import { Button } from '@/components/ui/button';
+import { ProductImage } from '@/components/product-image';
+import { UnitPhotos } from '@/components/unit-photos';
 import { t } from '@/lib/i18n';
 import { create } from '@/routes/receipts';
 import type { StockUnitRow } from '@/types';
@@ -13,6 +15,7 @@ import type { StockUnitRow } from '@/types';
 type Item = {
     id: number;
     product: string;
+    image_url: string | null;
     qty: number;
     attributes: Record<string, string>;
     unit_cost_label: string;
@@ -93,15 +96,26 @@ export default function ReceiptShow({ purchase }: Props) {
                             price: item.sale_price_label,
                         })}
                     >
+                        <ProductImage
+                            src={item.image_url}
+                            name={item.product}
+                            className="size-16"
+                        />
                         <AttributeChips attributes={item.attributes} />
                         {item.units.length > 0 && (
-                            <DataTable minWidth={480}>
+                            <p className="text-[13px] text-muted-foreground">
+                                {t('photos.receipt_hint')}
+                            </p>
+                        )}
+                        {item.units.length > 0 && (
+                            <DataTable minWidth={640}>
                                 <thead>
                                     <tr>
                                         <Th>№</Th>
                                         <Th>IMEI 1</Th>
                                         <Th>IMEI 2</Th>
                                         <Th>{t('stock.col.barcode')}</Th>
+                                        <Th>{t('photos.title')}</Th>
                                     </tr>
                                 </thead>
                                 <tbody className="num">
@@ -114,6 +128,13 @@ export default function ReceiptShow({ purchase }: Props) {
                                             <Td>{unit.imei2}</Td>
                                             <Td className="font-semibold text-info">
                                                 {unit.barcode}
+                                            </Td>
+                                            <Td>
+                                                <UnitPhotos
+                                                    unitId={unit.id}
+                                                    photos={unit.photos}
+                                                    size="sm"
+                                                />
                                             </Td>
                                         </tr>
                                     ))}

@@ -85,6 +85,7 @@ final class InstallmentPresenter
             'customer_phone' => Phone::format($plan->customer->phone),
             'customer_phone_raw' => $plan->customer->phone,
             'product' => $plan->sale->items->map(fn (SaleItem $item) => $item->name)->join(', '),
+            'image_url' => $plan->sale->items->first()?->imageUrl(),
             'months' => $plan->months,
             'mode' => $plan->mode,
             'currency' => $currency->value,

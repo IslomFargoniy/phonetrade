@@ -2,6 +2,7 @@ package uz.simulator.phonetrade.data
 
 import okhttp3.RequestBody
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.HTTP
 import retrofit2.http.Header
@@ -32,6 +33,13 @@ interface Api {
 
     @GET("stock")
     suspend fun stock(@Query("q") query: String?): StockResponse
+
+    /** Telefon rasmlari: multipart `photos[]`. Yangilangan telefonni qaytaradi. */
+    @POST("stock/units/{id}/photos")
+    suspend fun addUnitPhotos(@Path("id") id: Int, @Body body: RequestBody): StockUnitDto
+
+    @DELETE("stock/photos/{id}")
+    suspend fun deleteUnitPhoto(@Path("id") id: Int): StockUnitDto
 
     @GET("customers/lookup")
     suspend fun customerByPhone(@Query("phone") phone: String): CustomerLookupResponse

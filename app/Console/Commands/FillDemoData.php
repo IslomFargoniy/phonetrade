@@ -6,8 +6,10 @@ use App\Actions\Branches\CreateBranch;
 use App\Actions\Cash\RecordExpense;
 use App\Actions\Cash\SweepCash;
 use App\Actions\Installments\AcceptInstallmentPayment;
+use App\Actions\Products\StoreProductImage;
 use App\Actions\Sales\CloseSale;
 use App\Actions\Sales\ReturnSale;
+use App\Actions\Stock\AddUnitPhotos;
 use App\Actions\Stock\ReceiveStock;
 use App\Actions\Stock\ReceiveTransfer;
 use App\Actions\Stock\SendTransfer;
@@ -59,7 +61,7 @@ use Illuminate\Support\Str;
  * shunda kassa, ombor va hisobotlar haqiqiy ishdagidek bir-biriga mos chiqadi.
  * Har kun uchun vaqt o'sha kunga suriladi, shuning uchun sanalar ham to'g'ri bo'ladi.
  */
-#[Signature('demo:fill {tenant : Do\'kon ID} {--days=30 : Necha kunlik ma\'lumot} {--force : Do\'konda savdolar bo\'lsa ham davom etish}')]
+#[Signature('demo:fill {tenant : Do\'kon ID} {--days=30 : Necha kunlik ma\'lumot} {--force : Do\'konda savdolar bo\'lsa ham davom etish} {--images-only : Faqat rasmsiz mahsulot va telefonlarga namuna rasmlarini biriktirish}')]
 #[Description('Namuna do\'konni o\'tgan kunlar uchun to\'liq jarayon ma\'lumotlari bilan to\'ldiradi')]
 class FillDemoData extends Command
 {
@@ -92,6 +94,12 @@ class FillDemoData extends Command
         $days = max(7, min(90, (int) $this->option('days')));
 
         $exit = $context->runFor($tenant, function () use ($days): int {
+            if ($this->option('images-only')) {
+                $this->attachImages();
+
+                return self::SUCCESS;
+            }
+
             if (Sale::query()->count() > 20 && ! $this->option('force')) {
                 $this->error("Bu do'konda allaqachon ko'p savdo bor. Baribir qo'shish uchun --force bering.");
 
@@ -107,6 +115,8 @@ class FillDemoData extends Command
             } finally {
                 Carbon::setTestNow();
             }
+
+            $this->attachImages();
 
             return self::SUCCESS;
         });
@@ -665,6 +675,61 @@ class FillDemoData extends Command
                 $branch, $this->owner, $categories[$category], $account->id, Money::uzs($amount), $note,
             ));
             unset($this->pendingExpenses[$index]);
+        }
+    }
+
+    /**
+     * Namuna rasmlari (resources/demo/products): mahsulotga model rasmi, har bir telefonga esa
+     * o'z rangidagi orqa va old tomon rasmlari. Rasmi bor yozuvlarga tegilmaydi.
+     */
+    private function attachImages(): void
+    {
+        $phones = [
+            'Samsung Galaxy A55' => ['Qora' => 'a55-qora', "Ko'k" => 'a55-kok'],
+            'Samsung Galaxy S24' => ['Qora' => 's24-qora'],
+            'iPhone 15' => ['Qora' => 'ip15-qora', 'Oq' => 'ip15-oq'],
+            'iPhone 13' => ['Oq' => 'ip13-oq', 'Qora' => 'ip13-qora'],
+            'Redmi Note 13' => ['Qora' => 'redmi-qora', "Ko'k" => 'redmi-kok'],
+            'Tecno Spark 20' => ['Kumush' => 'tecno-kumush'],
+        ];
+        $accessories = [
+            'Chexol' => 'acc-case',
+            'Himoya oynasi' => 'acc-glass',
+            'Zaryadlovchi' => 'acc-charger',
+            'quloqchin' => 'acc-earbuds',
+            'Powerbank' => 'acc-powerbank',
+        ];
+        $file = fn (string $name): string => resource_path("demo/products/{$name}.jpg");
+        $images = app(StoreProductImage::class);
+        $photos = app(AddUnitPhotos::class);
+
+        foreach (Product::query()->whereNull('image_path')->get() as $product) {
+            $name = isset($phones[$product->name])
+                ? reset($phones[$product->name]).'-back'
+                : collect($accessories)->first(fn (string $image, string $needle) => str_contains($product->name, $needle));
+
+            if (is_string($name) && is_file($file($name))) {
+                $images->handle($product, $file($name));
+                $this->count('Model rasmi');
+            }
+        }
+
+        $units = StockUnit::query()->with('product:id,name')->whereDoesntHave('photos')->get();
+
+        foreach ($units as $unit) {
+            $colours = $phones[$unit->product->name] ?? null;
+
+            if ($colours === null) {
+                continue;
+            }
+
+            $base = $colours[$unit->attributes['Rang'] ?? ''] ?? reset($colours);
+            $paths = array_values(array_filter([$file("{$base}-back"), $file("{$base}-front")], is_file(...)));
+
+            if ($paths !== []) {
+                $photos->handle($unit, $paths);
+                $this->count('Telefon rasmlari', count($paths));
+            }
         }
     }
 

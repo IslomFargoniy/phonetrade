@@ -24,7 +24,7 @@ class TransferController extends Controller
         $branch = $this->branch($request);
 
         $transfers = StockTransfer::query()
-            ->with(['fromBranch:id,name', 'toBranch:id,name', 'items.unit.product:id,name', 'items.variant.product:id,name'])
+            ->with(['fromBranch:id,name', 'toBranch:id,name', 'items.unit.product:id,name,image_path', 'items.unit.photos', 'items.variant.product:id,name,image_path'])
             ->where(fn ($query) => $query->where('from_branch_id', $branch->id)->orWhere('to_branch_id', $branch->id))
             ->orderByDesc('id')
             ->limit(50)
@@ -44,6 +44,8 @@ class TransferController extends Controller
                 'items' => $transfer->items->map(fn (StockTransferItem $item) => [
                     'id' => $item->id,
                     'name' => $item->unit->product->name ?? $item->variant->product->name ?? null,
+                    'image_url' => $item->unit?->imageUrl() ?? $item->variant?->product->imageUrl(),
+                    'is_phone' => $item->stock_unit_id !== null,
                     'code' => $item->unit->imei1 ?? $item->variant->barcode ?? null,
                     'qty' => $item->qty,
                 ]),

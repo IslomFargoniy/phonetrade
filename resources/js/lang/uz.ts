@@ -114,6 +114,17 @@ export const uz = {
     'account.delete.requested':
         "Do'konni o'chirish so'rovi :date kuni yuborilgan. 30 kun ichida bajariladi.",
     'account.delete.cancel_request': "So'rovni bekor qilish",
+    'photos.title': 'Rasmlar',
+    'photos.add': "Rasm qo'shish",
+    'photos.alt': ':n-rasm',
+    'photos.delete': ":n-rasmni o'chirish",
+    'photos.receipt_hint':
+        "Har bir telefonni suratga oling: rasmlar kassada, omborda, chekda, vitrinada va mobil ilovada ko'rinadi.",
+    'catalog.product.image': 'Model rasmi',
+    'catalog.product.image_hint':
+        "Aksesuarlar va o'z rasmi hali yo'q telefonlar uchun. Har bir telefonning o'z rasmlari kirimdan keyin qo'shiladi.",
+    'catalog.product.image_change': "Rasmni o'zgartirish",
+    'catalog.product.image_remove': "Rasmni o'chirish",
     'tenants.title': "Do'konlar",
     'tenants.subtitle': "Platformadagi barcha do'konlar",
     'tenants.list': "Ro'yxat",

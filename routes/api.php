@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\InstallmentsController;
 use App\Http\Controllers\Api\OwnerController;
 use App\Http\Controllers\Api\SalesController;
 use App\Http\Controllers\Settings\AccountController;
+use App\Http\Controllers\Stock\UnitPhotoController;
 use App\Http\Controllers\Telegram\WebhookController;
 use Illuminate\Support\Facades\Route;
 
@@ -26,6 +27,8 @@ Route::prefix('v1')->name('api.')->group(function () {
 
         Route::get('stock/lookup', [SalesController::class, 'lookup'])->name('stock.lookup');
         Route::get('stock', [SalesController::class, 'stock'])->name('stock.index');
+        Route::post('stock/units/{unit}/photos', [UnitPhotoController::class, 'storeViaApi'])->name('stock.units.photos.store');
+        Route::delete('stock/photos/{photo}', [UnitPhotoController::class, 'destroyViaApi'])->name('stock.photos.destroy');
         Route::get('customers/lookup', [SalesController::class, 'customer'])->name('customers.lookup');
         Route::get('customers', [SalesController::class, 'customers'])->name('customers.index');
 

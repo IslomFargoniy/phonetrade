@@ -46,7 +46,7 @@ class InstallmentController extends Controller
         };
 
         $plans = $scope($filter)
-            ->with(['customer', 'sale.items', 'schedule' => fn ($rows) => $rows->orderBy('no'), 'payments'])
+            ->with(['customer', 'sale.items.unit.product:id,image_path', 'sale.items.unit.photos', 'sale.items.variant.product:id,image_path', 'schedule' => fn ($rows) => $rows->orderBy('no'), 'payments'])
             ->when($search !== '', fn ($query) => $query->where(fn ($inner) => $inner
                 ->whereHas('customer', fn ($customer) => $customer
                     ->where('full_name', 'like', "%{$search}%")

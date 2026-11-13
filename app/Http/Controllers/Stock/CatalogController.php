@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Stock;
 
+use App\Actions\Products\StoreProductImage;
 use App\Enums\AttributeType;
 use App\Enums\Tracking;
 use App\Http\Controllers\Controller;
@@ -26,6 +27,9 @@ use Inertia\Response;
  */
 class CatalogController extends Controller
 {
+    /** Telefondan olingan rasm ham sig'ishi uchun 8 MB gacha; saqlashda baribir kichraytiriladi. */
+    private const IMAGE_RULES = ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:8192'];
+
     public function index(): Response
     {
         return Inertia::render('settings/catalog', [
@@ -51,6 +55,7 @@ class CatalogController extends Controller
                 ->map(fn (Product $product) => [
                     'id' => $product->id,
                     'name' => $product->name,
+                    'image_url' => $product->imageUrl(),
                     'category_id' => $product->category_id,
                     'category' => $product->category->name,
                     'default_warranty_months' => $product->default_warranty_months,
@@ -108,11 +113,36 @@ class CatalogController extends Controller
         return $this->done('Kriteriya saqlandi.');
     }
 
-    public function storeProduct(Request $request): RedirectResponse
+    public function storeProduct(Request $request, StoreProductImage $images): RedirectResponse
     {
-        Product::query()->create($this->validateProduct($request));
+        $request->validate(['image' => self::IMAGE_RULES], attributes: ['image' => 'Rasm']);
+        $product = Product::query()->create($this->validateProduct($request));
+
+        if ($request->hasFile('image')) {
+            $images->handle($product, $request->file('image'));
+        }
 
         return $this->done('Mahsulot qo\'shildi.');
+    }
+
+    /**
+     * Mahsulot rasmini qo'yadi yoki almashtiradi.
+     */
+    public function updateProductImage(Request $request, Product $product, StoreProductImage $images): RedirectResponse
+    {
+        $request->validate(['image' => ['required', ...self::IMAGE_RULES]], attributes: ['image' => 'Rasm']);
+        $images->handle($product, $request->file('image'));
+        Audit::log('product.image_updated', $product);
+
+        return $this->done('Rasm saqlandi.');
+    }
+
+    public function destroyProductImage(Product $product, StoreProductImage $images): RedirectResponse
+    {
+        $images->delete($product);
+        Audit::log('product.image_deleted', $product);
+
+        return $this->done("Rasm o'chirildi.");
     }
 
     public function updateProduct(Request $request, Product $product): RedirectResponse

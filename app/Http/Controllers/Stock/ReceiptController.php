@@ -43,6 +43,7 @@ class ReceiptController extends Controller
                 ->map(fn (Product $product) => [
                     'id' => $product->id,
                     'name' => $product->name,
+                    'image_url' => $product->imageUrl(),
                     'tracking' => $product->category->tracking->value,
                     'default_warranty_months' => $product->default_warranty_months,
                     'default_max_discount_pct' => StockPresenter::trimDecimal($product->default_max_discount_pct),
@@ -89,7 +90,7 @@ class ReceiptController extends Controller
         $user = $this->user($request);
         abort_unless($user->isOwner() || $purchase->user_id === $user->id, 403);
 
-        $purchase->load(['items.product', 'items.units.product', 'items.units.branch', 'supplier', 'customer', 'branch']);
+        $purchase->load(['items.product', 'items.units.product', 'items.units.photos', 'items.units.branch', 'supplier', 'customer', 'branch']);
 
         return Inertia::render('receipts/show', [
             'purchase' => [
@@ -103,6 +104,7 @@ class ReceiptController extends Controller
                 'items' => $purchase->items->map(fn (PurchaseItem $item) => [
                     'id' => $item->id,
                     'product' => $item->product->name,
+                    'image_url' => $item->product->imageUrl(),
                     'qty' => $item->qty,
                     'attributes' => StockPresenter::attributes($item->attributes),
                     'unit_cost_label' => StockPresenter::money($item->unit_cost, $purchase->currency),

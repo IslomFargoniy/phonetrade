@@ -6,6 +6,8 @@ import type { ChipTone } from '@/components/chip';
 import { DataTable, Td, Th } from '@/components/data-table';
 import { Field } from '@/components/field';
 import { Panel } from '@/components/panel';
+import { ProductImage } from '@/components/product-image';
+import { UnitPhotos } from '@/components/unit-photos';
 import { Segmented } from '@/components/segmented';
 import { SelectField } from '@/components/select-field';
 import { Button } from '@/components/ui/button';
@@ -209,6 +211,11 @@ export default function StockIndex({
                                                         )}
                                                 </Td>
                                                 <Td>
+                                                    <ProductImage
+                                                        src={unit.image_url}
+                                                        name={unit.product}
+                                                        className="float-left mr-3 size-12"
+                                                    />
                                                     <button
                                                         type="button"
                                                         className="cursor-pointer text-left font-bold"
@@ -287,6 +294,12 @@ export default function StockIndex({
                                     {variants.map((variant) => (
                                         <tr key={variant.id}>
                                             <Td>
+                                                <ProductImage
+                                                    src={variant.image_url}
+                                                    name={variant.product}
+                                                    kind="accessory"
+                                                    className="float-left mr-3 size-12"
+                                                />
                                                 <div className="font-bold">
                                                     {variant.product}
                                                 </div>
@@ -374,6 +387,20 @@ export default function StockIndex({
 
                     {selected ? (
                         <Panel title={selected.product}>
+                            <ProductImage
+                                src={selected.image_url}
+                                name={selected.product}
+                                className="size-40 self-center rounded-[22px]"
+                            />
+                            <div className="flex flex-col gap-1.5">
+                                <span className="text-xs font-semibold text-muted-foreground">
+                                    {t('photos.title')}
+                                </span>
+                                <UnitPhotos
+                                    unitId={selected.id}
+                                    photos={selected.photos}
+                                />
+                            </div>
                             <AttributeChips attributes={selected.attributes} />
                             <dl className="grid grid-cols-[auto_1fr] items-center gap-x-4 gap-y-2 glass-inner px-4 py-3.5 text-sm">
                                 <dt className="text-xs font-semibold text-muted-foreground">

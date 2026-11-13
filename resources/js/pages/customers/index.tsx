@@ -17,6 +17,7 @@ import type { SaleSummary } from '@/pages/sales/index';
 import { index, update } from '@/routes/customers';
 import { show as showSale } from '@/routes/sales';
 import type { PlanRow } from '@/types';
+import { ProductImage } from '@/components/product-image';
 
 type CustomerRow = {
     id: number;
@@ -330,7 +331,20 @@ export default function Customers({ q, customers, selected }: Props) {
                                                     <Td className="text-[13px] num whitespace-nowrap">
                                                         {sale.date}
                                                     </Td>
-                                                    <Td>{sale.items}</Td>
+                                                    <Td>
+                                                        <span className="flex items-center gap-2.5">
+                                                            <ProductImage
+                                                                src={
+                                                                    sale.image_url
+                                                                }
+                                                                name={
+                                                                    sale.items
+                                                                }
+                                                                className="size-9 rounded-[10px]"
+                                                            />
+                                                            {sale.items}
+                                                        </span>
+                                                    </Td>
                                                     <Td
                                                         right
                                                         className="font-bold num whitespace-nowrap"

@@ -15,6 +15,7 @@ use App\Http\Controllers\Stock\HistoryController;
 use App\Http\Controllers\Stock\ReceiptController;
 use App\Http\Controllers\Stock\StockController;
 use App\Http\Controllers\Stock\TransferController;
+use App\Http\Controllers\Stock\UnitPhotoController;
 use App\Http\Controllers\Store\BranchController;
 use App\Http\Controllers\Store\StaffController;
 use App\Http\Controllers\Store\StoreSettingsController;
@@ -77,6 +78,8 @@ Route::middleware(['auth', 'role:owner,seller'])->group(function () {
 
     Route::get('stock/history', HistoryController::class)->name('stock.history');
     Route::get('stock', [StockController::class, 'index'])->name('stock.index');
+    Route::post('stock/units/{unit}/photos', [UnitPhotoController::class, 'store'])->name('stock.units.photos.store');
+    Route::delete('stock/photos/{photo}', [UnitPhotoController::class, 'destroy'])->name('stock.photos.destroy');
     Route::post('stock/units/{unit}/restock', [StockController::class, 'restock'])->middleware('role:owner')->name('stock.units.restock');
     Route::patch('stock/units/{unit}', [StockController::class, 'updateUnit'])->middleware('role:owner')->name('stock.units.update');
 
@@ -128,6 +131,8 @@ Route::middleware(['auth', 'role:owner'])->prefix('settings')->group(function ()
     Route::patch('catalog/attributes/{attribute}', [CatalogController::class, 'updateAttribute'])->name('catalog.attributes.update');
     Route::post('catalog/products', [CatalogController::class, 'storeProduct'])->name('catalog.products.store');
     Route::patch('catalog/products/{product}', [CatalogController::class, 'updateProduct'])->name('catalog.products.update');
+    Route::post('catalog/products/{product}/image', [CatalogController::class, 'updateProductImage'])->name('catalog.products.image');
+    Route::delete('catalog/products/{product}/image', [CatalogController::class, 'destroyProductImage'])->name('catalog.products.image.destroy');
     Route::post('catalog/suppliers', [CatalogController::class, 'storeSupplier'])->name('catalog.suppliers.store');
 
     Route::get('staff', [StaffController::class, 'index'])->name('staff.index');

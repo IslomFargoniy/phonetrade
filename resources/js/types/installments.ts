@@ -15,6 +15,7 @@ export type PlanRow = {
     customer_phone: string;
     customer_phone_raw: string;
     product: string;
+    image_url: string | null;
     months: number;
     mode: 'A' | 'B';
     currency: 'UZS' | 'USD';

@@ -79,4 +79,13 @@ class SaleItem extends Model
     {
         return $this->hasMany(SaleItemBatch::class);
     }
+
+    /**
+     * Sotilgan tovar mahsulotining rasmi (telefon yoki aksesuar orqali).
+     */
+    public function imageUrl(): ?string
+    {
+        // Telefon bo'lsa — aynan sotilgan telefonning rasmi.
+        return $this->unit?->imageUrl() ?? $this->variant?->product->imageUrl();
+    }
 }

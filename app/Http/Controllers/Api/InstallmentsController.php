@@ -24,7 +24,7 @@ class InstallmentsController extends Controller
         $today = now()->toDateString();
 
         $plans = InstallmentPlan::query()
-            ->with(['customer', 'sale.items', 'schedule' => fn ($rows) => $rows->orderBy('no'), 'payments'])
+            ->with(['customer', 'sale.items.unit.product:id,image_path', 'sale.items.unit.photos', 'sale.items.variant.product:id,image_path', 'schedule' => fn ($rows) => $rows->orderBy('no'), 'payments'])
             ->where('status', PlanStatus::Active)
             ->when(! $user->isOwner(), fn ($query) => $query->where('branch_id', $branch->id))
             ->when($filter === 'today', fn ($query) => $query->whereHas('schedule', fn ($rows) => $rows
@@ -80,7 +80,7 @@ class InstallmentsController extends Controller
      */
     private function present(InstallmentPlan $plan): array
     {
-        $plan->load(['customer', 'sale.items', 'schedule' => fn ($rows) => $rows->orderBy('no'), 'payments']);
+        $plan->load(['customer', 'sale.items.unit.product:id,image_path', 'sale.items.unit.photos', 'sale.items.variant.product:id,image_path', 'schedule' => fn ($rows) => $rows->orderBy('no'), 'payments']);
 
         return InstallmentPresenter::plan($plan);
     }

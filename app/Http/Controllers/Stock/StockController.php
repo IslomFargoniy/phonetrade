@@ -45,7 +45,7 @@ class StockController extends Controller
 
         if ($kind !== 'accessory') {
             $units = StockUnit::query()
-                ->with(['product:id,name', 'branch:id,name'])
+                ->with(['product:id,name,image_path', 'branch:id,name', 'photos'])
                 ->where('status', $status)
                 ->when(! $allBranches, fn ($query) => $query->where('branch_id', $branch->id))
                 ->when($search !== '', fn ($query) => $query->where(fn ($inner) => $inner
@@ -68,7 +68,7 @@ class StockController extends Controller
                 ->pluck('qty', 'variant_id');
 
             $variants = ProductVariant::query()
-                ->with('product:id,name')
+                ->with('product:id,name,image_path')
                 ->whereIn('id', $quantities->keys())
                 ->when($search !== '', fn ($query) => $query->where(fn ($inner) => $inner
                     ->where('barcode', 'like', "%{$search}%")

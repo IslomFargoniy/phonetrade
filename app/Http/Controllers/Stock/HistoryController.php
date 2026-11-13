@@ -24,7 +24,7 @@ class HistoryController extends Controller
 
         $unit = $code !== ''
             ? StockUnit::query()
-                ->with(['product:id,name', 'branch:id,name', 'purchaseItem.purchase.supplier', 'purchaseItem.purchase.customer'])
+                ->with(['product:id,name,image_path', 'branch:id,name', 'photos', 'purchaseItem.purchase.supplier', 'purchaseItem.purchase.customer'])
                 ->where(fn ($query) => $query->where('imei1', $code)->orWhere('imei2', $code)->orWhere('barcode', $code))
                 ->first()
             : null;

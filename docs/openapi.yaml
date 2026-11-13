@@ -134,6 +134,17 @@ components:
                 max_discount_pct: { type: string }
                 warranty_months: { type: integer }
                 status: { type: string }
+                image_url:
+                    type: [string, 'null']
+                    description: Telefonning birinchi rasmi, bo'lmasa model rasmi.
+                photos:
+                    type: array
+                    description: Shu telefonga kirimda olingan rasmlar (8 tagacha).
+                    items:
+                        type: object
+                        properties:
+                            id: { type: integer }
+                            url: { type: string }
         StockVariant:
             type: object
             description: Miqdor bilan yuritiladigan tovar (aksesuar).
@@ -144,6 +155,7 @@ components:
                 sale_price_label: { type: string }
                 max_discount_pct: { type: string }
                 qty: { type: integer, description: Shu filialdagi qoldiq. }
+                image_url: { type: [string, 'null'] }
         CartItem:
             type: object
             description: '`stock_unit_id` (telefon) yoki `variant_id` + `qty` (aksesuar).'
@@ -442,6 +454,29 @@ paths:
                 - { $ref: '#/components/parameters/BranchId' }
                 - { name: q, in: query, schema: { type: string } }
             responses: { '200': { description: OK } }
+    /stock/units/{unit}/photos:
+        post:
+            summary: Telefonga rasm qo'shish (kvadrat JPEG qilib saqlanadi)
+            parameters:
+                - { name: unit, in: path, required: true, schema: { type: integer } }
+            requestBody:
+                content:
+                    multipart/form-data:
+                        schema:
+                            type: object
+                            properties:
+                                'photos[]':
+                                    type: array
+                                    items: { type: string, format: binary }
+            responses:
+                '201': { description: Yangilangan StockUnit. }
+                '422': { description: '`PHOTO_LIMIT` yoki `IMAGE_INVALID`.' }
+    /stock/photos/{photo}:
+        delete:
+            summary: Telefon rasmini o'chirish
+            parameters:
+                - { name: photo, in: path, required: true, schema: { type: integer } }
+            responses: { '200': { description: Yangilangan StockUnit. } }
     /customers/lookup:
         get:
             summary: Telefon bo'yicha mijoz kartasi

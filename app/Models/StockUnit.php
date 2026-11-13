@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
 /**
@@ -80,5 +81,21 @@ class StockUnit extends Model
     public function purchaseItem(): BelongsTo
     {
         return $this->belongsTo(PurchaseItem::class);
+    }
+
+    /**
+     * @return HasMany<StockUnitPhoto, $this>
+     */
+    public function photos(): HasMany
+    {
+        return $this->hasMany(StockUnitPhoto::class)->orderBy('sort')->orderBy('id');
+    }
+
+    /**
+     * Asosiy rasm: telefonning o'z birinchi rasmi, bo'lmasa mahsulot (model) rasmi.
+     */
+    public function imageUrl(): ?string
+    {
+        return $this->photos->first()?->url() ?? $this->product->imageUrl();
     }
 }
