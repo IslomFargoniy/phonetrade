@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils';
 
 /**
- * Tizim logotipi: telefon ichida ikki strelka (oldi-sotdi).
+ * Tizim logotipi: ikki telefon — eskisi orqada, yangisi oldinda.
  * Manba fayl — public/logo.svg; favicon va mobil ilova ikonkalari ham shundan olingan.
  */
 export function AppMark({ className }: { className?: string }) {
