@@ -69,6 +69,7 @@ class OpenInstallmentPlan
             'user_id' => $user->id,
             'amount' => $quote->dueToday->amount,
             'profit_amount' => ProfitShare::forPayment($quote->dueToday, $ratio, $totalProfit, Money::zero($currency), false)->amount,
+            'rate' => $rate,
             'is_initial' => true,
             'paid_at' => now(),
         ]);

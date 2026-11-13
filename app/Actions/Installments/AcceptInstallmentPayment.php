@@ -104,6 +104,7 @@ class AcceptInstallmentPayment
                     $recognised,
                     $isFinal,
                 )->amount,
+                'rate' => $rate,
                 'is_initial' => false,
                 'paid_at' => now(),
             ]);
