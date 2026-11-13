@@ -17,3 +17,6 @@ Schedule::command('queue:work --stop-when-empty --max-time=50 --tries=3')
 Schedule::command('rates:fetch')->dailyAt('07:00');
 Schedule::command('rates:fetch')->dailyAt('09:00');
 Schedule::command('rates:fetch')->dailyAt('12:00');
+
+// Har kecha hisob yozuvlari o'zaro solishtiriladi; nomuvofiqlik jurnalga yoziladi.
+Schedule::command('ledger:check')->dailyAt('03:00');

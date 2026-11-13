@@ -78,7 +78,7 @@ class TenantTest extends TestCase
         $this->post(route('login.store'), ['phone' => '90 111 22 33', 'password' => 'secret-123']);
 
         $this->assertAuthenticated();
-        $this->get(route('dashboard'))->assertOk();
+        $this->get(route('dashboard'))->assertRedirect(route('reports.index'));
     }
 
     public function test_owner_phone_must_be_unique_across_all_stores(): void
