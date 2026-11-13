@@ -104,17 +104,17 @@ Maqsad: tovar kiritiladi, har dona skaner bilan topiladi.
 
 Maqsad: to'liq to'lovli savdo va qaytarish boshidan oxirigacha ishlaydi.
 
-- [ ] 3.1 `sales`, `sale_items`, `sale_payments` jadvallari
-- [ ] 3.2 Savat hisobi service: chegirma limiti, aralash valyuta jami, qaytim + testlar
-- [ ] 3.3 FIFO service: aksesuar tannarxini partiyalardan olish + testlar
-- [ ] 3.4 `CloseSale` service: atomar tranzaksiya, dona qulflash, to'lovlarni kassaga yozish, foyda + testlar (ikki marta sotish, to'lov teng emas)
-- [ ] 3.5 Mijozlar: jadval, qidiruv, tez qo'shish (to'liq karta 4-bosqichda)
-- [ ] 3.6 Kassa (POS) ekrani: skaner maydoni, savat, chegirma, mijoz, 3×2 to'lov jadvali
-- [ ] 3.7 Chek: 58/80 mm shablon, brauzer orqali chop etish
-- [ ] 3.8 Kafolat: tugash sanasi, IMEI / barcode / telefon bo'yicha qidiruv
-- [ ] 3.9 Qaytarish dizayni (canvas) → tasdiqlash
-- [ ] 3.10 `ReturnSale` service: to'liq va qisman, kassadan chiqim, foyda va ombor teskari + testlar
-- [ ] 3.11 Qaytarish ekrani va ruxsati (egasi yoki ruxsat berilgan xodim)
+- [x] 3.1 `sales`, `sale_items`, `sale_payments` jadvallari
+- [x] 3.2 Savat hisobi service: chegirma limiti, aralash valyuta jami, qaytim + testlar
+- [x] 3.3 FIFO service: aksesuar tannarxini partiyalardan olish + testlar
+- [x] 3.4 `CloseSale` service: atomar tranzaksiya, dona qulflash, to'lovlarni kassaga yozish, foyda + testlar (ikki marta sotish, to'lov teng emas)
+- [x] 3.5 Mijozlar jadvali; kassada telefon bo'yicha topish yoki yaratish (to'liq karta 4-bosqichda)
+- [x] 3.6 Kassa (POS) ekrani: skaner maydoni, savat, chegirma, mijoz, 3×2 to'lov jadvali
+- [x] 3.7 Chek: 58/80 mm shablon, brauzer orqali chop etish
+- [x] 3.8 Kafolat: tugash sanasi, IMEI / barcode / telefon bo'yicha qidiruv
+- [x] 3.9 Qaytarish savdo sahifasida, mavjud uslubda qurildi (alohida canvas chizilmadi)
+- [x] 3.10 `ReturnSale` service: to'liq va qisman, kassadan chiqim, foyda va ombor teskari + testlar
+- [x] 3.11 Qaytarish ekrani va ruxsati (egasi yoki ruxsat berilgan xodim)
 
 **Tayyor:** aralash valyutali savat aralash to'lov bilan yopiladi, chek chiqadi; qaytarishdan keyin kassa, ombor va foyda oldingi holatiga qaytadi.
 

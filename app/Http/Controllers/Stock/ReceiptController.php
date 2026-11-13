@@ -107,7 +107,7 @@ class ReceiptController extends Controller
                     'attributes' => $item->attributes ?? [],
                     'unit_cost_label' => StockPresenter::money($item->unit_cost, $purchase->currency),
                     'sale_price_label' => StockPresenter::money($item->sale_price, $item->sale_currency),
-                    'units' => $item->units->map(fn (StockUnit $unit) => StockPresenter::unit($unit, $user)),
+                    'units' => $item->units->map(fn (StockUnit $unit) => StockPresenter::unit($unit, $user->isOwner())),
                 ]),
             ],
         ]);

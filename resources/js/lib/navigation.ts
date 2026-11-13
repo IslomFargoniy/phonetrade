@@ -3,14 +3,18 @@ import {
     Building2,
     LayoutGrid,
     PackagePlus,
+    Receipt,
+    ScanLine,
     Settings,
     Warehouse,
 } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import { dashboard } from '@/routes';
 import { index as tenants } from '@/routes/admin/tenants';
+import { index as pos } from '@/routes/pos';
 import { edit as editProfile } from '@/routes/profile';
 import { create as receipt } from '@/routes/receipts';
+import { index as sales } from '@/routes/sales';
 import { index as stock } from '@/routes/stock';
 import { index as transfers } from '@/routes/transfers';
 import type { NavItem, Role } from '@/types';
@@ -43,6 +47,18 @@ export function mainNavigation(role: Role): NavItem[] {
             title: t('nav.home'),
             href: dashboard(),
             icon: LayoutGrid,
+        },
+        {
+            title: t('pos.title'),
+            href: pos(),
+            icon: ScanLine,
+            matchPrefix: '/pos',
+        },
+        {
+            title: t('sales.title'),
+            href: sales(),
+            icon: Receipt,
+            matchPrefix: '/sales',
         },
         {
             title: t('receipt.title'),

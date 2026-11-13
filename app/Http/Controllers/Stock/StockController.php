@@ -56,7 +56,7 @@ class StockController extends Controller
                 ->orderByDesc('id')
                 ->limit(self::LIMIT)
                 ->get()
-                ->map(fn (StockUnit $unit) => StockPresenter::unit($unit, $user));
+                ->map(fn (StockUnit $unit) => StockPresenter::unit($unit, $user->isOwner()));
         }
 
         if ($kind !== 'phone' && $status === StockStatus::InStock->value) {
@@ -75,7 +75,7 @@ class StockController extends Controller
                     ->orWhereHas('product', fn ($product) => $product->where('name', 'like', "%{$search}%"))))
                 ->limit(self::LIMIT)
                 ->get()
-                ->map(fn (ProductVariant $variant) => StockPresenter::variant($variant, (int) $quantities[$variant->id], $user));
+                ->map(fn (ProductVariant $variant) => StockPresenter::variant($variant, (int) $quantities[$variant->id]));
         }
 
         return Inertia::render('stock/index', [
@@ -93,6 +93,21 @@ class StockController extends Controller
                 ? Branch::query()->where('is_active', true)->whereKeyNot($branch->id)->orderBy('name')->get(['id', 'name'])
                 : [],
         ]);
+    }
+
+    /**
+     * Qaytgan telefonni tekshiruvdan keyin yana sotuvga chiqarish — faqat egasi.
+     */
+    public function restock(StockUnit $unit): RedirectResponse
+    {
+        abort_unless($unit->status === StockStatus::Returned, 422);
+
+        $unit->update(['status' => StockStatus::InStock]);
+        Audit::log('stock_unit.restocked', $unit);
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Telefon sotuvga qaytarildi.']);
+
+        return back();
     }
 
     /**

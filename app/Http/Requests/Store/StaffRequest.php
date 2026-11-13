@@ -35,6 +35,7 @@ class StaffRequest extends FormRequest
             // Yangi xodimda parol majburiy; tahrirda bo'sh qoldirilsa o'zgarmaydi.
             'password' => [$staffId === null ? 'required' : 'nullable', 'string', 'min:8'],
             'is_active' => ['boolean'],
+            'can_refund' => ['boolean'],
             'branch_ids' => ['required', 'array', 'min:1'],
             'branch_ids.*' => ['integer', Rule::exists(Branch::class, 'id')->where('tenant_id', $this->user()->tenant_id)],
         ];

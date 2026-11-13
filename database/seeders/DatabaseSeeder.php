@@ -2,11 +2,13 @@
 
 namespace Database\Seeders;
 
+use App\Actions\Stock\ReceiveStock;
 use App\Actions\Tenants\CreateTenant;
 use App\Enums\AttributeType;
 use App\Enums\Role;
 use App\Enums\Tracking;
 use App\Models\Attribute;
+use App\Models\Branch;
 use App\Models\Category;
 use App\Models\CurrencyRate;
 use App\Models\Product;
@@ -80,6 +82,47 @@ class DatabaseSeeder extends Seeder
         }
 
         Product::query()->create(['category_id' => $accessories->id, 'name' => 'Chexol Galaxy A55, silikon']);
-        Supplier::query()->create(['name' => 'Malika bozori — Rustam aka']);
+        $supplier = Supplier::query()->create(['name' => 'Malika bozori — Rustam aka']);
+
+        $this->seedStock($supplier);
+    }
+
+    /**
+     * Dizayndagi namunalar: 3 ta Galaxy A55, bitta ishlatilgan iPhone 13 va chexollar.
+     */
+    private function seedStock(Supplier $supplier): void
+    {
+        $branch = Branch::query()->firstOrFail();
+        $owner = User::query()->where('role', Role::Owner)->firstOrFail();
+        $product = fn (string $name) => Product::query()->where('name', $name)->firstOrFail()->id;
+        $receive = app(ReceiveStock::class);
+
+        $receive->handle($branch, $owner, ['type' => 'supplier', 'currency' => 'USD', 'supplier_id' => $supplier->id, 'lines' => [[
+            'product_id' => $product('Samsung Galaxy A55'),
+            'attributes' => ['Xotira' => '8/256 GB', 'Rang' => 'Qora', 'Holat' => 'Yangi'],
+            'unit_cost' => '320', 'sale_price' => '4850000', 'sale_currency' => 'UZS',
+            'max_discount_pct' => '15', 'warranty_months' => 12,
+            'units' => [
+                ['imei1' => '352914110000011', 'imei2' => '352914110000029'],
+                ['imei1' => '352914110000037'],
+                ['imei1' => '352914110000045'],
+            ],
+        ]]]);
+
+        $receive->handle($branch, $owner, ['type' => 'opening', 'currency' => 'USD', 'lines' => [[
+            'product_id' => $product('iPhone 13'),
+            'attributes' => ['Xotira' => '128 GB', 'Rang' => 'Oq', 'Holat' => 'Ishlatilgan A', 'Batareya' => '88'],
+            'unit_cost' => '400', 'sale_price' => '460', 'sale_currency' => 'USD',
+            'max_discount_pct' => '10', 'warranty_months' => 3,
+            'units' => [['imei1' => '356728090000015']],
+        ]]]);
+
+        $receive->handle($branch, $owner, ['type' => 'opening', 'currency' => 'UZS', 'lines' => [[
+            'product_id' => $product('Chexol Galaxy A55, silikon'),
+            'attributes' => ['Rang' => 'Qora'],
+            'barcode' => '4780012345678',
+            'unit_cost' => '35000', 'sale_price' => '60000', 'sale_currency' => 'UZS',
+            'qty' => 18,
+        ]]]);
     }
 }
