@@ -3,9 +3,9 @@
 namespace App\Http\Requests\Settings;
 
 use App\Concerns\ProfileValidationRules;
+use App\Support\Phone;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Str;
 
 class ProfileUpdateRequest extends FormRequest
 {
@@ -16,8 +16,8 @@ class ProfileUpdateRequest extends FormRequest
      */
     protected function prepareForValidation(): void
     {
-        if (config('fortify.lowercase_usernames') && is_string($this->input('email'))) {
-            $this->merge(['email' => Str::lower($this->input('email'))]);
+        if (is_string($this->input('phone'))) {
+            $this->merge(['phone' => Phone::normalize($this->input('phone')) ?? $this->input('phone')]);
         }
     }
 

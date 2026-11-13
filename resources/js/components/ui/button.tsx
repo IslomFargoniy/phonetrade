@@ -5,26 +5,26 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-[color,box-shadow] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+  "inline-flex cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-semibold transition-[color,box-shadow,background-color] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:shrink-0 outline-none focus-visible:ring-ring focus-visible:ring-[3px] aria-invalid:ring-destructive/20 aria-invalid:border-destructive",
   {
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90",
+          "bg-primary text-primary-foreground font-bold shadow-[inset_0_1px_0_rgb(255_255_255/0.4),0_8px_20px_rgb(0_88_194/0.32)] hover:bg-primary-strong",
         destructive:
-          "bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40",
+          "bg-destructive text-white font-bold shadow-[inset_0_1px_0_rgb(255_255_255/0.3),0_8px_20px_rgb(179_38_30/0.28)] hover:bg-destructive/90",
         outline:
-          "border border-input bg-background shadow-xs hover:bg-accent hover:text-accent-foreground",
+          "border border-white/95 bg-white/62 text-ink shadow-[inset_0_1px_0_#fff,0_2px_8px_rgb(28_35_64/0.08)] hover:bg-white/85",
         secondary:
-          "bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
+          "border border-white/95 bg-white/62 text-ink shadow-[inset_0_1px_0_#fff,0_2px_8px_rgb(28_35_64/0.08)] hover:bg-white/85",
+        ghost: "text-ink-soft hover:bg-white/70",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
-        default: "h-9 px-4 py-2 has-[>svg]:px-3",
-        sm: "h-8 rounded-md px-3 has-[>svg]:px-2.5",
-        lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
-        icon: "size-9",
+        default: "min-h-11 px-5 py-2 has-[>svg]:px-4",
+        sm: "min-h-9 px-4 text-[13px] has-[>svg]:px-3",
+        lg: "min-h-[50px] px-6 text-base has-[>svg]:px-5",
+        icon: "size-11",
       },
     },
     defaultVariants: {

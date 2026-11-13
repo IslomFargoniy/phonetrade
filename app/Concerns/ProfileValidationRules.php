@@ -3,6 +3,7 @@
 namespace App\Concerns;
 
 use App\Models\User;
+use App\Support\Phone;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Unique;
@@ -18,7 +19,7 @@ trait ProfileValidationRules
     {
         return [
             'name' => $this->nameRules(),
-            'email' => $this->emailRules($userId),
+            'phone' => $this->phoneRules($userId),
         ];
     }
 
@@ -33,20 +34,19 @@ trait ProfileValidationRules
     }
 
     /**
-     * Get the validation rules used to validate user emails.
+     * Telefon raqami qoidalari. Qiymat tekshiruvdan oldin Phone::normalize() dan o'tgan bo'lishi kerak.
      *
      * @return array<int, Unique|ValidationRule|array<mixed>|string>
      */
-    protected function emailRules(?int $userId = null): array
+    protected function phoneRules(?int $userId = null): array
     {
         return [
             'required',
             'string',
-            'email',
-            'max:255',
+            'regex:'.Phone::PATTERN,
             $userId === null
-                ? Rule::unique(User::class)
-                : Rule::unique(User::class)->ignore($userId),
+                ? Rule::unique(User::class, 'phone')
+                : Rule::unique(User::class, 'phone')->ignore($userId),
         ];
     }
 }
