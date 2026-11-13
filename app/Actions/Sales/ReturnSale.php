@@ -3,10 +3,13 @@
 namespace App\Actions\Sales;
 
 use App\Enums\CashAccountType;
+use App\Enums\PlanStatus;
 use App\Enums\SaleStatus;
+use App\Enums\SaleType;
 use App\Enums\StockStatus;
 use App\Exceptions\BusinessRuleException;
 use App\Models\CashAccount;
+use App\Models\InstallmentPlan;
 use App\Models\Sale;
 use App\Models\SaleItem;
 use App\Models\SaleReturn;
@@ -34,6 +37,10 @@ class ReturnSale
     {
         return DB::transaction(function () use ($sale, $user, $items, $refundFrom, $reason): SaleReturn {
             $sale = Sale::query()->whereKey($sale->id)->lockForUpdate()->firstOrFail();
+
+            if ($sale->type === SaleType::Installment) {
+                return $this->cancelInstallment($sale, $user, $refundFrom, $reason);
+            }
             $saleItems = SaleItem::query()->where('sale_id', $sale->id)->with('batches')->lockForUpdate()->get()->keyBy('id');
 
             $refund = Money::zero($sale->currency);
@@ -69,6 +76,7 @@ class ReturnSale
                 'user_id' => $user->id,
                 'reason' => $reason,
                 'refund_amount' => $refund->amount,
+                'currency' => $sale->currency->value,
                 'profit_reversed' => $profit->amount,
             ]);
             $return->items()->createMany($lines);
@@ -85,6 +93,57 @@ class ReturnSale
 
             return $return;
         });
+    }
+
+    /**
+     * Nasiyali savdo faqat to'liq qaytariladi: shartnoma bekor bo'ladi, mijoz shu
+     * paytgacha to'lagan hamma summa qaytariladi va tan olingan foyda teskari yoziladi.
+     */
+    private function cancelInstallment(Sale $sale, User $user, CashAccountType $refundFrom, ?string $reason): SaleReturn
+    {
+        $plan = InstallmentPlan::query()->where('sale_id', $sale->id)->lockForUpdate()->firstOrFail();
+
+        if ($plan->status === PlanStatus::Cancelled) {
+            throw new BusinessRuleException('RETURN_INVALID', 'Bu savdo allaqachon qaytarilgan.', 'items');
+        }
+
+        $refund = Money::of($plan->paid_total, $plan->currency);
+        $profit = Money::of((string) $plan->payments()->sum('profit_amount'), $plan->currency);
+        $lines = [];
+
+        foreach (SaleItem::query()->where('sale_id', $sale->id)->with('batches')->lockForUpdate()->get() as $item) {
+            $qty = $item->qty - $item->returned_qty;
+
+            if ($qty < 1) {
+                continue;
+            }
+
+            $this->restock($item, $qty);
+            $item->update(['returned_qty' => $item->qty]);
+            $lines[] = ['sale_item_id' => $item->id, 'qty' => $qty, 'amount' => '0', 'profit' => '0'];
+        }
+
+        $return = SaleReturn::query()->create([
+            'sale_id' => $sale->id,
+            'user_id' => $user->id,
+            'reason' => $reason,
+            'refund_amount' => $refund->amount,
+            'currency' => $plan->currency->value,
+            'profit_reversed' => $profit->amount,
+        ]);
+        $return->items()->createMany($lines);
+
+        if ($refund->isPositive()) {
+            $account = CashAccount::query()->where('branch_id', $sale->branch_id)->where('type', $refundFrom)->firstOrFail();
+            $this->cash->withdraw($account, $refund, 'sale_return', $return, $sale->rate);
+        }
+
+        $plan->update(['status' => PlanStatus::Cancelled]);
+        $sale->update(['status' => SaleStatus::Returned]);
+
+        Audit::log('sale.returned', $sale, null, ['refund' => $refund->amount, 'plan_cancelled' => $plan->id, 'reason' => $reason]);
+
+        return $return;
     }
 
     /**
