@@ -9,6 +9,8 @@ import androidx.compose.material3.Shapes
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -21,7 +23,8 @@ object Palette {
     val Ink = Color(0xFF1C1C1E)
     val InkMid = Color(0xFF5B6275)
     val InkSoft = Color(0xFF8A90A2)
-    val Glass = Color(0xB8FFFFFF)
+    val Glass = Color(0xA6FFFFFF)
+    val NavInk = Color(0xFF3A3D4A)
     val GlassInner = Color(0x8CFFFFFF)
     val Stroke = Color(0xCCFFFFFF)
     val Success = Color(0xFF12805C)
@@ -66,15 +69,19 @@ private val shapes = Shapes(
 @Composable
 fun PhoneTradeTheme(content: @Composable () -> Unit) {
     MaterialTheme(colorScheme = colors, shapes = shapes) {
-        Box(Modifier.fillMaxSize().background(Palette.Background).background(blobs)) {
+        Box(Modifier.fillMaxSize().background(Palette.Background).drawBehind { blobs() }) {
             content()
         }
     }
 }
 
-/** Orqa fondagi rangli dog'lar: shisha panellar ostidan ko'rinib turadi. */
-private val blobs = Brush.linearGradient(
-    colors = listOf(Color(0x5590B8FF), Color(0x00E9EDF5), Color(0x44FFC2DC), Color(0x44A8F0D8)),
-    start = Offset(0f, 0f),
-    end = Offset(900f, 2200f),
-)
+/** Dizayndagi fon: chapda tepada havorang, o'ngda binafsha, pastda to'q sariq dog'. */
+private fun DrawScope.blobs() {
+    fun blob(color: Color, center: Offset, radius: Float) {
+        drawCircle(Brush.radialGradient(listOf(color, color.copy(alpha = 0f)), center, radius), radius, center)
+    }
+
+    blob(Color(0x997CC4FF), Offset(size.width * 0.10f, size.height * 0.08f), size.width * 0.85f)
+    blob(Color(0x8CC9A7FF), Offset(size.width * 1.05f, size.height * 0.50f), size.width * 0.80f)
+    blob(Color(0x8CFFC48A), Offset(size.width * 0.25f, size.height * 1.02f), size.width * 0.80f)
+}

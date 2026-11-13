@@ -47,6 +47,7 @@ import uz.simulator.phonetrade.ui.ErrorBanner
 import uz.simulator.phonetrade.ui.GlassCard
 import uz.simulator.phonetrade.ui.KeyValue
 import uz.simulator.phonetrade.ui.LoadingBox
+import uz.simulator.phonetrade.ui.PillFilters
 import uz.simulator.phonetrade.ui.PrimaryButton
 import uz.simulator.phonetrade.ui.SectionTitle
 import uz.simulator.phonetrade.ui.Segmented
@@ -90,7 +91,7 @@ fun InstallmentsScreen(app: PhoneTradeApp) {
     }
 
     Column(Modifier.fillMaxSize()) {
-        Segmented(
+        PillFilters(
             options = listOf("today" to "Bugun", "late" to "Kechikkan", "active" to "Hammasi"),
             selected = filter,
             onSelect = { filter = it },

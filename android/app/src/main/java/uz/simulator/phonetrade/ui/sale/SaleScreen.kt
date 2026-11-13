@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -133,7 +134,7 @@ private fun CartStep(model: SaleViewModel) {
                 },
                 singleLine = true,
                 modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(18.dp),
+                shape = CircleShape,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions(onSearch = { model.search(query) }),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -142,7 +143,7 @@ private fun CartStep(model: SaleViewModel) {
                     unfocusedBorderColor = Palette.Stroke,
                 ),
             )
-            FilledIconButton(onClick = { scanning = true }, modifier = Modifier.size(56.dp), shape = RoundedCornerShape(18.dp)) {
+            FilledIconButton(onClick = { scanning = true }, modifier = Modifier.size(56.dp), shape = CircleShape) {
                 Icon(Icons.Default.QrCodeScanner, contentDescription = "Skaner")
             }
         }

@@ -51,7 +51,7 @@ fun GlassCard(
     padding: PaddingValues = PaddingValues(16.dp),
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    val shape = RoundedCornerShape(22.dp)
+    val shape = RoundedCornerShape(26.dp)
 
     Column(
         modifier = modifier
@@ -88,8 +88,8 @@ fun PrimaryButton(
     Button(
         onClick = onClick,
         enabled = enabled && !loading,
-        modifier = modifier.fillMaxWidth().height(54.dp),
-        shape = RoundedCornerShape(18.dp),
+        modifier = modifier.fillMaxWidth().height(52.dp),
+        shape = CircleShape,
         colors = ButtonDefaults.buttonColors(containerColor = Palette.Primary),
     ) {
         if (loading) {

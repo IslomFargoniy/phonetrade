@@ -42,6 +42,14 @@ android {
     }
 
     buildTypes {
+        debug {
+            // Release'dagi kod siqish (R8) ilovani buzmasligini lokal serverda sinash uchun:
+            // ./gradlew installDebug -PminifyDebug -PapiUrl=http://10.0.2.2:8000/api/v1/
+            if (project.hasProperty("minifyDebug")) {
+                isMinifyEnabled = true
+                proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            }
+        }
         release {
             isMinifyEnabled = true
             isShrinkResources = true
