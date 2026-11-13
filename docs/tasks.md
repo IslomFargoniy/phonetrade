@@ -171,7 +171,7 @@ Maqsad: sotuvchi telefon bilan sotadi.
 - [x] 6.9 Nasiya: shartnoma, bugungi va kechikkan to'lovlar, to'lov qabul qilish
 - [x] 6.10 Ombor va Mijozlar; pasportni kamera bilan olish
 - [x] 6.11 Bluetooth chek printer (ESC/POS)
-- [ ] 6.12 Haqiqiy telefonda sinov (skaner, pasport kamerasi, Bluetooth printer), Google Play'ga chiqarish — Play Console akkaunti kerak
+- [ ] 6.12 Haqiqiy telefonda sinov (skaner, pasport kamerasi, Bluetooth printer), Google Play'ga chiqarish — Play Console akkaunti kerak. Emulyatorda sinalgan: kirish, qidiruv, savat, to'lov, muddatli hisob, chek, nasiya, ombor, mijozlar, profil
 
 **Tayyor:** sotuvchi telefonda skanerlab sotadi va nasiya to'lovini qabul qiladi; raqamlar web bilan bir xil.
 
