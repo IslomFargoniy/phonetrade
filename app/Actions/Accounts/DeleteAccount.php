@@ -6,9 +6,12 @@ use App\Exceptions\BusinessRuleException;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Support\Audit;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use RuntimeException;
 
 /**
  * Akkauntni o'chirish.
@@ -76,11 +79,36 @@ class DeleteAccount
     {
         $id = $tenant->id;
 
-        DB::transaction(function () use ($tenant): void {
+        DB::transaction(function () use ($tenant, $id): void {
             DB::table('personal_access_tokens')
                 ->where('tokenable_type', (new User)->getMorphClass())
-                ->whereIn('tokenable_id', User::query()->where('tenant_id', $tenant->id)->select('id'))
+                ->whereIn('tokenable_id', User::query()->where('tenant_id', $id)->select('id'))
                 ->delete();
+
+            /*
+             * Do'kon jadvallari bir-biriga bog'langan (masalan, kirim qatori mahsulotga), shuning
+             * uchun bitta kaskad bilan o'chmaydi. Har o'tishda bog'lanishi bo'shagan jadvallar
+             * tozalanadi; tartib sxemadan o'zi kelib chiqadi va yangi jadval qo'shilsa ham ishlaydi.
+             */
+            $pending = array_values(array_filter(
+                array_column(Schema::getTables(), 'name'),
+                fn (string $table) => $table !== 'tenants' && Schema::hasColumn($table, 'tenant_id'),
+            ));
+
+            for ($pass = 0; $pending !== [] && $pass < 12; $pass++) {
+                foreach ($pending as $index => $table) {
+                    try {
+                        DB::transaction(fn () => DB::table($table)->where('tenant_id', $id)->delete());
+                        unset($pending[$index]);
+                    } catch (QueryException) {
+                        // Hali boshqa jadval shu yozuvlarga tayanadi — keyingi o'tishda.
+                    }
+                }
+            }
+
+            if ($pending !== []) {
+                throw new RuntimeException("Do'konni o'chirib bo'lmadi: ".implode(', ', $pending));
+            }
 
             $tenant->delete();
         });
