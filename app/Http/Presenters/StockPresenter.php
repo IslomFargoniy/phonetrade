@@ -28,7 +28,7 @@ final class StockPresenter
             'imei1' => $unit->imei1,
             'imei2' => $unit->imei2,
             'barcode' => $unit->barcode,
-            'attributes' => $unit->attributes ?? [],
+            'attributes' => self::attributes($unit->attributes),
             'sale_price' => $unit->sale_price,
             'sale_currency' => $unit->sale_currency->value,
             'sale_price_label' => Money::of($unit->sale_price, $unit->sale_currency)->format(),
@@ -58,13 +58,24 @@ final class StockPresenter
             'id' => $variant->id,
             'product' => $variant->product->name,
             'barcode' => $variant->barcode,
-            'attributes' => $variant->attributes ?? [],
+            'attributes' => self::attributes($variant->attributes),
             'sale_price' => $variant->sale_price,
             'sale_currency' => $variant->sale_currency->value,
             'sale_price_label' => Money::of($variant->sale_price, $variant->sale_currency)->format(),
             'max_discount_pct' => self::trimDecimal($variant->max_discount_pct),
             'qty' => $qty,
         ];
+    }
+
+    /**
+     * Kriteriyalar har doim JSON obyekti bo'lib chiqadi: bo'sh bo'lsa ham `{}`, `[]` emas
+     * (mobil ilova lug'at kutadi).
+     *
+     * @param  array<string, string>|null  $attributes
+     */
+    public static function attributes(?array $attributes): object
+    {
+        return (object) ($attributes ?? []);
     }
 
     public static function money(string $amount, Currency $currency): string

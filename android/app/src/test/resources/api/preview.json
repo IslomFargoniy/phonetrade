@@ -1,0 +1,50 @@
+{
+    "currency": "UZS",
+    "rate": "12750.00",
+    "mixed": false,
+    "subtotal": "4850000.00",
+    "subtotal_label": "4 850 000 so'm",
+    "discount": "50000.00",
+    "discount_label": "50 000 so'm",
+    "total": "4800000.00",
+    "total_label": "4 800 000 so'm",
+    "lines": [
+        {
+            "gross_label": "4 850 000 so'm",
+            "net_label": "4 800 000 so'm",
+            "final_label": "4 800 000 so'm",
+            "max_discount": "727500.00",
+            "max_discount_label": "727 500 so'm"
+        }
+    ],
+    "installment": {
+        "mode": "A",
+        "currency": "UZS",
+        "markup_pct": "20",
+        "price_label": "4 800 000 so'm",
+        "debt_label": "5 760 000 so'm",
+        "monthly_label": "1 920 000 so'm",
+        "due_today": "1920000.00",
+        "due_today_label": "1 920 000 so'm",
+        "rows": [
+            {
+                "no": "1",
+                "date": "13.11.2026",
+                "note": "Savdo paytida",
+                "amount_label": "1 920 000 so'm"
+            },
+            {
+                "no": "2",
+                "date": "13.12.2026",
+                "note": "Oylik",
+                "amount_label": "1 920 000 so'm"
+            },
+            {
+                "no": "3",
+                "date": "13.01.2027",
+                "note": "Oylik",
+                "amount_label": "1 920 000 so'm"
+            }
+        ]
+    }
+}

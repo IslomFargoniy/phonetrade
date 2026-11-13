@@ -2,16 +2,14 @@
 
 namespace App\Http\Controllers\Sales;
 
+use App\Actions\Customers\ResolveSaleCustomer;
 use App\Actions\Sales\CloseSale;
 use App\Actions\Sales\ReturnSale;
 use App\Enums\CashAccountType;
 use App\Enums\SaleType;
-use App\Exceptions\BusinessRuleException;
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Customers\CustomerController;
 use App\Http\Presenters\SalePresenter;
 use App\Http\Requests\Sales\CartRequest;
-use App\Models\Customer;
 use App\Models\Sale;
 use App\Models\SaleItem;
 use App\Models\Tenant;
@@ -54,12 +52,12 @@ class SaleController extends Controller
         ]);
     }
 
-    public function store(CartRequest $request, CloseSale $closeSale): RedirectResponse
+    public function store(CartRequest $request, CloseSale $closeSale, ResolveSaleCustomer $resolveCustomer): RedirectResponse
     {
         $branch = $this->branch($request);
 
-        $sale = DB::transaction(function () use ($request, $closeSale, $branch): Sale {
-            $customer = $this->resolveCustomer($request);
+        $sale = DB::transaction(function () use ($request, $closeSale, $resolveCustomer, $branch): Sale {
+            $customer = $resolveCustomer->handle($request);
 
             return $closeSale->handle(
                 $branch,
@@ -131,46 +129,6 @@ class SaleController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Savdo qaytarildi.']);
 
         return to_route('sales.show', $sale);
-    }
-
-    /**
-     * To'liq to'lovda mijoz ixtiyoriy: telefon kiritilsa topiladi yoki yaratiladi.
-     * Muddatli savdoda karta to'liq to'ldiriladi va pasport rasmi bo'lishi shart.
-     */
-    private function resolveCustomer(CartRequest $request): ?Customer
-    {
-        $phone = $request->string('customer_phone')->toString();
-
-        if ($phone === '') {
-            return null;
-        }
-
-        $name = $request->string('customer_name')->trim()->toString();
-        $customer = Customer::query()->firstOrCreate(
-            ['phone' => $phone],
-            ['full_name' => $name !== '' ? $name : Phone::format($phone)],
-        );
-
-        if (! $request->isInstallment()) {
-            return $customer;
-        }
-
-        $customer->update([
-            'full_name' => $name,
-            'phone2' => $request->string('customer_phone2')->toString() ?: null,
-            'passport_series' => $request->string('passport_series')->toString(),
-            'passport_number' => $request->string('passport_number')->toString(),
-            'pinfl' => $request->string('pinfl')->toString(),
-            'address' => $request->string('customer_address')->toString(),
-        ]);
-
-        CustomerController::storeFiles($customer, $request->file('passport_files'));
-
-        if ($customer->files()->doesntExist()) {
-            throw new BusinessRuleException('PASSPORT_PHOTO_REQUIRED', 'Pasport rasmini yuklang.', 'passport_files');
-        }
-
-        return $customer;
     }
 
     private function authorizeSale(User $user, Sale $sale): void

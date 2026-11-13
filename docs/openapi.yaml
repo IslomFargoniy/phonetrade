@@ -1,0 +1,738 @@
+openapi: 3.1.0
+info:
+    title: PhoneTrade mobil API
+    version: 1.0.0
+    description: |
+        Android va iOS ilovalari uchun API. Hisob-kitob (savat, nasiya, foyda) faqat serverda
+        bajariladi — ilova natijani ko'rsatadi.
+
+        - Autentifikatsiya: `Authorization: Bearer <token>`.
+        - Filial: `X-Branch-Id` sarlavhasi. Berilmasa foydalanuvchining birinchi filiali olinadi.
+        - Pul yozadigan so'rovlar `Idempotency-Key` sarlavhasini talab qiladi. Bir xil kalit bilan
+          qayta yuborilgan so'rov bajarilmaydi, birinchi javob qaytadi (`Idempotent-Replayed: true`).
+        - Summalar satr ko'rinishida, 2 kasr xona bilan (`"4700000.00"`). `*_label` maydonlari
+          ekranga chiqarishga tayyor (`"4 700 000 so'm"`).
+        - Tannarx va foyda sotuvchiga hech qachon qaytarilmaydi.
+servers:
+    - url: https://phonetrade.simulator.uz/api/v1
+security:
+    - bearer: []
+components:
+    securitySchemes:
+        bearer:
+            type: http
+            scheme: bearer
+    parameters:
+        BranchId:
+            name: X-Branch-Id
+            in: header
+            schema: { type: integer }
+        IdempotencyKey:
+            name: Idempotency-Key
+            in: header
+            required: true
+            schema: { type: string, maxLength: 100 }
+            description: Har bir amal uchun ilova yaratadigan noyob qiymat (UUID).
+    schemas:
+        Error:
+            type: object
+            required: [code, message]
+            properties:
+                code:
+                    type: string
+                    description: O'zgarmas xato kodi. Ilova mantiqi shu kodga tayanadi, matnga emas.
+                    enum:
+                        - UNAUTHENTICATED
+                        - INVALID_CREDENTIALS
+                        - ACCOUNT_DISABLED
+                        - VALIDATION_FAILED
+                        - IDEMPOTENCY_KEY_REQUIRED
+                        - REQUEST_IN_PROGRESS
+                        - CART_EMPTY
+                        - CART_INVALID
+                        - RATE_MISSING
+                        - DISCOUNT_LIMIT_EXCEEDED
+                        - STOCK_ALREADY_SOLD
+                        - STOCK_INSUFFICIENT
+                        - PAYMENT_NOT_BALANCED
+                        - CASH_INSUFFICIENT
+                        - CUSTOMER_REQUIRED
+                        - PASSPORT_PHOTO_REQUIRED
+                        - PAY_DAY_INVALID
+                        - MONTHS_INVALID
+                        - DOWN_PAYMENT_INVALID
+                        - INSTALLMENT_TOO_SMALL
+                        - PLAN_NOT_ACTIVE
+                        - PAYMENT_EXCEEDS_DEBT
+                        - AMOUNT_INVALID
+                        - CASH_EMPTY
+                message:
+                    {
+                        type: string,
+                        description: Foydalanuvchiga ko'rsatiladigan o'zbekcha matn.,
+                    }
+                errors:
+                    type: object
+                    additionalProperties:
+                        { type: array, items: { type: string } }
+        Profile:
+            type: object
+            properties:
+                user:
+                    type: object
+                    properties:
+                        id: { type: integer }
+                        name: { type: string }
+                        phone: { type: string, example: '998901234567' }
+                        role: { type: string, enum: [owner, seller] }
+                        can_refund: { type: boolean }
+                store:
+                    type: object
+                    properties:
+                        name: { type: string }
+                        branch: { $ref: '#/components/schemas/Branch' }
+                        branches:
+                            {
+                                type: array,
+                                items: { $ref: '#/components/schemas/Branch' },
+                            }
+                        rate:
+                            {
+                                type: [string, 'null'],
+                                example: '12750.00',
+                                description: 1 dollar necha so'm.,
+                            }
+                        installment_rates:
+                            type: array
+                            items:
+                                type: object
+                                properties:
+                                    months:
+                                        { type: integer, enum: [3, 6, 9, 12] }
+                                    markup_pct: { type: string, example: '20' }
+        Branch:
+            type: object
+            properties:
+                id: { type: integer }
+                name: { type: string }
+        StockUnit:
+            type: object
+            description: Bitta telefon. `cost*` maydonlari faqat egasiga va faqat `GET /stock` da keladi.
+            properties:
+                id: { type: integer }
+                product: { type: string }
+                imei1: { type: string }
+                imei2: { type: [string, 'null'] }
+                barcode: { type: string, example: TD-000481 }
+                attributes:
+                    { type: object, additionalProperties: { type: string } }
+                sale_price: { type: string }
+                sale_currency: { type: string, enum: [UZS, USD] }
+                sale_price_label: { type: string }
+                max_discount_pct: { type: string }
+                warranty_months: { type: integer }
+                status: { type: string }
+        StockVariant:
+            type: object
+            description: Miqdor bilan yuritiladigan tovar (aksesuar).
+            properties:
+                id: { type: integer }
+                product: { type: string }
+                barcode: { type: string }
+                sale_price_label: { type: string }
+                max_discount_pct: { type: string }
+                qty: { type: integer, description: Shu filialdagi qoldiq. }
+        CartItem:
+            type: object
+            description: '`stock_unit_id` (telefon) yoki `variant_id` + `qty` (aksesuar).'
+            properties:
+                stock_unit_id: { type: [integer, 'null'] }
+                variant_id: { type: [integer, 'null'] }
+                qty: { type: integer, minimum: 1 }
+                discount:
+                    {
+                        type: string,
+                        description: Qator chegirmasi,
+                        tovar valyutasida.,
+                    }
+        Payment:
+            type: object
+            required: [method, currency, amount]
+            properties:
+                method: { type: string, enum: [cash, card, transfer] }
+                currency: { type: string, enum: [UZS, USD] }
+                amount: { type: string }
+        InstallmentTerms:
+            type: object
+            required: [currency, months, pay_day]
+            properties:
+                currency:
+                    {
+                        type: string,
+                        enum: [UZS, USD],
+                        description: Savat aralash valyutada bo'lsa server so'mni tanlaydi.,
+                    }
+                months: { type: integer, enum: [3, 6, 9, 12] }
+                pay_day: { type: integer, minimum: 1, maximum: 28 }
+                down_payment:
+                    {
+                        type: string,
+                        description: '0 — A rejim, 0 dan katta — B rejim.',
+                    }
+        CartRequest:
+            type: object
+            required: [items]
+            properties:
+                items:
+                    {
+                        type: array,
+                        items: { $ref: '#/components/schemas/CartItem' },
+                    }
+                payments:
+                    {
+                        type: array,
+                        items: { $ref: '#/components/schemas/Payment' },
+                    }
+                mode: { type: string, enum: [full, installment], default: full }
+                installment: { $ref: '#/components/schemas/InstallmentTerms' }
+                customer_phone:
+                    { type: string, description: Muddatli savdoda majburiy. }
+                customer_name: { type: string }
+                customer_phone2: { type: string }
+                passport_series: { type: string, example: AB }
+                passport_number: { type: string, example: '1234567' }
+                pinfl: { type: string, description: 14 raqam. }
+                customer_address: { type: string }
+                passport_files:
+                    type: array
+                    description: multipart/form-data bilan yuboriladi. Mijozda avvaldan rasm bo'lsa shart emas.
+                    items: { type: string, format: binary }
+        CartTotals:
+            type: object
+            properties:
+                currency: { type: string, enum: [UZS, USD] }
+                mixed:
+                    {
+                        type: boolean,
+                        description: Savatda ikki valyutadagi tovar bor.,
+                    }
+                total: { type: string }
+                total_label: { type: string }
+                discount_label: { type: string }
+                lines:
+                    type: array
+                    items:
+                        type: object
+                        properties:
+                            net_label: { type: string }
+                            max_discount: { type: string }
+                            max_discount_label: { type: string }
+                installment:
+                    type: [object, 'null']
+                    properties:
+                        mode: { type: string, enum: [A, B] }
+                        currency: { type: string }
+                        debt_label: { type: string }
+                        monthly_label: { type: string }
+                        due_today:
+                            {
+                                type: string,
+                                description: Savdo kuni to'lanadigan summa — to'lovlar shuni yopishi kerak.,
+                            }
+                        due_today_label: { type: string }
+                        rows:
+                            type: array
+                            items:
+                                type: object
+                                properties:
+                                    no: { type: string }
+                                    date:
+                                        { type: string, example: '13.12.2026' }
+                                    note: { type: string }
+                                    amount_label: { type: string }
+        Sale:
+            type: object
+            properties:
+                id: { type: integer }
+                number: { type: integer }
+                date: { type: string }
+                type: { type: string, enum: [full, installment] }
+                status:
+                    {
+                        type: string,
+                        enum: [completed, partially_returned, returned],
+                    }
+                total_label: { type: string }
+                change_label: { type: string }
+                items: { type: array, items: { type: object } }
+                payments: { type: array, items: { type: object } }
+        Plan:
+            type: object
+            properties:
+                id: { type: integer }
+                customer: { type: string }
+                customer_phone: { type: string }
+                product: { type: string }
+                months: { type: integer }
+                currency: { type: string }
+                state:
+                    {
+                        type: string,
+                        enum:
+                            [late, today, upcoming, active, closed, cancelled],
+                    }
+                state_label: { type: string, example: 8 kun kechikkan }
+                next_date: { type: [string, 'null'] }
+                next_amount: { type: [string, 'null'] }
+                remaining: { type: string }
+                remaining_label: { type: string }
+                schedule: { type: array, items: { type: object } }
+paths:
+    /login:
+        post:
+            summary: Kirish
+            security: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required: [phone, password, device_name]
+                            properties:
+                                phone:
+                                    {
+                                        type: string,
+                                        example: '+998 90 123 45 67',
+                                    }
+                                password: { type: string }
+                                device_name: { type: string, example: Pixel 8 }
+            responses:
+                '200':
+                    description: Token va profil
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - type: object
+                                      properties: { token: { type: string } }
+                                    - $ref: '#/components/schemas/Profile'
+                '401':
+                    {
+                        description: INVALID_CREDENTIALS,
+                        content:
+                            {
+                                application/json:
+                                    {
+                                        schema:
+                                            {
+                                                $ref: '#/components/schemas/Error',
+                                            },
+                                    },
+                            },
+                    }
+                '403':
+                    {
+                        description: ACCOUNT_DISABLED,
+                        content:
+                            {
+                                application/json:
+                                    {
+                                        schema:
+                                            {
+                                                $ref: '#/components/schemas/Error',
+                                            },
+                                    },
+                            },
+                    }
+    /logout:
+        post:
+            summary: Tokenni bekor qilish
+            responses: { '200': { description: OK } }
+    /me:
+        get:
+            summary: Profil, filiallar, kurs va nasiya muddatlari
+            parameters: [{ $ref: '#/components/parameters/BranchId' }]
+            responses:
+                '200':
+                    {
+                        description: OK,
+                        content:
+                            {
+                                application/json:
+                                    {
+                                        schema:
+                                            {
+                                                $ref: '#/components/schemas/Profile',
+                                            },
+                                    },
+                            },
+                    }
+    /stock/lookup:
+        get:
+            summary: Skaner — IMEI, barcode yoki model nomi bo'yicha topish
+            parameters:
+                - { $ref: '#/components/parameters/BranchId' }
+                - {
+                      name: code,
+                      in: query,
+                      required: true,
+                      schema: { type: string },
+                  }
+            responses:
+                '200':
+                    description: "`exact: true` bo'lsa kod aniq bitta tovarga mos keldi."
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    exact: { type: boolean }
+                                    units:
+                                        {
+                                            type: array,
+                                            items:
+                                                {
+                                                    $ref: '#/components/schemas/StockUnit',
+                                                },
+                                        }
+                                    variants:
+                                        {
+                                            type: array,
+                                            items:
+                                                {
+                                                    $ref: '#/components/schemas/StockVariant',
+                                                },
+                                        }
+    /stock:
+        get:
+            summary: Filial omboridagi telefonlar
+            parameters:
+                - { $ref: '#/components/parameters/BranchId' }
+                - { name: q, in: query, schema: { type: string } }
+            responses: { '200': { description: OK } }
+    /customers/lookup:
+        get:
+            summary: Telefon bo'yicha mijoz kartasi
+            parameters:
+                [
+                    {
+                        name: phone,
+                        in: query,
+                        required: true,
+                        schema: { type: string },
+                    },
+                ]
+            responses:
+                { '200': { description: "`customer` null bo'lishi mumkin." } }
+    /customers:
+        get:
+            summary: Mijozlar ro'yxati
+            parameters:
+                - name: q
+                  in: query
+                  schema: { type: string }
+                  description: Ism yoki telefon.
+            responses:
+                '200':
+                    description: '`customers[]`: id, full_name, phone, active_plans'
+    /sales/preview:
+        post:
+            summary: Savatni saqlamasdan hisoblash
+            parameters: [{ $ref: '#/components/parameters/BranchId' }]
+            requestBody:
+                {
+                    required: true,
+                    content:
+                        {
+                            application/json:
+                                {
+                                    schema:
+                                        {
+                                            $ref: '#/components/schemas/CartRequest',
+                                        },
+                                },
+                        },
+                }
+            responses:
+                '200':
+                    {
+                        description: OK,
+                        content:
+                            {
+                                application/json:
+                                    {
+                                        schema:
+                                            {
+                                                $ref: '#/components/schemas/CartTotals',
+                                            },
+                                    },
+                            },
+                    }
+                '422':
+                    {
+                        description: Biznes qoidasi yoki tekshiruv xatosi,
+                        content:
+                            {
+                                application/json:
+                                    {
+                                        schema:
+                                            {
+                                                $ref: '#/components/schemas/Error',
+                                            },
+                                    },
+                            },
+                    }
+    /sales:
+        post:
+            summary: Savdoni yopish (to'liq yoki muddatli)
+            parameters:
+                - { $ref: '#/components/parameters/BranchId' }
+                - { $ref: '#/components/parameters/IdempotencyKey' }
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        { schema: { $ref: '#/components/schemas/CartRequest' } }
+                    multipart/form-data:
+                        { schema: { $ref: '#/components/schemas/CartRequest' } }
+            responses:
+                '201':
+                    {
+                        description: Savdo yopildi,
+                        content:
+                            {
+                                application/json:
+                                    {
+                                        schema:
+                                            {
+                                                $ref: '#/components/schemas/Sale',
+                                            },
+                                    },
+                            },
+                    }
+                '400':
+                    {
+                        description: IDEMPOTENCY_KEY_REQUIRED,
+                        content:
+                            {
+                                application/json:
+                                    {
+                                        schema:
+                                            {
+                                                $ref: '#/components/schemas/Error',
+                                            },
+                                    },
+                            },
+                    }
+                '409':
+                    {
+                        description: REQUEST_IN_PROGRESS,
+                        content:
+                            {
+                                application/json:
+                                    {
+                                        schema:
+                                            {
+                                                $ref: '#/components/schemas/Error',
+                                            },
+                                    },
+                            },
+                    }
+                '422':
+                    {
+                        description: Biznes qoidasi yoki tekshiruv xatosi,
+                        content:
+                            {
+                                application/json:
+                                    {
+                                        schema:
+                                            {
+                                                $ref: '#/components/schemas/Error',
+                                            },
+                                    },
+                            },
+                    }
+    /sales/{sale}:
+        get:
+            summary: Savdo va chek ma'lumoti
+            parameters:
+                [
+                    {
+                        name: sale,
+                        in: path,
+                        required: true,
+                        schema: { type: integer },
+                    },
+                ]
+            responses:
+                '200':
+                    {
+                        description: OK,
+                        content:
+                            {
+                                application/json:
+                                    {
+                                        schema:
+                                            {
+                                                $ref: '#/components/schemas/Sale',
+                                            },
+                                    },
+                            },
+                    }
+    /installments:
+        get:
+            summary: Faol nasiya shartnomalari
+            parameters:
+                - { $ref: '#/components/parameters/BranchId' }
+                - {
+                      name: filter,
+                      in: query,
+                      schema:
+                          {
+                              type: string,
+                              enum: [today, late, active],
+                              default: active,
+                          },
+                  }
+            responses:
+                '200':
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    plans:
+                                        {
+                                            type: array,
+                                            items:
+                                                {
+                                                    $ref: '#/components/schemas/Plan',
+                                                },
+                                        }
+    /installments/{plan}:
+        get:
+            summary: Shartnoma va to'lov jadvali
+            parameters:
+                [
+                    {
+                        name: plan,
+                        in: path,
+                        required: true,
+                        schema: { type: integer },
+                    },
+                ]
+            responses:
+                '200':
+                    {
+                        description: OK,
+                        content:
+                            {
+                                application/json:
+                                    {
+                                        schema:
+                                            {
+                                                $ref: '#/components/schemas/Plan',
+                                            },
+                                    },
+                            },
+                    }
+    /installments/{plan}/payments:
+        post:
+            summary: Nasiya to'lovini qabul qilish
+            description: Istalgan summa; eng eski to'lanmagan oylikdan boshlab taqsimlanadi. Qolgan qarzdan ortiq summa rad etiladi.
+            parameters:
+                - {
+                      name: plan,
+                      in: path,
+                      required: true,
+                      schema: { type: integer },
+                  }
+                - { $ref: '#/components/parameters/BranchId' }
+                - { $ref: '#/components/parameters/IdempotencyKey' }
+            requestBody:
+                {
+                    required: true,
+                    content:
+                        {
+                            application/json:
+                                {
+                                    schema:
+                                        {
+                                            $ref: '#/components/schemas/Payment',
+                                        },
+                                },
+                        },
+                }
+            responses:
+                '201':
+                    {
+                        description: Yangilangan shartnoma,
+                        content:
+                            {
+                                application/json:
+                                    {
+                                        schema:
+                                            {
+                                                $ref: '#/components/schemas/Plan',
+                                            },
+                                    },
+                            },
+                    }
+                '422':
+                    {
+                        description: PAYMENT_EXCEEDS_DEBT,
+                        PLAN_NOT_ACTIVE,
+                        RATE_MISSING,
+                        content:
+                            {
+                                application/json:
+                                    {
+                                        schema:
+                                            {
+                                                $ref: '#/components/schemas/Error',
+                                            },
+                                    },
+                            },
+                    }
+    /reports/summary:
+        get:
+            summary: Egasi — asosiy ko'rsatkichlar (so'mda)
+            parameters:
+                - {
+                      name: period,
+                      in: query,
+                      schema:
+                          {
+                              type: string,
+                              enum: [day, week, month],
+                              default: month,
+                          },
+                  }
+                - { name: branch, in: query, schema: { type: integer } }
+            responses:
+                {
+                    '200': { description: OK },
+                    '403': { description: Faqat egasi },
+                }
+    /cash:
+        get:
+            summary: Egasi — filial va admin kassa balanslari
+            parameters: [{ $ref: '#/components/parameters/BranchId' }]
+            responses:
+                {
+                    '200': { description: OK },
+                    '403': { description: Faqat egasi },
+                }
+    /cash/sweep:
+        post:
+            summary: Egasi — filial kassasini admin kassaga bo'shatish
+            parameters:
+                - { $ref: '#/components/parameters/BranchId' }
+                - { $ref: '#/components/parameters/IdempotencyKey' }
+            responses:
+                {
+                    '201': { description: Bo'shatildi },
+                    '422': { description: CASH_EMPTY },
+                }

@@ -1,0 +1,10 @@
+{
+    "customers": [
+        {
+            "id": 1,
+            "full_name": "Test Mijoz",
+            "phone": "998905554433",
+            "active_plans": 1
+        }
+    ]
+}

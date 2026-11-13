@@ -1,0 +1,84 @@
+{
+    "exact": false,
+    "units": [
+        {
+            "id": 1,
+            "product": "Samsung Galaxy A55",
+            "branch_id": 1,
+            "branch": "Chilonzor filiali",
+            "imei1": "352914110000011",
+            "imei2": "352914110000029",
+            "barcode": "TD-000001",
+            "attributes": {
+                "Xotira": "8\/256 GB",
+                "Rang": "Qora",
+                "Holat": "Yangi"
+            },
+            "sale_price": "4850000.00",
+            "sale_currency": "UZS",
+            "sale_price_label": "4 850 000 so'm",
+            "max_discount_pct": "15",
+            "warranty_months": 12,
+            "status": "in_stock",
+            "status_label": "Omborda",
+            "received_at": "13.11.2026"
+        },
+        {
+            "id": 2,
+            "product": "Samsung Galaxy A55",
+            "branch_id": 1,
+            "branch": "Chilonzor filiali",
+            "imei1": "352914110000037",
+            "imei2": null,
+            "barcode": "TD-000002",
+            "attributes": {
+                "Xotira": "8\/256 GB",
+                "Rang": "Qora",
+                "Holat": "Yangi"
+            },
+            "sale_price": "4850000.00",
+            "sale_currency": "UZS",
+            "sale_price_label": "4 850 000 so'm",
+            "max_discount_pct": "15",
+            "warranty_months": 12,
+            "status": "in_stock",
+            "status_label": "Omborda",
+            "received_at": "13.11.2026"
+        },
+        {
+            "id": 3,
+            "product": "Samsung Galaxy A55",
+            "branch_id": 1,
+            "branch": "Chilonzor filiali",
+            "imei1": "352914110000045",
+            "imei2": null,
+            "barcode": "TD-000003",
+            "attributes": {
+                "Xotira": "8\/256 GB",
+                "Rang": "Qora",
+                "Holat": "Yangi"
+            },
+            "sale_price": "4850000.00",
+            "sale_currency": "UZS",
+            "sale_price_label": "4 850 000 so'm",
+            "max_discount_pct": "15",
+            "warranty_months": 12,
+            "status": "in_stock",
+            "status_label": "Omborda",
+            "received_at": "13.11.2026"
+        }
+    ],
+    "variants": [
+        {
+            "id": 1,
+            "product": "Chexol Galaxy A55, silikon",
+            "barcode": "4780012345678",
+            "attributes": { "Rang": "Qora" },
+            "sale_price": "60000.00",
+            "sale_currency": "UZS",
+            "sale_price_label": "60 000 so'm",
+            "max_discount_pct": "0",
+            "qty": 18
+        }
+    ]
+}

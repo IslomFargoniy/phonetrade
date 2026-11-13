@@ -160,18 +160,18 @@ Maqsad: birinchi ishlaydigan versiya — haqiqiy do'konda sinash.
 
 Maqsad: sotuvchi telefon bilan sotadi.
 
-- [ ] 6.1 `/api/v1` asosi: Sanctum, xato formati, `Idempotency-Key`, rate limit
-- [ ] 6.2 Endpointlar: auth, kurs, ombor qidiruvi, mijozlar
-- [ ] 6.3 Endpointlar: savdo (`preview`, yaratish, chek), nasiya (`preview`, bugungi to'lovlar, to'lov)
-- [ ] 6.4 OpenAPI spetsifikatsiya va API testlari
-- [ ] 6.5 Mobil login, savat va to'lov dizayni (canvas) → tasdiqlash
-- [ ] 6.6 Android loyiha: Compose, Hilt, Retrofit, navigatsiya, Liquid Glass tema
-- [ ] 6.7 Login, token saqlash, filial tanlash
-- [ ] 6.8 Sotuv: kamera skaneri (CameraX + ML Kit), topilgan dona, savat, to'lov
-- [ ] 6.9 Nasiya: shartnoma, bugungi va kechikkan to'lovlar, to'lov qabul qilish
-- [ ] 6.10 Ombor va Mijozlar; pasportni kamera bilan olish
-- [ ] 6.11 Bluetooth chek printer (ESC/POS)
-- [ ] 6.12 Ichki test, Google Play'ga chiqarish
+- [x] 6.1 `/api/v1` asosi: Sanctum, xato formati, `Idempotency-Key`, rate limit
+- [x] 6.2 Endpointlar: auth, kurs, ombor qidiruvi, mijozlar
+- [x] 6.3 Endpointlar: savdo (`preview`, yaratish, chek), nasiya (`preview`, bugungi to'lovlar, to'lov)
+- [x] 6.4 OpenAPI spetsifikatsiya va API testlari
+- [x] 6.5 Mobil login, savat va to'lov dizayni (canvas) → tasdiqlash
+- [x] 6.6 Android loyiha: Compose, Retrofit, navigatsiya, Liquid Glass tema (Hilt o'rniga qo'lda DI — ilova kichik)
+- [x] 6.7 Login, token saqlash, filial tanlash
+- [x] 6.8 Sotuv: kamera skaneri (CameraX + ML Kit), topilgan dona, savat, to'lov
+- [x] 6.9 Nasiya: shartnoma, bugungi va kechikkan to'lovlar, to'lov qabul qilish
+- [x] 6.10 Ombor va Mijozlar; pasportni kamera bilan olish
+- [x] 6.11 Bluetooth chek printer (ESC/POS)
+- [ ] 6.12 Haqiqiy telefonda sinov (skaner, pasport kamerasi, Bluetooth printer), Google Play'ga chiqarish — Play Console akkaunti kerak
 
 **Tayyor:** sotuvchi telefonda skanerlab sotadi va nasiya to'lovini qabul qiladi; raqamlar web bilan bir xil.
 

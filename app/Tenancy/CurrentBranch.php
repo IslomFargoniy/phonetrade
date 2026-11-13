@@ -49,6 +49,20 @@ class CurrentBranch
         return $this->branch;
     }
 
+    /**
+     * Mobil ilova uchun: sessiya yo'q, filial har so'rovda sarlavhada keladi.
+     * Ko'rsatilmagan yoki ruxsat etilmagan bo'lsa, birinchi mavjud filial olinadi.
+     */
+    public function selectForRequest(User $user, ?int $branchId): ?Branch
+    {
+        $available = $this->available($user);
+
+        $this->branch = $available->firstWhere('id', $branchId) ?? $available->first();
+        $this->resolved = true;
+
+        return $this->branch;
+    }
+
     public function switchTo(User $user, Branch $branch): void
     {
         abort_unless($branch->is_active && $user->canAccessBranch($branch), 403);

@@ -65,7 +65,7 @@ final class SalePresenter
                 'returnable_qty' => $item->qty - $item->returned_qty,
                 'imei' => $item->unit->imei1 ?? null,
                 'barcode' => $item->unit->barcode ?? $item->variant->barcode ?? null,
-                'attributes' => $item->unit->attributes ?? $item->variant->attributes ?? [],
+                'attributes' => StockPresenter::attributes($item->unit->attributes ?? $item->variant->attributes ?? null),
                 'price_label' => Money::of($item->price, $item->currency)->format(),
                 'discount_label' => Money::of($item->discount, $item->currency)->format(),
                 'has_discount' => Money::of($item->discount, $item->currency)->isPositive(),
