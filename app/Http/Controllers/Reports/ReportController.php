@@ -56,7 +56,7 @@ class ReportController extends Controller
                 'admin' => $this->cashBlock($reports->cash($from, $to, adminOnly: true)),
             ],
             'debtors' => InstallmentPlan::query()
-                ->with(['customer', 'sale.items', 'schedule' => fn ($rows) => $rows->orderBy('no'), 'payments'])
+                ->with(['customer', 'sale.items.unit.product:id,image_path', 'sale.items.unit.photos', 'sale.items.variant.product:id,image_path', 'schedule' => fn ($rows) => $rows->orderBy('no'), 'payments'])
                 ->where('status', PlanStatus::Active)
                 ->when($branchId, fn ($query) => $query->where('branch_id', $branchId))
                 ->whereHas('schedule', fn ($rows) => $rows->whereColumn('paid_amount', '<', 'amount')->whereDate('due_date', '<=', now()->addDays(7)->toDateString()))

@@ -1,5 +1,6 @@
 package uz.simulator.phonetrade.ui.sale
 
+import uz.simulator.phonetrade.ui.ProductImage
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -164,13 +165,18 @@ private fun CartStep(model: SaleViewModel) {
                         model.add(CartEntry(unit = unit))
                         query = ""
                     }) {
-                        Text(unit.product, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                        Text(
-                            listOf(attributesLine(unit.attributes), "IMEI ${unit.imei1.orEmpty()}").filter { it.isNotBlank() }.joinToString(" · "),
-                            color = Palette.InkMid,
-                            fontSize = 13.sp,
-                        )
-                        Text(unit.salePriceLabel, fontWeight = FontWeight.ExtraBold, color = Palette.Primary)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            ProductImage(unit.imageUrl)
+                            Column(Modifier.weight(1f).padding(start = 12.dp)) {
+                                Text(unit.product, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                                Text(
+                                    listOf(attributesLine(unit.attributes), "IMEI ${unit.imei1.orEmpty()}").filter { it.isNotBlank() }.joinToString(" · "),
+                                    color = Palette.InkMid,
+                                    fontSize = 13.sp,
+                                )
+                                Text(unit.salePriceLabel, fontWeight = FontWeight.ExtraBold, color = Palette.Primary)
+                            }
+                        }
                     }
                 }
                 items(results.variants.orEmpty(), key = { "rv${it.id}" }) { variant ->
@@ -178,13 +184,18 @@ private fun CartStep(model: SaleViewModel) {
                         model.add(CartEntry(variant = variant))
                         query = ""
                     }) {
-                        Text(variant.product, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                        Text(
-                            listOf(attributesLine(variant.attributes), "Qoldiq: ${variant.qty} ta").filter { it.isNotBlank() }.joinToString(" · "),
-                            color = Palette.InkMid,
-                            fontSize = 13.sp,
-                        )
-                        Text(variant.salePriceLabel, fontWeight = FontWeight.ExtraBold, color = Palette.Primary)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            ProductImage(variant.imageUrl, isPhone = false)
+                            Column(Modifier.weight(1f).padding(start = 12.dp)) {
+                                Text(variant.product, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                                Text(
+                                    listOf(attributesLine(variant.attributes), "Qoldiq: ${variant.qty} ta").filter { it.isNotBlank() }.joinToString(" · "),
+                                    color = Palette.InkMid,
+                                    fontSize = 13.sp,
+                                )
+                                Text(variant.salePriceLabel, fontWeight = FontWeight.ExtraBold, color = Palette.Primary)
+                            }
+                        }
                     }
                 }
                 item { Spacer(Modifier.height(8.dp)) }
@@ -253,6 +264,7 @@ private fun CartRow(
 ) {
     GlassCard(padding = PaddingValues(start = 16.dp, top = 12.dp, end = 6.dp, bottom = 12.dp)) {
         Row(verticalAlignment = Alignment.Top) {
+            ProductImage(entry.unit?.imageUrl ?: entry.variant?.imageUrl, Modifier.padding(end = 12.dp), isPhone = entry.unit != null)
             Column(Modifier.weight(1f)) {
                 Text(entry.name, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Palette.Ink)
 

@@ -1,5 +1,5 @@
-import { Form, Head } from '@inertiajs/react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { Form, Head, router } from '@inertiajs/react';
 import { Chip } from '@/components/chip';
 import { Field } from '@/components/field';
 import InputError from '@/components/input-error';
@@ -16,6 +16,9 @@ import {
 import { store as storeCategory } from '@/routes/catalog/categories';
 import { store as storeProduct } from '@/routes/catalog/products';
 import { store as storeSupplier } from '@/routes/catalog/suppliers';
+import { ProductImage } from '@/components/product-image';
+import { image as storeImage } from '@/routes/catalog/products';
+import { destroy as destroyImage } from '@/routes/catalog/products/image';
 
 type Category = {
     id: number;
@@ -37,6 +40,7 @@ type Attribute = {
 type Product = {
     id: number;
     name: string;
+    image_url: string | null;
     category_id: number;
     category: string;
     default_warranty_months: number;
@@ -224,6 +228,70 @@ function AttributeRow({
     );
 }
 
+/**
+ * Model rasmini qo'yish, almashtirish yoki o'chirish (aksesuarlar va rasmi yo'q telefonlar uchun zaxira rasm).
+ */
+function ProductImageActions({ product }: { product: Product }) {
+    const input = useRef<HTMLInputElement>(null);
+    const [busy, setBusy] = useState(false);
+
+    return (
+        <div className="flex items-center gap-1.5">
+            <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                disabled={busy}
+                onClick={() => input.current?.click()}
+            >
+                {busy && <Spinner />}
+                {product.image_url
+                    ? t('catalog.product.image_change')
+                    : t('catalog.product.image')}
+            </Button>
+            {product.image_url && (
+                <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    disabled={busy}
+                    onClick={() =>
+                        router.delete(destroyImage(product.id).url, {
+                            preserveScroll: true,
+                            onStart: () => setBusy(true),
+                            onFinish: () => setBusy(false),
+                        })
+                    }
+                >
+                    {t('catalog.product.image_remove')}
+                </Button>
+            )}
+            <input
+                ref={input}
+                type="file"
+                accept="image/*"
+                hidden
+                onChange={(event) => {
+                    const file = event.target.files?.[0];
+
+                    if (file) {
+                        router.post(
+                            storeImage(product.id).url,
+                            { image: file },
+                            {
+                                forceFormData: true,
+                                preserveScroll: true,
+                                onStart: () => setBusy(true),
+                                onFinish: () => setBusy(false),
+                            },
+                        );
+                    }
+                }}
+            />
+        </div>
+    );
+}
+
 export default function Catalog({
     categories,
     attributes,
@@ -309,7 +377,20 @@ export default function Catalog({
                                 key={product.id}
                                 className="flex flex-wrap items-center justify-between gap-2 glass-inner px-3.5 py-2.5"
                             >
-                                <div className="flex min-w-0 flex-col">
+                                <ProductImage
+                                    src={product.image_url}
+                                    name={product.name}
+                                    kind={
+                                        product.category_id ===
+                                        categories.find(
+                                            (category) =>
+                                                category.tracking === 'serial',
+                                        )?.id
+                                            ? 'phone'
+                                            : 'accessory'
+                                    }
+                                />
+                                <div className="flex min-w-0 flex-1 flex-col">
                                     <span className="text-[15px] font-bold">
                                         {product.name}
                                     </span>
@@ -322,6 +403,7 @@ export default function Catalog({
                                         })}
                                     </span>
                                 </div>
+                                <ProductImageActions product={product} />
                             </div>
                         ))}
                     </div>

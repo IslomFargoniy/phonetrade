@@ -70,7 +70,7 @@ class PublicCatalog
 
             // Telefonlar: bir xil model, kriteriya va narxdagi donalar bitta qatorga yig'iladi.
             $units = StockUnit::query()
-                ->with('product.category:id,name')
+                ->with(['product.category:id,name', 'photos'])
                 ->where('status', StockStatus::InStock)
                 ->whereIn('branch_id', $branches->modelKeys())
                 ->get();
@@ -81,6 +81,7 @@ class PublicCatalog
 
                 $items[$key] ??= [
                     'name' => $unit->product->name,
+                    'image_url' => $unit->imageUrl(),
                     'category' => $unit->product->category->name,
                     'attributes' => (object) $attributes,
                     'price_label' => Money::of($unit->sale_price, $unit->sale_currency)->format(),
@@ -116,6 +117,7 @@ class PublicCatalog
 
                 $items["v|{$variant->id}|{$row->branch_id}"] = [
                     'name' => $variant->product->name,
+                    'image_url' => $variant->product->imageUrl(),
                     'category' => $variant->product->category->name,
                     'attributes' => (object) ($variant->attributes ?? []),
                     'price_label' => Money::of($variant->sale_price, $variant->sale_currency)->format(),

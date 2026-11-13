@@ -2,6 +2,9 @@
 export type StockUnitRow = {
     id: number;
     product: string;
+    image_url: string | null;
+    /** Telefonning o'z rasmlari */
+    photos: { id: number; url: string }[];
     branch_id: number;
     branch: string;
     imei1: string;
@@ -26,6 +29,7 @@ export type StockUnitRow = {
 export type StockVariantRow = {
     id: number;
     product: string;
+    image_url: string | null;
     barcode: string;
     attributes: Record<string, string>;
     sale_price: string;

@@ -35,6 +35,7 @@ final class SalePresenter
             'seller' => $sale->user->name ?? null,
             'customer' => $sale->customer->full_name ?? null,
             'items' => $sale->items->map(fn (SaleItem $item) => $item->qty > 1 ? "{$item->name} × {$item->qty}" : $item->name)->join(', '),
+            'image_url' => $sale->items->first()?->imageUrl(),
         ];
     }
 
@@ -60,6 +61,7 @@ final class SalePresenter
             'items' => $sale->items->map(fn (SaleItem $item) => [
                 'id' => $item->id,
                 'name' => $item->name,
+                'image_url' => $item->imageUrl(),
                 'qty' => $item->qty,
                 'returned_qty' => $item->returned_qty,
                 'returnable_qty' => $item->qty - $item->returned_qty,

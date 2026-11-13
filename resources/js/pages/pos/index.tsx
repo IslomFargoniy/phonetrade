@@ -3,6 +3,7 @@ import { Minus, Plus, ScanLine, Trash2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import type { KeyboardEvent } from 'react';
 import { AttributeChips } from '@/components/attribute-chips';
+import { ProductImage } from '@/components/product-image';
 import { Chip } from '@/components/chip';
 import { DataTable, Td, Th } from '@/components/data-table';
 import { Field } from '@/components/field';
@@ -30,6 +31,7 @@ type CartItem = {
     unitId: number | null;
     variantId: number | null;
     name: string;
+    imageUrl: string | null;
     attributes: Record<string, string>;
     code: string;
     priceLabel: string;
@@ -491,6 +493,7 @@ export default function Pos({ rate, installmentRates }: Props) {
                           unitId: unit.id,
                           variantId: null,
                           name: unit.product,
+                          imageUrl: unit.image_url,
                           attributes: unit.attributes,
                           code: `IMEI ${unit.imei1}`,
                           priceLabel: unit.sale_price_label,
@@ -528,6 +531,7 @@ export default function Pos({ rate, installmentRates }: Props) {
                     unitId: null,
                     variantId: variant.id,
                     name: variant.product,
+                    imageUrl: variant.image_url,
                     attributes: variant.attributes,
                     code: `Barcode ${variant.barcode}`,
                     priceLabel: variant.sale_price_label,
@@ -761,7 +765,12 @@ export default function Pos({ rate, installmentRates }: Props) {
                                     }}
                                     className="flex min-h-14 cursor-pointer items-center justify-between gap-3 border-t border-border py-2 text-left first:border-t-0"
                                 >
-                                    <span className="flex min-w-0 flex-col">
+                                    <ProductImage
+                                        src={unit.image_url}
+                                        name={unit.product}
+                                        className="size-11"
+                                    />
+                                    <span className="flex min-w-0 flex-1 flex-col">
                                         <span className="font-bold">
                                             {unit.product}
                                         </span>
@@ -790,7 +799,13 @@ export default function Pos({ rate, installmentRates }: Props) {
                                     }}
                                     className="flex min-h-14 cursor-pointer items-center justify-between gap-3 border-t border-border py-2 text-left first:border-t-0"
                                 >
-                                    <span className="flex min-w-0 flex-col">
+                                    <ProductImage
+                                        src={variant.image_url}
+                                        name={variant.product}
+                                        kind="accessory"
+                                        className="size-11"
+                                    />
+                                    <span className="flex min-w-0 flex-1 flex-col">
                                         <span className="font-bold">
                                             {variant.product}
                                         </span>
@@ -821,7 +836,15 @@ export default function Pos({ rate, installmentRates }: Props) {
                                     key={item.key}
                                     className="flex flex-wrap items-center gap-3.5 glass-inner p-4"
                                 >
-                                    <div className="flex min-w-0 flex-[1_1_240px] flex-col gap-1.5">
+                                    <ProductImage
+                                        src={item.imageUrl}
+                                        name={item.name}
+                                        kind={
+                                            item.unitId ? 'phone' : 'accessory'
+                                        }
+                                        className="size-16"
+                                    />
+                                    <div className="flex min-w-0 flex-[1_1_200px] flex-col gap-1.5">
                                         <span className="text-base font-bold">
                                             {item.name}
                                         </span>

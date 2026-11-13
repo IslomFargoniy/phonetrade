@@ -1,5 +1,6 @@
 package uz.simulator.phonetrade.ui.screens
 
+import uz.simulator.phonetrade.ui.ProductImage
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -119,7 +120,10 @@ fun InstallmentsScreen(app: PhoneTradeApp) {
                             Text(plan.customer.orEmpty(), Modifier.weight(1f), fontWeight = FontWeight.Bold, fontSize = 16.sp)
                             StateBadge(plan)
                         }
-                        Text(plan.product.orEmpty(), color = Palette.InkMid, fontSize = 13.sp, maxLines = 1)
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 4.dp)) {
+                            ProductImage(plan.imageUrl, Modifier.padding(end = 10.dp), size = 36.dp, corner = 10.dp)
+                            Text(plan.product.orEmpty(), color = Palette.InkMid, fontSize = 13.sp, maxLines = 1)
+                        }
                         Spacer(Modifier.height(6.dp))
                         Row {
                             Column(Modifier.weight(1f)) {

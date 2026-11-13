@@ -2,6 +2,7 @@ import { Head, router } from '@inertiajs/react';
 import { Chip } from '@/components/chip';
 import { Panel } from '@/components/panel';
 import { Button } from '@/components/ui/button';
+import { ProductImage } from '@/components/product-image';
 import { t } from '@/lib/i18n';
 import { index, receive } from '@/routes/transfers';
 
@@ -17,6 +18,8 @@ type Transfer = {
     items: {
         id: number;
         name: string | null;
+        image_url: string | null;
+        is_phone: boolean;
         code: string | null;
         qty: number;
     }[];
@@ -62,7 +65,17 @@ export default function Transfers({ transfers }: { transfers: Transfer[] }) {
                                                 : 'flex items-center justify-between gap-3 border-t border-border py-2.5'
                                         }
                                     >
-                                        <span className="flex min-w-0 flex-col">
+                                        <ProductImage
+                                            src={item.image_url}
+                                            name={item.name ?? ''}
+                                            kind={
+                                                item.is_phone
+                                                    ? 'phone'
+                                                    : 'accessory'
+                                            }
+                                            className="size-10 rounded-[12px]"
+                                        />
+                                        <span className="flex min-w-0 flex-1 flex-col">
                                             <span className="font-semibold">
                                                 {item.name}
                                             </span>

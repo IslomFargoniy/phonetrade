@@ -21,6 +21,7 @@ type Currency = 'UZS' | 'USD';
 type ProductOption = {
     id: number;
     name: string;
+    image_url: string | null;
     tracking: 'serial' | 'quantity';
     default_warranty_months: number;
     default_max_discount_pct: string;

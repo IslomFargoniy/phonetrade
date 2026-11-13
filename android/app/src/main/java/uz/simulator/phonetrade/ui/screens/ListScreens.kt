@@ -33,18 +33,16 @@ import kotlinx.coroutines.delay
 import uz.simulator.phonetrade.PhoneTradeApp
 import uz.simulator.phonetrade.data.ApiException
 import uz.simulator.phonetrade.data.CustomerRow
-import uz.simulator.phonetrade.data.StockUnitDto
 import uz.simulator.phonetrade.ui.Badge
 import uz.simulator.phonetrade.ui.EmptyState
 import uz.simulator.phonetrade.ui.ErrorBanner
 import uz.simulator.phonetrade.ui.GlassCard
 import uz.simulator.phonetrade.ui.LoadingBox
-import uz.simulator.phonetrade.ui.attributesLine
 import uz.simulator.phonetrade.ui.formatPhone
 import uz.simulator.phonetrade.ui.theme.Palette
 
 @Composable
-private fun SearchField(value: String, onChange: (String) -> Unit, placeholder: String) {
+internal fun SearchField(value: String, onChange: (String) -> Unit, placeholder: String) {
     OutlinedTextField(
         value = value,
         onValueChange = onChange,
@@ -59,58 +57,6 @@ private fun SearchField(value: String, onChange: (String) -> Unit, placeholder: 
             unfocusedBorderColor = Palette.Stroke,
         ),
     )
-}
-
-/** Filial omboridagi telefonlar. Tannarx faqat egasiga keladi (server shunday beradi). */
-@Composable
-fun StockScreen(app: PhoneTradeApp) {
-    var query by rememberSaveable { mutableStateOf("") }
-    var units by remember { mutableStateOf<List<StockUnitDto>?>(null) }
-    var error by remember { mutableStateOf<String?>(null) }
-
-    LaunchedEffect(query) {
-        if (query.isNotEmpty()) delay(350)
-        try {
-            units = app.client.call { stock(query.trim().ifEmpty { null }) }.units.orEmpty()
-            error = null
-        } catch (exception: ApiException) {
-            error = exception.message
-            units = units ?: emptyList()
-        }
-    }
-
-    Column(Modifier.fillMaxSize()) {
-        SearchField(query, { query = it }, "Model, IMEI yoki barcode")
-        ErrorBanner(error, Modifier.padding(horizontal = 16.dp))
-
-        val rows = units
-        when {
-            rows == null -> LoadingBox()
-            rows.isEmpty() && error == null -> EmptyState(if (query.isBlank()) "Omborda telefon yo'q." else "Hech narsa topilmadi.")
-            else -> LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                item { Text("${rows.size} ta telefon", color = Palette.InkSoft, fontSize = 13.sp) }
-                items(rows, key = { it.id }) { unit ->
-                    GlassCard {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(unit.product, Modifier.weight(1f), fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                            Text(unit.salePriceLabel, fontWeight = FontWeight.ExtraBold, color = Palette.Primary)
-                        }
-                        attributesLine(unit.attributes).takeIf { it.isNotBlank() }?.let {
-                            Text(it, color = Palette.InkMid, fontSize = 13.sp)
-                        }
-                        Text(
-                            "IMEI ${unit.imei1.orEmpty()} · ${unit.barcode.orEmpty()}",
-                            color = Palette.InkSoft,
-                            fontSize = 12.sp,
-                        )
-                        unit.costLabel?.let {
-                            Text("Tannarx: $it", color = Palette.InkMid, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-                        }
-                    }
-                }
-            }
-        }
-    }
 }
 
 @Composable

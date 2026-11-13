@@ -62,13 +62,13 @@ struct SaleView: View {
                     SectionTitle("Topildi — qo'shish uchun bosing")
                     ForEach(results.units) { unit in
                         Button { add(CartEntry(unit: unit)) } label: {
-                            found(unit.product, detail: [unit.details, "IMEI \(unit.imei1 ?? "")"], price: unit.salePriceLabel)
+                            found(unit.product, detail: [unit.details, "IMEI \(unit.imei1 ?? "")"], price: unit.salePriceLabel, image: unit.imageUrl, isPhone: true)
                         }
                         .buttonStyle(.plain)
                     }
                     ForEach(results.variants) { variant in
                         Button { add(CartEntry(variant: variant)) } label: {
-                            found(variant.product, detail: ["Qoldiq: \(variant.qty) ta"], price: variant.salePriceLabel)
+                            found(variant.product, detail: ["Qoldiq: \(variant.qty) ta"], price: variant.salePriceLabel, image: variant.imageUrl, isPhone: false)
                         }
                         .buttonStyle(.plain)
                     }
@@ -103,17 +103,24 @@ struct SaleView: View {
         }
     }
 
-    private func found(_ title: String, detail: [String], price: String) -> some View {
+    private func found(_ title: String, detail: [String], price: String, image: String?, isPhone: Bool) -> some View {
         GlassCard {
-            Text(title).font(.headline)
-            Text(detail.filter { !$0.isEmpty }.joined(separator: " · ")).font(.footnote).foregroundStyle(Palette.inkMid)
-            Text(price).font(.subheadline.weight(.heavy)).foregroundStyle(Palette.primary)
+            HStack(spacing: 12) {
+                ProductImage(url: image, isPhone: isPhone)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title).font(.headline)
+                    Text(detail.filter { !$0.isEmpty }.joined(separator: " · ")).font(.footnote).foregroundStyle(Palette.inkMid)
+                    Text(price).font(.subheadline.weight(.heavy)).foregroundStyle(Palette.primary)
+                }
+                Spacer(minLength: 0)
+            }
         }
     }
 
     private func cartRow(_ entry: CartEntry, line: CartLine?) -> some View {
         GlassCard {
-            HStack(alignment: .top) {
+            HStack(alignment: .top, spacing: 12) {
+                ProductImage(url: entry.unit?.imageUrl ?? entry.variant?.imageUrl, isPhone: entry.unit != nil)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(entry.name).font(.headline)
                     if let unit = entry.unit {
@@ -332,7 +339,8 @@ private struct ReceiptSheet: View {
                             KeyValue(label: "Sana", value: sale.date ?? "")
                             Divider()
                             ForEach(sale.items ?? []) { item in
-                                HStack(alignment: .top) {
+                                HStack(alignment: .top, spacing: 10) {
+                                    ProductImage(url: item.imageUrl, size: 40, isPhone: item.imei != nil)
                                     VStack(alignment: .leading) {
                                         Text(item.qty > 1 ? "\(item.name) × \(item.qty)" : item.name).font(.subheadline.weight(.bold))
                                         if let imei = item.imei { Text("IMEI \(imei)").font(.caption).foregroundStyle(Palette.inkSoft) }

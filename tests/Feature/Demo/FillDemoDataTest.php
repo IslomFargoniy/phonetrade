@@ -6,15 +6,19 @@ use App\Models\CashSweep;
 use App\Models\Expense;
 use App\Models\InstallmentPayment;
 use App\Models\InstallmentPlan;
+use App\Models\Product;
 use App\Models\Sale;
 use App\Models\SaleReturn;
 use App\Models\StockTransfer;
 use App\Models\StockUnit;
+use App\Models\StockUnitPhoto;
 use App\Tenancy\TenantContext;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Storage;
 use Tests\Support\StoreFixture;
 
 beforeEach(function () {
+    Storage::fake('public');
     // Sana qat'iy: natija test qaysi kuni ishga tushishiga bog'liq bo'lmasin.
     $this->travelTo('2026-11-14 12:00:00');
     $this->store = StoreFixture::create();
@@ -37,6 +41,10 @@ it('fills a store with a month of consistent activity across every process', fun
             ->and(StockTransfer::query()->count())->toBeGreaterThan(1)
             ->and(SaleReturn::query()->count())->toBeGreaterThan(0)
             ->and(StockUnit::query()->count())->toBeGreaterThan(30);
+
+        // Har bir telefonning o'z rasmlari va mahsulotlarning model rasmi.
+        expect(StockUnitPhoto::query()->count())->toBe(StockUnit::query()->count() * 2)
+            ->and(Product::query()->whereNull('image_path')->count())->toBe(0);
 
         // Savdolar butun oyga yoyilgan: birinchi va oxirgi savdo orasida kamida 25 kun.
         $first = Sale::query()->min('created_at');

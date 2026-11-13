@@ -76,7 +76,10 @@ private struct PlanRow: View {
                 Spacer()
                 Badge(text: plan.stateLabel ?? "", color: stateColor(plan.state))
             }
-            Text(plan.product ?? "").font(.footnote).foregroundStyle(Palette.inkMid).lineLimit(1)
+            HStack(spacing: 10) {
+                ProductImage(url: plan.imageUrl, size: 36)
+                Text(plan.product ?? "").font(.footnote).foregroundStyle(Palette.inkMid).lineLimit(1)
+            }
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Navbatdagi to'lov").font(.caption).foregroundStyle(Palette.inkSoft)

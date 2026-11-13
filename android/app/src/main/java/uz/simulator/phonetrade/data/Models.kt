@@ -58,7 +58,13 @@ data class StockUnitDto(
     val receivedAt: String?,
     /** Faqat egasiga keladi. */
     val costLabel: String?,
+    /** Telefonning o'z rasmi, bo'lmasa model rasmi. */
+    val imageUrl: String? = null,
+    /** Shu telefonga kirimda olingan rasmlar (har biri alohida). */
+    val photos: List<PhotoDto>? = null,
 )
+
+data class PhotoDto(val id: Int, val url: String)
 
 data class StockVariantDto(
     val id: Int,
@@ -70,6 +76,7 @@ data class StockVariantDto(
     val salePriceLabel: String,
     val maxDiscountPct: String?,
     val qty: Int,
+    val imageUrl: String? = null,
 )
 
 data class LookupResponse(
@@ -183,6 +190,7 @@ data class SaleItemDto(
     val hasDiscount: Boolean,
     val finalLabel: String?,
     val warrantyUntil: String?,
+    val imageUrl: String? = null,
 )
 
 data class SalePaymentDto(val id: Int, val label: String?, val amountLabel: String?)
@@ -228,6 +236,7 @@ data class PlanDto(
     val customerPhone: String?,
     val customerPhoneRaw: String?,
     val product: String?,
+    val imageUrl: String?,
     val months: Int,
     val currency: String,
     val status: String?,

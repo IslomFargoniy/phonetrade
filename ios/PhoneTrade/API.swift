@@ -126,6 +126,35 @@ final class Session {
         try await send(method: "POST", path, body: body, idempotencyKey: idempotencyKey)
     }
 
+    func delete<T: Decodable>(_ path: String) async throws -> T {
+        var request = URLRequest(url: baseURL.appendingPathComponent(path))
+        request.httpMethod = "DELETE"
+
+        return try await send(request)
+    }
+
+    /// JPEG fayllarni multipart/form-data bilan yuboradi (`field[]`).
+    func upload<T: Decodable>(_ path: String, field: String, jpegs: [Data]) async throws -> T {
+        let boundary = "PhoneTrade-\(UUID().uuidString)"
+        var body = Data()
+
+        for (index, jpeg) in jpegs.enumerated() {
+            body.append(Data("--\(boundary)\r\n".utf8))
+            body.append(Data("Content-Disposition: form-data; name=\"\(field)[]\"; filename=\"photo\(index).jpg\"\r\n".utf8))
+            body.append(Data("Content-Type: image/jpeg\r\n\r\n".utf8))
+            body.append(jpeg)
+            body.append(Data("\r\n".utf8))
+        }
+        body.append(Data("--\(boundary)--\r\n".utf8))
+
+        var request = URLRequest(url: baseURL.appendingPathComponent(path))
+        request.httpMethod = "POST"
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        request.httpBody = body
+
+        return try await send(request)
+    }
+
     private func send<T: Decodable, B: Encodable>(method: String, _ path: String, body: B, idempotencyKey: String? = nil) async throws -> T {
         var request = URLRequest(url: baseURL.appendingPathComponent(path))
         request.httpMethod = method

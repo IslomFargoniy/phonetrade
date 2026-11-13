@@ -4,11 +4,13 @@ import { useEffect, useMemo, useState } from 'react';
 import { AppMark } from '@/components/app-mark';
 import { AttributeChips } from '@/components/attribute-chips';
 import { Chip } from '@/components/chip';
+import { ProductImage } from '@/components/product-image';
 import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
 type Item = {
     name: string;
+    image_url: string | null;
     category: string;
     attributes: Record<string, string>;
     price_label: string;
@@ -148,6 +150,16 @@ export default function Storefront({
                                 key={`${item.name}-${item.branch}-${item.price_label}-${index}`}
                                 className="flex flex-col gap-2 glass p-4"
                             >
+                                <ProductImage
+                                    src={item.image_url}
+                                    name={item.name}
+                                    kind={
+                                        item.category === 'Telefon'
+                                            ? 'phone'
+                                            : 'accessory'
+                                    }
+                                    className="aspect-square h-auto w-full rounded-[18px]"
+                                />
                                 <div className="flex items-start justify-between gap-2">
                                     <h2 className="text-base leading-snug font-bold">
                                         {item.name}

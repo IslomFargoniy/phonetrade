@@ -5,6 +5,7 @@ namespace App\Http\Presenters;
 use App\Enums\Currency;
 use App\Models\ProductVariant;
 use App\Models\StockUnit;
+use App\Models\StockUnitPhoto;
 use App\Support\Money;
 
 /**
@@ -23,6 +24,8 @@ final class StockPresenter
         $data = [
             'id' => $unit->id,
             'product' => $unit->product->name,
+            'image_url' => $unit->imageUrl(),
+            'photos' => $unit->photos->map(fn (StockUnitPhoto $photo) => ['id' => $photo->id, 'url' => $photo->url()])->values(),
             'branch_id' => $unit->branch_id,
             'branch' => $unit->branch->name,
             'imei1' => $unit->imei1,
@@ -57,6 +60,7 @@ final class StockPresenter
         return [
             'id' => $variant->id,
             'product' => $variant->product->name,
+            'image_url' => $variant->product->imageUrl(),
             'barcode' => $variant->barcode,
             'attributes' => self::attributes($variant->attributes),
             'sale_price' => $variant->sale_price,

@@ -90,6 +90,13 @@ struct StockUnit: Decodable, Identifiable, Hashable {
     let saleCurrency: String
     let salePriceLabel: String
     let costLabel: String?
+    /// Telefonning o'z rasmi, bo'lmasa model rasmi.
+    let imageUrl: String?
+    /// Shu telefonga kirimda olingan rasmlar.
+    let photos: [UnitPhoto]?
+    let warrantyMonths: Int?
+    let statusLabel: String?
+    let receivedAt: String?
 
     var details: String { (attributes ?? [:]).values.filter { !$0.isEmpty }.sorted().joined(separator: " · ") }
 }
@@ -101,6 +108,12 @@ struct StockVariant: Decodable, Identifiable, Hashable {
     let saleCurrency: String
     let salePriceLabel: String
     let qty: Int
+    let imageUrl: String?
+}
+
+struct UnitPhoto: Decodable, Identifiable, Hashable {
+    let id: Int
+    let url: String
 }
 
 struct StockResponse: Decodable {
@@ -148,6 +161,7 @@ struct Plan: Decodable, Identifiable {
     let customer: String?
     let customerPhone: String?
     let product: String?
+    let imageUrl: String?
     let months: Int
     let currency: String
     let status: String?
@@ -213,6 +227,7 @@ struct SaleItem: Decodable, Identifiable {
     let imei: String?
     let finalLabel: String?
     let warrantyUntil: String?
+    let imageUrl: String?
 }
 
 struct SalePayment: Decodable, Identifiable {

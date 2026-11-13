@@ -207,3 +207,30 @@ enum Fmt {
         }
     }
 }
+
+/// Tovar rasmi. Rasm bo'lmasa yoki yuklanmasa — telefon/aksessuar ikonkasi.
+struct ProductImage: View {
+    let url: String?
+    var size: CGFloat = 52
+    var isPhone = true
+    var corner: CGFloat = 14
+
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: corner, style: .continuous).fill(.white.opacity(0.7))
+
+            AsyncImage(url: url.flatMap(URL.init(string:))) { phase in
+                if let image = phase.image {
+                    image.resizable().scaledToFill()
+                } else {
+                    Image(systemName: isPhone ? "iphone" : "shippingbox")
+                        .font(.system(size: size * 0.36))
+                        .foregroundStyle(Palette.inkSoft)
+                }
+            }
+        }
+        .frame(width: size, height: size)
+        .clipShape(RoundedRectangle(cornerRadius: corner, style: .continuous))
+        .accessibilityHidden(true)
+    }
+}

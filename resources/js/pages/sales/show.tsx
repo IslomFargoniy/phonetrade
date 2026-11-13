@@ -7,6 +7,7 @@ import { DataTable, Td, Th } from '@/components/data-table';
 import { Field } from '@/components/field';
 import InputError from '@/components/input-error';
 import { Panel } from '@/components/panel';
+import { ProductImage } from '@/components/product-image';
 import { SaleReceipt } from '@/components/sale-receipt';
 import { SelectField } from '@/components/select-field';
 import { Button } from '@/components/ui/button';
@@ -21,6 +22,7 @@ import { index, refund } from '@/routes/sales';
 type SaleItem = {
     id: number;
     name: string;
+    image_url: string | null;
     qty: number;
     returned_qty: number;
     returnable_qty: number;
@@ -178,6 +180,16 @@ export default function SaleShow({
                                 {sale.items.map((item) => (
                                     <tr key={item.id}>
                                         <Td>
+                                            <ProductImage
+                                                src={item.image_url}
+                                                name={item.name}
+                                                kind={
+                                                    item.imei
+                                                        ? 'phone'
+                                                        : 'accessory'
+                                                }
+                                                className="float-left mr-3 size-12"
+                                            />
                                             <div className="font-bold">
                                                 {item.name}
                                             </div>

@@ -37,7 +37,7 @@ class SalesController extends Controller
         $search = trim((string) $request->query('q', ''));
 
         $units = StockUnit::query()
-            ->with(['product:id,name', 'branch:id,name'])
+            ->with(['product:id,name,image_path', 'branch:id,name', 'photos'])
             ->where('branch_id', $branch->id)
             ->where('status', StockStatus::InStock)
             ->when($search !== '', fn ($query) => $query->where(fn ($inner) => $inner
@@ -130,7 +130,7 @@ class SalesController extends Controller
      */
     private function present(Sale $sale, Request $request): array
     {
-        $sale->load(['items.unit', 'items.variant', 'payments', 'returns', 'branch', 'user:id,name', 'customer', 'plan']);
+        $sale->load(['items.unit.product', 'items.unit.photos', 'items.variant.product', 'payments', 'returns', 'branch', 'user:id,name', 'customer', 'plan']);
 
         return SalePresenter::detail($sale, $this->user($request));
     }

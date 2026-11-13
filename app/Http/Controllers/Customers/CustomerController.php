@@ -58,11 +58,11 @@ class CustomerController extends Controller
             ]),
             'selected' => $selected ? [
                 ...$this->card($selected),
-                'sales' => Sale::query()->with(['items', 'user:id,name', 'customer:id,full_name,phone'])
+                'sales' => Sale::query()->with(['items.unit.product:id,image_path', 'items.unit.photos', 'items.variant.product:id,image_path', 'user:id,name', 'customer:id,full_name,phone'])
                     ->where('customer_id', $selected->id)->orderByDesc('id')->limit(30)->get()
                     ->map(fn (Sale $sale) => SalePresenter::summary($sale)),
                 'plans' => InstallmentPlan::query()
-                    ->with(['customer', 'sale.items', 'schedule' => fn ($rows) => $rows->orderBy('no'), 'payments'])
+                    ->with(['customer', 'sale.items.unit.product:id,image_path', 'sale.items.unit.photos', 'sale.items.variant.product:id,image_path', 'schedule' => fn ($rows) => $rows->orderBy('no'), 'payments'])
                     ->where('customer_id', $selected->id)->orderByDesc('id')->get()
                     ->map(fn (InstallmentPlan $plan) => InstallmentPresenter::plan($plan)),
             ] : null,

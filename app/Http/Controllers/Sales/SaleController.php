@@ -32,7 +32,7 @@ class SaleController extends Controller
         $phone = Phone::normalize($search);
 
         $sales = Sale::query()
-            ->with(['items', 'user:id,name', 'customer:id,full_name,phone'])
+            ->with(['items.unit.product:id,image_path', 'items.unit.photos', 'items.variant.product:id,image_path', 'user:id,name', 'customer:id,full_name,phone'])
             // Sotuvchi faqat o'z filiali savdolarini ko'radi.
             ->when(! $user->isOwner(), fn ($query) => $query->where('branch_id', $branch->id))
             ->when($search !== '', fn ($query) => $query->where(fn ($inner) => $inner
@@ -79,7 +79,7 @@ class SaleController extends Controller
         $user = $this->user($request);
         $this->authorizeSale($user, $sale);
 
-        $sale->load(['items.unit', 'items.variant', 'payments', 'returns', 'branch', 'user:id,name', 'customer', 'plan']);
+        $sale->load(['items.unit.product', 'items.unit.photos', 'items.variant.product', 'payments', 'returns', 'branch', 'user:id,name', 'customer', 'plan']);
         $tenant = Tenant::query()->findOrFail($user->tenant_id);
 
         return Inertia::render('sales/show', [

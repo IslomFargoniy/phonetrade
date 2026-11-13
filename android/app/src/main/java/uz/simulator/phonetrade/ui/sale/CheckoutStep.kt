@@ -1,5 +1,6 @@
 package uz.simulator.phonetrade.ui.sale
 
+import uz.simulator.phonetrade.ui.ProductImage
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -380,7 +381,8 @@ fun SaleReceiptCard(app: PhoneTradeApp, sale: SaleDto) {
         Spacer(Modifier.height(8.dp))
 
         sale.items.orEmpty().forEach { item ->
-            Row(Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+            Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                ProductImage(item.imageUrl, Modifier.padding(end = 10.dp), size = 40.dp, isPhone = item.imei != null, corner = 10.dp)
                 Column(Modifier.weight(1f)) {
                     Text(if (item.qty > 1) "${item.name} × ${item.qty}" else item.name, fontWeight = FontWeight.Bold)
                     item.imei?.let { Text("IMEI $it", color = Palette.InkSoft, fontSize = 12.sp) }

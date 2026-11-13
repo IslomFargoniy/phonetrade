@@ -36,7 +36,7 @@ class StockLookup
             ->get();
 
         $variants = $units->isEmpty()
-            ? ProductVariant::query()->with('product:id,name')->where('barcode', $code)->limit(1)->get()
+            ? ProductVariant::query()->with('product:id,name,image_path')->where('barcode', $code)->limit(1)->get()
             : collect();
 
         $presentedVariants = $this->presentVariants($variants->all(), $branch);
@@ -53,7 +53,7 @@ class StockLookup
 
             $presentedVariants = $this->presentVariants(
                 ProductVariant::query()
-                    ->with('product:id,name')
+                    ->with('product:id,name,image_path')
                     ->whereHas('product', fn ($product) => $product->where('name', 'like', "%{$code}%"))
                     ->limit(8)
                     ->get()
@@ -75,7 +75,7 @@ class StockLookup
     private function units(Branch $branch)
     {
         return StockUnit::query()
-            ->with(['product:id,name', 'branch:id,name'])
+            ->with(['product:id,name,image_path', 'branch:id,name', 'photos'])
             ->where('branch_id', $branch->id)
             ->where('status', StockStatus::InStock);
     }

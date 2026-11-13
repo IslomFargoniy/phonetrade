@@ -6,6 +6,7 @@ import { DataTable, Td, Th } from '@/components/data-table';
 import { Panel } from '@/components/panel';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { ProductImage } from '@/components/product-image';
 import { t } from '@/lib/i18n';
 import { index, show } from '@/routes/sales';
 
@@ -21,6 +22,7 @@ export type SaleSummary = {
     seller: string | null;
     customer: string | null;
     items: string;
+    image_url: string | null;
 };
 
 export const saleStatusTone: Record<SaleSummary['status'], ChipTone> = {
@@ -97,7 +99,16 @@ export default function Sales({
                                     <Td className="text-[13px] num whitespace-nowrap">
                                         {sale.date}
                                     </Td>
-                                    <Td>{sale.items}</Td>
+                                    <Td>
+                                        <span className="flex items-center gap-2.5">
+                                            <ProductImage
+                                                src={sale.image_url}
+                                                name={sale.items}
+                                                className="size-9 rounded-[10px]"
+                                            />
+                                            {sale.items}
+                                        </span>
+                                    </Td>
                                     <Td>{sale.customer}</Td>
                                     <Td>{sale.seller}</Td>
                                     <Td
