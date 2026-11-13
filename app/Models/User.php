@@ -21,6 +21,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property string $phone
  * @property Role $role
  * @property bool $is_active
+ * @property bool $can_refund
  * @property string $password
  * @property string|null $two_factor_secret
  * @property string|null $two_factor_recovery_codes
@@ -29,7 +30,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'phone', 'password', 'role', 'is_active'])]
+#[Fillable(['name', 'phone', 'password', 'role', 'is_active', 'can_refund'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -47,6 +48,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'role' => Role::class,
             'is_active' => 'boolean',
+            'can_refund' => 'boolean',
             'two_factor_confirmed_at' => 'datetime',
         ];
     }
@@ -67,6 +69,14 @@ class User extends Authenticatable
     public function isOwner(): bool
     {
         return $this->role === Role::Owner;
+    }
+
+    /**
+     * Savdoni qaytarish: egasi yoki u ruxsat bergan sotuvchi.
+     */
+    public function canRefund(): bool
+    {
+        return $this->isOwner() || ($this->isSeller() && $this->can_refund);
     }
 
     public function isSeller(): bool
