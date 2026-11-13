@@ -181,6 +181,7 @@ Maqsad: sotuvchi telefon bilan sotadi.
 - [x] 7.2 Egasini bog'lash; kunlik savdo va foyda xabari; muddati o'tganlar ro'yxati
 - [x] 7.3 Mijozni "kontakt yuborish" orqali kartaga bog'lash
 - [x] 7.4 Mijozga to'lov eslatmasi (to'lov kunidan oldin) va qolgan qarz
+- [x] 7.5 Mijozlar uchun vitrina (Telegram mini-ilova): do'kondagi tovarlar va narxlar, faqat ko'rish; egasi sozlamalarda ochadi
 
 **Tayyor:** egasi har kuni hisobot oladi; botga ulangan mijozga eslatma boradi.
 

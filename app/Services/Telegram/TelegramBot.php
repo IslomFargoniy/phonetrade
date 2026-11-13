@@ -7,6 +7,7 @@ use App\Jobs\SendTelegramMessage;
 use App\Models\Customer;
 use App\Models\Tenant;
 use App\Models\User;
+use App\Services\Catalog\PublicCatalog;
 use App\Support\Phone;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
@@ -22,7 +23,10 @@ class TelegramBot
 {
     private const LINK_MINUTES = 30;
 
-    public function __construct(private readonly TelegramReports $reports) {}
+    public function __construct(
+        private readonly TelegramReports $reports,
+        private readonly PublicCatalog $catalog,
+    ) {}
 
     /**
      * Egasi uchun bir martalik ulanish havolasi. Bot sozlanmagan bo'lsa null.
@@ -73,7 +77,12 @@ class TelegramBot
         $command = Str::lower(Str::before($command, '@'));
 
         match ($command) {
-            '/start' => $argument !== '' ? $this->linkOwner($chatId, $argument) : $this->welcome($chatId),
+            '/start' => match (true) {
+                str_starts_with($argument, 'shop_') => $this->openCatalog($chatId, Str::after($argument, 'shop_')),
+                $argument !== '' => $this->linkOwner($chatId, $argument),
+                default => $this->welcome($chatId),
+            },
+            '/katalog' => $this->catalogs($chatId),
             '/hisobot' => $this->forOwner($chatId, fn (Tenant $tenant) => $this->reports->daily($tenant)),
             '/qarzdorlar' => $this->forOwner($chatId, fn (Tenant $tenant) => $this->reports->overdue($tenant)),
             '/qarz' => $this->reply($chatId, $this->reports->customerDebts($chatId)),
@@ -139,6 +148,55 @@ class TelegramBot
         ]), ['remove_keyboard' => true]);
     }
 
+    /**
+     * Do'kon tarqatgan havola orqali kelgan mijozga katalogni ochadigan tugma yuboriladi.
+     */
+    private function openCatalog(int $chatId, string $code): void
+    {
+        $tenant = $this->catalog->findByCode($code);
+
+        if ($tenant === null) {
+            $this->reply($chatId, "Bu do'kon katalogi hozir yopiq.");
+
+            return;
+        }
+
+        $this->reply($chatId, '<b>'.e($tenant->name).'</b> — hozir do\'konda bor tovarlar va narxlar.', $this->catalogButtons([$tenant]));
+    }
+
+    /**
+     * Mijoz ulangan do'konlarning kataloglari.
+     */
+    private function catalogs(int $chatId): void
+    {
+        $tenants = Tenant::query()
+            ->whereIn('id', Customer::query()->where('telegram_chat_id', $chatId)->pluck('tenant_id'))
+            ->get()
+            ->filter(fn (Tenant $tenant) => $this->catalog->isEnabled($tenant) && ! $tenant->isBlocked())
+            ->values()
+            ->all();
+
+        if ($tenants === []) {
+            $this->reply($chatId, "Katalogni ochish uchun do'kon bergan havoladan foydalaning.");
+
+            return;
+        }
+
+        $this->reply($chatId, "Do'konni tanlang:", $this->catalogButtons($tenants));
+    }
+
+    /**
+     * @param  array<int, Tenant>  $tenants
+     * @return array<string, mixed>
+     */
+    private function catalogButtons(array $tenants): array
+    {
+        return ['inline_keyboard' => array_map(fn (Tenant $tenant) => [[
+            'text' => count($tenants) === 1 ? 'Katalogni ochish' : $tenant->name,
+            'web_app' => ['url' => (string) $this->catalog->url($tenant)],
+        ]], array_values($tenants))];
+    }
+
     private function welcome(int $chatId): void
     {
         $this->reply(
@@ -154,7 +212,7 @@ class TelegramBot
 
         $this->reply($chatId, $isOwner
             ? "/hisobot — bugungi hisobot\n/qarzdorlar — muddati o'tgan to'lovlar\n/stop — botdan uzish"
-            : "/qarz — qolgan qarz va navbatdagi to'lov\n/start — telefon raqam orqali ulanish\n/stop — eslatmalarni o'chirish");
+            : "/katalog — do'kondagi tovarlar\n/qarz — qolgan qarz va navbatdagi to'lov\n/start — telefon raqam orqali ulanish\n/stop — eslatmalarni o'chirish");
     }
 
     private function unlink(int $chatId): void

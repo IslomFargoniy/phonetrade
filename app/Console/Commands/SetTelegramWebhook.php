@@ -29,6 +29,14 @@ class SetTelegramWebhook extends Command
             return self::FAILURE;
         }
 
+        $telegram->setCommands([
+            'katalog' => "Do'kondagi tovarlar va narxlar",
+            'qarz' => "Qolgan qarz va navbatdagi to'lov",
+            'hisobot' => "Bugungi savdo va foyda (do'kon egasi)",
+            'qarzdorlar' => "Muddati o'tgan to'lovlar (do'kon egasi)",
+            'stop' => 'Botdan uzish',
+        ]);
+
         $this->info("Webhook o'rnatildi: {$url}");
 
         return self::SUCCESS;

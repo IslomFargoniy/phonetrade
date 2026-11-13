@@ -64,6 +64,22 @@ class TelegramClient
         ])->successful();
     }
 
+    /**
+     * Bot menyusida ko'rinadigan buyruqlar ro'yxati.
+     *
+     * @param  array<string, string>  $commands  buyruq => tavsif
+     */
+    public function setCommands(array $commands): bool
+    {
+        return Http::timeout(15)->asJson()->post($this->url('setMyCommands'), [
+            'commands' => array_map(
+                fn (string $command, string $description) => ['command' => $command, 'description' => $description],
+                array_keys($commands),
+                array_values($commands),
+            ),
+        ])->successful();
+    }
+
     private function url(string $method): string
     {
         return 'https://api.telegram.org/bot'.config('services.telegram.token').'/'.$method;

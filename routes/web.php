@@ -17,6 +17,7 @@ use App\Http\Controllers\Stock\TransferController;
 use App\Http\Controllers\Store\BranchController;
 use App\Http\Controllers\Store\StaffController;
 use App\Http\Controllers\Store\StoreSettingsController;
+use App\Http\Controllers\Storefront\StorefrontController;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -111,6 +112,7 @@ Route::middleware(['auth', 'role:owner'])->prefix('settings')->group(function ()
     Route::put('store/rate', [StoreSettingsController::class, 'updateRate'])->name('store-settings.rate');
     Route::put('store/general', [StoreSettingsController::class, 'updateGeneral'])->name('store-settings.general');
     Route::delete('store/telegram', [StoreSettingsController::class, 'unlinkTelegram'])->name('store-settings.telegram.unlink');
+    Route::put('store/storefront', [StoreSettingsController::class, 'updateStorefront'])->name('store-settings.storefront');
     Route::put('store/installment-rates/{branch}', [StoreSettingsController::class, 'updateInstallmentRates'])
         ->name('store-settings.installment-rates');
 
@@ -132,3 +134,6 @@ Route::middleware(['auth', 'role:owner'])->prefix('settings')->group(function ()
 });
 
 require __DIR__.'/settings.php';
+
+// Mijozlar uchun ochiq katalog (Telegram mini-ilova). Kirish talab qilinmaydi; do'kon egasi yoqqan bo'lsagina ochiladi.
+Route::get('vitrina/{code}', [StorefrontController::class, 'show'])->middleware('throttle:120,1')->name('storefront.show');
