@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\InstallmentsController;
 use App\Http\Controllers\Api\OwnerController;
 use App\Http\Controllers\Api\SalesController;
+use App\Http\Controllers\Telegram\WebhookController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -40,3 +41,6 @@ Route::prefix('v1')->name('api.')->group(function () {
         });
     });
 });
+
+// Telegram bot yangilanishlari. Maxfiy sarlavha bilan tekshiriladi (WebhookController).
+Route::post('telegram/webhook', WebhookController::class)->middleware('throttle:300,1')->name('telegram.webhook');

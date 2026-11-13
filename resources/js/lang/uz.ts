@@ -87,6 +87,18 @@ export const uz = {
     'store.rate.field': "1 $ = so'm",
     'store.rate.manual': "Qo'lda",
     'store.rate.cbu': 'Markaziy bank',
+    'store.telegram.title': 'Telegram bot',
+    'store.telegram.description':
+        "Har kuni kechqurun savdo va foyda hisoboti, muddati o'tgan to'lovlar ro'yxati. Botga ulangan mijozlarga to'lov kunidan oldin eslatma boradi.",
+    'store.telegram.linked': 'Ulangan',
+    'store.telegram.linked_hint':
+        "Hisobot shu akkauntning Telegram'iga yuboriladi. Botda: /hisobot, /qarzdorlar.",
+    'store.telegram.link_hint':
+        "Tugmani bosing va Telegram'da «Start» ni bosing. Havola 30 daqiqa amal qiladi.",
+    'store.telegram.link': "Telegram'ga ulash",
+    'store.telegram.unlink': 'Uzish',
+    'store.telegram.disabled':
+        "Bot hali sozlanmagan. Tizim administratori bot tokenini o'rnatgach, shu yerda ulash tugmasi paydo bo'ladi.",
     'store.general.title': 'Yaxlitlash va chek',
     'store.general.description':
         "Nasiyada oylik to'lov shu qadamga yuqoriga yaxlitlanadi.",

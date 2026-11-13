@@ -102,6 +102,7 @@ Route::middleware(['auth', 'role:owner'])->prefix('settings')->group(function ()
     Route::get('store', [StoreSettingsController::class, 'edit'])->name('store-settings.edit');
     Route::put('store/rate', [StoreSettingsController::class, 'updateRate'])->name('store-settings.rate');
     Route::put('store/general', [StoreSettingsController::class, 'updateGeneral'])->name('store-settings.general');
+    Route::delete('store/telegram', [StoreSettingsController::class, 'unlinkTelegram'])->name('store-settings.telegram.unlink');
     Route::put('store/installment-rates/{branch}', [StoreSettingsController::class, 'updateInstallmentRates'])
         ->name('store-settings.installment-rates');
 
