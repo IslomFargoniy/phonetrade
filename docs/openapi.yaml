@@ -370,6 +370,21 @@ paths:
                                     },
                             },
                     }
+    /account:
+        delete:
+            summary: Akkauntni o'chirish
+            description: Sotuvchi akkaunti darhol o'chiriladi (`status: deleted`, token bekor bo'ladi). Do'kon egasida butun do'konni o'chirish so'rovi yoziladi (`status: requested`).
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required: [password]
+                            properties: { password: { type: string } }
+            responses:
+                '200': { description: '`status` va foydalanuvchiga ko''rsatiladigan `message`' }
+                '422': { description: VALIDATION_FAILED — parol noto'g'ri }
     /stock/lookup:
         get:
             summary: Skaner — IMEI, barcode yoki model nomi bo'yicha topish

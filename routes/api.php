@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\InstallmentsController;
 use App\Http\Controllers\Api\OwnerController;
 use App\Http\Controllers\Api\SalesController;
+use App\Http\Controllers\Settings\AccountController;
 use App\Http\Controllers\Telegram\WebhookController;
 use Illuminate\Support\Facades\Route;
 
@@ -20,6 +21,7 @@ Route::prefix('v1')->name('api.')->group(function () {
     Route::middleware(['auth:sanctum', 'role:owner,seller', 'throttle:240,1'])->group(function () {
         Route::post('logout', [AuthController::class, 'logout'])->name('logout');
         Route::get('me', [AuthController::class, 'me'])->name('me');
+        Route::delete('account', [AccountController::class, 'destroyViaApi'])->name('account.destroy');
 
         Route::get('stock/lookup', [SalesController::class, 'lookup'])->name('stock.lookup');
         Route::get('stock', [SalesController::class, 'stock'])->name('stock.index');

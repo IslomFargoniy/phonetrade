@@ -8,7 +8,7 @@ import { StatList } from '@/components/stat-list';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { t } from '@/lib/i18n';
-import { index, payments, subscription } from '@/routes/admin/tenants';
+import { destroy, index, payments, subscription } from '@/routes/admin/tenants';
 
 export type SubscriptionState = 'unlimited' | 'active' | 'grace' | 'expired';
 
@@ -17,6 +17,7 @@ type Tenant = {
     name: string;
     status: 'active' | 'blocked';
     created_at: string | null;
+    deletion_requested_at: string | null;
     plan_id: number | null;
     plan: string | null;
     paid_until: string | null;
@@ -289,6 +290,47 @@ export default function TenantBilling({
                                     >
                                         {processing && <Spinner />}
                                         {t('action.save')}
+                                    </Button>
+                                </>
+                            )}
+                        </Form>
+                    </Panel>
+
+                    <Panel
+                        title={t('billing.purge.title')}
+                        description={t('billing.purge.description')}
+                    >
+                        {tenant.deletion_requested_at && (
+                            <p className="rounded-[14px] bg-warning-bg px-3.5 py-3 text-sm font-semibold text-warning">
+                                {t('billing.purge.requested', {
+                                    date: tenant.deletion_requested_at,
+                                })}
+                            </p>
+                        )}
+                        <Form
+                            {...destroy.form(tenant.id)}
+                            className="flex flex-col gap-3"
+                        >
+                            {({ processing, errors }) => (
+                                <>
+                                    <Field
+                                        label={t('billing.purge.confirm', {
+                                            name: tenant.name,
+                                        })}
+                                        name="confirm"
+                                        id="purge-confirm"
+                                        autoComplete="off"
+                                        required
+                                        error={errors.confirm}
+                                    />
+                                    <Button
+                                        type="submit"
+                                        variant="destructive"
+                                        className="self-start"
+                                        disabled={processing}
+                                    >
+                                        {processing && <Spinner />}
+                                        {t('billing.purge.submit')}
                                     </Button>
                                 </>
                             )}

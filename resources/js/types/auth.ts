@@ -22,6 +22,8 @@ export type BranchOption = {
 /** Do'kon ichidagi har sahifaga beriladigan umumiy ma'lumot */
 export type StoreContext = {
     name: string;
+    /** Egasi do'konni o'chirishni so'ragan sana */
+    deletion_requested_at: string | null;
     branch: BranchOption | null;
     branches: BranchOption[];
     rate: { usd_uzs: string; date: string; is_today: boolean } | null;

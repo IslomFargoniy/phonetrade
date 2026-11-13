@@ -250,3 +250,11 @@ data class PlanDto(
 data class PlansResponse(val plans: List<PlanDto>?)
 
 data class MessageResponse(val message: String?)
+
+// --- Akkauntni o'chirish ---
+
+data class PasswordBody(val password: String)
+
+/** `status`: "deleted" — sotuvchi akkaunti o'chirildi; "requested" — egasining so'rovi yuborildi. */
+data class DeleteAccountResponse(val status: String?, val message: String?)
+

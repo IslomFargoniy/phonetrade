@@ -20,6 +20,7 @@ use Illuminate\Support\Carbon;
  * @property array<string, mixed>|null $settings
  * @property int|null $plan_id
  * @property Carbon|null $paid_until
+ * @property Carbon|null $deletion_requested_at
  * @property-read Plan|null $plan
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -44,6 +45,7 @@ class Tenant extends Model
             'status' => TenantStatus::class,
             'settings' => 'array',
             'paid_until' => 'date',
+            'deletion_requested_at' => 'datetime',
         ];
     }
 

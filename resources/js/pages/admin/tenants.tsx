@@ -21,6 +21,7 @@ type Tenant = {
     plan: string | null;
     paid_until: string | null;
     state: SubscriptionState;
+    deletion_requested: boolean;
 };
 
 type Stats = {
@@ -121,6 +122,13 @@ export default function Tenants({
                                                 <div className="font-bold">
                                                     {tenant.name}
                                                 </div>
+                                                {tenant.deletion_requested && (
+                                                    <Chip tone="danger">
+                                                        {t(
+                                                            'tenants.deletion_requested',
+                                                        )}
+                                                    </Chip>
+                                                )}
                                                 <div className="text-xs num text-muted-foreground">
                                                     {tenant.created_at}
                                                 </div>

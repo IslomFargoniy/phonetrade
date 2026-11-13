@@ -59,6 +59,7 @@ class TenantController extends Controller
                 'plan' => $tenant->plan?->name,
                 'paid_until' => $tenant->paid_until?->format('d.m.Y'),
                 'state' => $subscription->state($tenant),
+                'deletion_requested' => $tenant->deletion_requested_at !== null,
                 'id' => $tenant->id,
                 'name' => $tenant->name,
                 'status' => $tenant->status->value,

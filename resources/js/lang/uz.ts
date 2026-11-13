@@ -95,6 +95,25 @@ export const uz = {
         "Obuna muddati tugagan. :date dan boshlab do'kon faqat o'qish rejimiga o'tadi — to'lovni amalga oshiring.",
     'subscription.ends_soon': 'Obuna muddati :days kundan keyin tugaydi.',
     'subscription.ends_today': 'Obuna muddati bugun tugaydi.',
+    'tenants.deletion_requested': "O'chirish so'ralgan",
+    'billing.purge.title': "Do'konni butunlay o'chirish",
+    'billing.purge.description':
+        "Do'kon barcha xodimlari, mijozlari, pasport rasmlari, ombor va savdo yozuvlari bilan o'chiriladi. Qaytarib bo'lmaydi.",
+    'billing.purge.requested': "Egasi :date kuni o'chirishni so'ragan.",
+    'billing.purge.confirm': "Tasdiqlash uchun do'kon nomini yozing: :name",
+    'billing.purge.submit': "Butunlay o'chirish",
+    'account.delete.title': "Akkauntni o'chirish",
+    'account.delete.description':
+        "Akkauntingiz darhol o'chiriladi: ism, telefon va parol tozalanadi, barcha qurilmalardan chiqarilasiz. Siz qilgan savdolar do'kon hisobida shaxsiy ma'lumotsiz qoladi.",
+    'account.delete.submit': "Akkauntni o'chirish",
+    'account.delete.store_title': "Do'konni o'chirish",
+    'account.delete.store_description':
+        "Butun do'konni — xodimlar, mijozlar, pasport rasmlari, ombor va savdo yozuvlari bilan — o'chirish so'rovi yuboriladi. 30 kun ichida bajariladi; shu vaqtgacha bekor qilishingiz mumkin.",
+    'account.delete.store_submit': "O'chirish so'rovini yuborish",
+    'account.delete.password': 'Tasdiqlash uchun parolingiz',
+    'account.delete.requested':
+        "Do'konni o'chirish so'rovi :date kuni yuborilgan. 30 kun ichida bajariladi.",
+    'account.delete.cancel_request': "So'rovni bekor qilish",
     'tenants.title': "Do'konlar",
     'tenants.subtitle': "Platformadagi barcha do'konlar",
     'tenants.list': "Ro'yxat",

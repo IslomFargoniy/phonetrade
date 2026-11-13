@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\TenantController;
 use App\Http\Controllers\Cash\CashController;
 use App\Http\Controllers\Customers\CustomerController;
 use App\Http\Controllers\Installments\InstallmentController;
+use App\Http\Controllers\Legal\LegalController;
 use App\Http\Controllers\Reports\ReportController;
 use App\Http\Controllers\Sales\PosController;
 use App\Http\Controllers\Sales\SaleController;
@@ -99,6 +100,7 @@ Route::middleware(['auth', 'role:superadmin'])->prefix('admin')->name('admin.')-
     Route::get('tenants/{tenant}', [BillingController::class, 'show'])->name('tenants.show');
     Route::put('tenants/{tenant}/subscription', [BillingController::class, 'update'])->name('tenants.subscription');
     Route::post('tenants/{tenant}/payments', [BillingController::class, 'storePayment'])->name('tenants.payments');
+    Route::delete('tenants/{tenant}', [BillingController::class, 'destroy'])->name('tenants.destroy');
     Route::get('plans', [PlanController::class, 'index'])->name('plans.index');
     Route::post('plans', [PlanController::class, 'store'])->name('plans.store');
     Route::put('plans/{plan}', [PlanController::class, 'update'])->name('plans.update');
@@ -137,3 +139,7 @@ require __DIR__.'/settings.php';
 
 // Mijozlar uchun ochiq katalog (Telegram mini-ilova). Kirish talab qilinmaydi; do'kon egasi yoqqan bo'lsagina ochiladi.
 Route::get('vitrina/{code}', [StorefrontController::class, 'show'])->middleware('throttle:120,1')->name('storefront.show');
+
+// Ilova do'konlari talab qiladigan ochiq sahifalar.
+Route::get('privacy', [LegalController::class, 'privacy'])->name('legal.privacy');
+Route::get('account-deletion', [LegalController::class, 'accountDeletion'])->name('legal.account-deletion');

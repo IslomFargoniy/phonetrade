@@ -15,6 +15,9 @@ return [
 
     'name' => env('APP_NAME', 'Laravel'),
 
+    // Maxfiylik siyosati va ilova do'konlarida ko'rsatiladigan aloqa manzili.
+    'contact_email' => env('APP_CONTACT_EMAIL'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment
