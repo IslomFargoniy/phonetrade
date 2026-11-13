@@ -1,4 +1,8 @@
+import { uzStock } from '@/lang/uz-stock';
+
 export const uz = {
+    ...uzStock,
+
     'action.save': 'Saqlash',
     'action.cancel': 'Bekor qilish',
     'action.logout': 'Chiqish',

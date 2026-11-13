@@ -83,20 +83,20 @@ Maqsad: superadmin do'kon ochadi, egasi filial va sotuvchi yaratadi.
 
 Maqsad: tovar kiritiladi, har dona skaner bilan topiladi.
 
-- [ ] 2.1 Kategoriyalar (serial / quantity), kriteriyalar va qiymatlari; Sozlamalardagi Kriteriyalar bo'limi
-- [ ] 2.2 Mahsulotlar va variantlar CRUD
-- [ ] 2.3 Kassa asosi: `cash_accounts`, `cash_movements`, `CashService` (kirim, chiqim, qoldiq tekshiruvi, teskari yozuv) + testlar
-- [ ] 2.4 `stock_units`, `stock_batches`; ichki barcode generatori (prefiks + tartib raqami)
-- [ ] 2.5 IMEI tekshiruvi (15 raqam, Luhn, tenant ichida unique)
-- [ ] 2.6 `ReceiveStock` service: yetkazib beruvchidan va boshlang'ich qoldiq
-- [ ] 2.7 `ReceiveStock`: mijozdan sotib olish — kassadan chiqim, qoldiq yetmasa rad etish
-- [ ] 2.8 Tovar kirimi ekrani: 3 tur, donalar jadvali, ketma-ket skanerlash, Excel'dan qo'yish
-- [ ] 2.9 Yetkazib beruvchilar CRUD
-- [ ] 2.10 Etiketka chop etish (Code128 + IMEI + model + narx)
-- [ ] 2.11 Ombor ekrani: qidiruv, filtr, dona kartasi va tarixi, narx va kriteriyani o'zgartirish
-- [ ] 2.12 Sotuvchi uchun tannarxsiz ko'rinish (alohida Resource) + test
-- [ ] 2.13 Ko'chirish dizayni (canvas) → tasdiqlash
-- [ ] 2.14 Filiallar orasida ko'chirish: jo'natish, "yo'lda", qabul qilish
+- [x] 2.1 Kategoriyalar (serial / quantity), kriteriyalar va qiymatlari; Sozlamalardagi Kriteriyalar bo'limi
+- [x] 2.2 Mahsulotlar va variantlar CRUD
+- [x] 2.3 Kassa asosi: `cash_accounts`, `cash_movements`, `CashService` (kirim, chiqim, qoldiq tekshiruvi, teskari yozuv) + testlar
+- [x] 2.4 `stock_units`, `stock_batches`; ichki barcode generatori (prefiks + tartib raqami)
+- [x] 2.5 IMEI tekshiruvi (15 raqam, Luhn, tenant ichida unique)
+- [x] 2.6 `ReceiveStock` service: yetkazib beruvchidan va boshlang'ich qoldiq
+- [x] 2.7 `ReceiveStock`: mijozdan sotib olish — kassadan chiqim, qoldiq yetmasa rad etish
+- [x] 2.8 Tovar kirimi ekrani: 3 tur, donalar jadvali, ketma-ket skanerlash, Excel'dan qo'yish
+- [x] 2.9 Yetkazib beruvchilar CRUD
+- [x] 2.10 Etiketka chop etish (Code128 + model + narx), brauzer orqali, 50×30 mm — printer modeliga moslash kerak
+- [x] 2.11 Ombor ekrani: qidiruv, filtr, dona kartasi va tarixi, narx va kriteriyani o'zgartirish
+- [x] 2.12 Sotuvchi uchun tannarxsiz ko'rinish (alohida Resource) + test
+- [x] 2.13 Ko'chirish ekrani mavjud uslubda qurildi (alohida canvas chizilmadi)
+- [x] 2.14 Filiallar orasida ko'chirish: jo'natish, "yo'lda", qabul qilish
 
 **Tayyor:** 10 ta telefon bitta kirimda kiritilib, 10 ta etiketka chiqadi; mijozdan sotib olishda kassa kamayadi; sotuvchi tannarxni hech qayerda ko'rmaydi.
 

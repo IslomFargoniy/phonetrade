@@ -4,6 +4,7 @@ import { useCurrentUrl } from '@/hooks/use-current-url';
 import { t } from '@/lib/i18n';
 import { cn, toUrl } from '@/lib/utils';
 import { index as branches } from '@/routes/branches';
+import { index as catalog } from '@/routes/catalog';
 import { edit } from '@/routes/profile';
 import { edit as editSecurity } from '@/routes/security';
 import { index as staff } from '@/routes/staff';
@@ -23,6 +24,7 @@ function settingsNavigation(role: Role): NavItem[] {
     // Do'kon sozlamalari faqat egasiga ko'rinadi.
     return [
         { title: t('store.tab'), href: editStore() },
+        { title: t('catalog.title'), href: catalog() },
         { title: t('branches.title'), href: branches() },
         { title: t('staff.title'), href: staff() },
         ...personal,
@@ -32,6 +34,7 @@ function settingsNavigation(role: Role): NavItem[] {
 /** Bir nechta paneldan iborat keng sahifalar o'z joylashuvini o'zi belgilaydi */
 const wideSections = [
     '/settings/store',
+    '/settings/catalog',
     '/settings/branches',
     '/settings/staff',
 ];
