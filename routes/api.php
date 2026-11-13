@@ -16,13 +16,14 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v1')->name('api.')->group(function () {
     Route::post('login', [AuthController::class, 'login'])->middleware('throttle:10,1')->name('login');
 
-    Route::middleware(['auth:sanctum', 'role:owner,seller'])->group(function () {
+    Route::middleware(['auth:sanctum', 'role:owner,seller', 'throttle:240,1'])->group(function () {
         Route::post('logout', [AuthController::class, 'logout'])->name('logout');
         Route::get('me', [AuthController::class, 'me'])->name('me');
 
         Route::get('stock/lookup', [SalesController::class, 'lookup'])->name('stock.lookup');
         Route::get('stock', [SalesController::class, 'stock'])->name('stock.index');
         Route::get('customers/lookup', [SalesController::class, 'customer'])->name('customers.lookup');
+        Route::get('customers', [SalesController::class, 'customers'])->name('customers.index');
 
         Route::post('sales/preview', [SalesController::class, 'preview'])->name('sales.preview');
         Route::post('sales', [SalesController::class, 'store'])->middleware('idempotent')->name('sales.store');

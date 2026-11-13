@@ -1,0 +1,13 @@
+{
+    "customer": {
+        "id": 1,
+        "full_name": "Test Mijoz",
+        "phone": "998905554433",
+        "phone2": null,
+        "passport_series": "AB",
+        "passport_number": "1234567",
+        "pinfl": "12345678901234",
+        "address": "Toshkent",
+        "has_passport_photo": true
+    }
+}

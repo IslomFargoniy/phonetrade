@@ -1,0 +1,42 @@
+{
+    "token": "1|test-token",
+    "user": {
+        "id": 2,
+        "name": "Namuna Egasi",
+        "phone": "998901111111",
+        "role": "owner",
+        "can_refund": true
+    },
+    "store": {
+        "name": "Namuna do'kon",
+        "branch": {
+            "id": 1,
+            "name": "Chilonzor filiali"
+        },
+        "branches": [
+            {
+                "id": 1,
+                "name": "Chilonzor filiali"
+            }
+        ],
+        "rate": "12750.00",
+        "installment_rates": [
+            {
+                "months": 3,
+                "markup_pct": "20"
+            },
+            {
+                "months": 6,
+                "markup_pct": "35"
+            },
+            {
+                "months": 9,
+                "markup_pct": "45"
+            },
+            {
+                "months": 12,
+                "markup_pct": "55"
+            }
+        ]
+    }
+}

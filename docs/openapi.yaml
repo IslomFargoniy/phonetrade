@@ -425,6 +425,17 @@ paths:
                 ]
             responses:
                 { '200': { description: "`customer` null bo'lishi mumkin." } }
+    /customers:
+        get:
+            summary: Mijozlar ro'yxati
+            parameters:
+                - name: q
+                  in: query
+                  schema: { type: string }
+                  description: Ism yoki telefon.
+            responses:
+                '200':
+                    description: '`customers[]`: id, full_name, phone, active_plans'
     /sales/preview:
         post:
             summary: Savatni saqlamasdan hisoblash

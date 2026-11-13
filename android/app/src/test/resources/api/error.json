@@ -1,0 +1,5 @@
+{
+    "code": "VALIDATION_FAILED",
+    "message": "Savat kiritilishi shart.",
+    "errors": { "items": ["Savat kiritilishi shart."] }
+}

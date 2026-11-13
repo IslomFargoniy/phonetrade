@@ -1,0 +1,61 @@
+{
+    "plans": [
+        {
+            "id": 1,
+            "sale_id": 1,
+            "sale_number": 1,
+            "customer_id": 1,
+            "customer": "Test Mijoz",
+            "customer_phone": "+998 90 555 44 33",
+            "customer_phone_raw": "998905554433",
+            "product": "Samsung Galaxy A55",
+            "months": 3,
+            "mode": "A",
+            "currency": "UZS",
+            "status": "active",
+            "state": "upcoming",
+            "state_label": "30 kundan keyin",
+            "next_date": "13.12.2026",
+            "next_amount": "1920000.00",
+            "next_amount_label": "1 920 000 so'm",
+            "paid_label": "1 920 000 so'm",
+            "remaining": "3840000.00",
+            "remaining_label": "3 840 000 so'm",
+            "total_label": "5 760 000 so'm",
+            "down_payment_label": null,
+            "markup_pct": "20",
+            "created_at": "13.11.2026",
+            "schedule": [
+                {
+                    "no": 1,
+                    "date": "13.11.2026",
+                    "amount_label": "1 920 000 so'm",
+                    "paid_label": "1 920 000 so'm",
+                    "state": "paid"
+                },
+                {
+                    "no": 2,
+                    "date": "13.12.2026",
+                    "amount_label": "1 920 000 so'm",
+                    "paid_label": "0 so'm",
+                    "state": "pending"
+                },
+                {
+                    "no": 3,
+                    "date": "13.01.2027",
+                    "amount_label": "1 920 000 so'm",
+                    "paid_label": "0 so'm",
+                    "state": "pending"
+                }
+            ],
+            "payments": [
+                {
+                    "id": 1,
+                    "date": "13.11.2026 22:56",
+                    "amount_label": "1 920 000 so'm",
+                    "is_initial": true
+                }
+            ]
+        }
+    ]
+}

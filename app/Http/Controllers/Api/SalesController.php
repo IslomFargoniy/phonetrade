@@ -53,6 +53,30 @@ class SalesController extends Controller
         ]);
     }
 
+    public function customers(Request $request): JsonResponse
+    {
+        $search = trim((string) $request->query('q', ''));
+        $digits = preg_replace('/\D+/', '', $search) ?? '';
+
+        $customers = Customer::query()
+            ->withCount(['plans as active_plans_count' => fn ($query) => $query->where('status', 'active')])
+            ->when($search !== '', fn ($query) => $query->where(fn ($inner) => $inner
+                ->where('full_name', 'like', "%{$search}%")
+                ->when($digits !== '', fn ($byDigits) => $byDigits->orWhere('phone', 'like', "%{$digits}%"))))
+            ->orderByDesc('id')
+            ->limit(100)
+            ->get();
+
+        return response()->json([
+            'customers' => $customers->map(fn (Customer $customer) => [
+                'id' => $customer->id,
+                'full_name' => $customer->full_name,
+                'phone' => $customer->phone,
+                'active_plans' => (int) $customer->getAttribute('active_plans_count'),
+            ])->values(),
+        ]);
+    }
+
     public function customer(Request $request): JsonResponse
     {
         $phone = Phone::normalize((string) $request->query('phone', ''));
