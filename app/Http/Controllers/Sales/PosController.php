@@ -4,13 +4,16 @@ namespace App\Http\Controllers\Sales;
 
 use App\Enums\StockStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Presenters\InstallmentPresenter;
 use App\Http\Presenters\SalePresenter;
 use App\Http\Presenters\StockPresenter;
 use App\Http\Requests\Sales\CartRequest;
 use App\Models\Branch;
+use App\Models\InstallmentRate;
 use App\Models\ProductVariant;
 use App\Models\StockBatch;
 use App\Models\StockUnit;
+use App\Services\Installments\InstallmentPlanner;
 use App\Services\Rates\CurrencyRateService;
 use App\Services\Sales\CartCalculator;
 use Illuminate\Http\JsonResponse;
@@ -25,10 +28,15 @@ class PosController extends Controller
 {
     public function index(Request $request, CurrencyRateService $rates): Response
     {
-        $this->branch($request);
+        $branch = $this->branch($request);
 
         return Inertia::render('pos/index', [
             'rate' => $rates->current()?->usd_uzs,
+            'installmentRates' => InstallmentRate::query()->where('branch_id', $branch->id)->orderBy('months')->get()
+                ->map(fn (InstallmentRate $installmentRate) => [
+                    'months' => $installmentRate->months,
+                    'markup_pct' => StockPresenter::trimDecimal($installmentRate->markup_pct),
+                ]),
         ]);
     }
 
@@ -89,7 +97,7 @@ class PosController extends Controller
     /**
      * Savat jami: ekranda ko'rsatiladigan raqamlar savdoni yopishdagi hisob bilan bir xil.
      */
-    public function preview(CartRequest $request, CartCalculator $calculator, CurrencyRateService $rates): JsonResponse
+    public function preview(CartRequest $request, CartCalculator $calculator, CurrencyRateService $rates, InstallmentPlanner $planner): JsonResponse
     {
         $branch = $this->branch($request);
         $rate = $rates->current()?->usd_uzs;
@@ -108,7 +116,15 @@ class PosController extends Controller
             ];
         }
 
-        return response()->json(SalePresenter::totals($calculator->calculate($items, $rate), $rate));
+        $totals = $calculator->calculate($items, $rate);
+        $terms = $request->terms();
+
+        return response()->json([
+            ...SalePresenter::totals($totals, $rate),
+            'installment' => $terms !== null
+                ? InstallmentPresenter::quote($planner->quote($branch, $totals, $terms, $rate))
+                : null,
+        ]);
     }
 
     /**

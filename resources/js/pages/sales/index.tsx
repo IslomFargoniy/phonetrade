@@ -13,6 +13,7 @@ export type SaleSummary = {
     id: number;
     number: number;
     date: string | null;
+    type: 'full' | 'installment';
     type_label: string;
     status: 'completed' | 'partially_returned' | 'returned';
     status_label: string;

@@ -4,14 +4,20 @@ import { useEffect, useRef, useState } from 'react';
 import type { KeyboardEvent } from 'react';
 import { AttributeChips } from '@/components/attribute-chips';
 import { Chip } from '@/components/chip';
+import { DataTable, Td, Th } from '@/components/data-table';
 import { Field } from '@/components/field';
+import InputError from '@/components/input-error';
 import { Panel } from '@/components/panel';
+import { Segmented } from '@/components/segmented';
+import { SelectField } from '@/components/select-field';
+import { StatList } from '@/components/stat-list';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/ui/spinner';
 import { formatNumber } from '@/lib/format';
 import { getJson, postJson } from '@/lib/http';
 import { t } from '@/lib/i18n';
+import { lookup as lookupCustomer } from '@/routes/customers';
 import { index, lookup, preview } from '@/routes/pos';
 import { store } from '@/routes/sales';
 import type { StockUnitRow, StockVariantRow } from '@/types';
@@ -48,7 +54,32 @@ type Totals = {
         max_discount: string;
         max_discount_label: string;
     }[];
+    installment: Quote | null;
 };
+
+type Quote = {
+    mode: 'A' | 'B';
+    currency: Currency;
+    markup_pct: string;
+    debt_label: string;
+    monthly_label: string;
+    due_today: string;
+    due_today_label: string;
+    rows: { no: string; date: string; note: string; amount_label: string }[];
+};
+
+type CustomerCard = {
+    id: number;
+    full_name: string;
+    phone2: string | null;
+    passport_series: string | null;
+    passport_number: string | null;
+    pinfl: string | null;
+    address: string | null;
+    files: { id: number; name: string; url: string }[];
+};
+
+type Mode = 'full' | 'installment';
 
 type LookupResult = {
     exact: boolean;
@@ -63,6 +94,19 @@ const methods: { value: Method; label: string }[] = [
 ];
 const currencies: Currency[] = ['UZS', 'USD'];
 
+/** Maydonga bog'lanmagan, savat yoki to'lovga tegishli xatolar */
+const generalErrorKeys = [
+    'items',
+    'payments',
+    'rate',
+    'business',
+    'qty',
+    'months',
+    'pay_day',
+    'down_payment',
+    'cash_account_id',
+];
+
 function money(amount: number, currency: Currency): string {
     const rounded = Math.round(amount * 100) / 100;
 
@@ -71,7 +115,284 @@ function money(amount: number, currency: Currency): string {
         : `${formatNumber(rounded)} so'm`;
 }
 
-export default function Pos({ rate }: { rate: string | null }) {
+type Card = {
+    phone2: string;
+    passport_series: string;
+    passport_number: string;
+    pinfl: string;
+    address: string;
+};
+
+/**
+ * Muddatli savdo uchun: mijoz kartasi, shartnoma shartlari va to'lov jadvali.
+ */
+function InstallmentFields({
+    card,
+    setCard,
+    errors,
+    setFiles,
+    savedFiles,
+    rates,
+    months,
+    setMonths,
+    downPayment,
+    setDownPayment,
+    payDay,
+    setPayDay,
+    planCurrency,
+    setPlanCurrency,
+    currencyLocked,
+    quote,
+}: {
+    card: Card;
+    setCard: (card: Card) => void;
+    errors: Record<string, string>;
+    setFiles: (files: File[]) => void;
+    savedFiles: number;
+    rates: { months: number; markup_pct: string }[];
+    months: string;
+    setMonths: (months: string) => void;
+    downPayment: string;
+    setDownPayment: (value: string) => void;
+    payDay: string;
+    setPayDay: (day: string) => void;
+    planCurrency: Currency;
+    setPlanCurrency: (currency: Currency) => void;
+    currencyLocked: boolean;
+    quote: Quote | null;
+}) {
+    return (
+        <>
+            <div className="grid grid-cols-2 gap-3">
+                <Field
+                    label={t('customer.phone2')}
+                    name="customer_phone2"
+                    type="tel"
+                    inputMode="tel"
+                    placeholder="+998"
+                    value={card.phone2}
+                    onChange={(event) =>
+                        setCard({ ...card, phone2: event.target.value })
+                    }
+                    error={errors.customer_phone2}
+                />
+                <Field
+                    label={t('customer.pinfl')}
+                    name="pinfl"
+                    inputMode="numeric"
+                    maxLength={14}
+                    placeholder={t('customer.pinfl.hint')}
+                    className="num"
+                    value={card.pinfl}
+                    onChange={(event) =>
+                        setCard({
+                            ...card,
+                            pinfl: event.target.value.replace(/\D/g, ''),
+                        })
+                    }
+                    error={errors.pinfl}
+                />
+                <Field
+                    label={t('customer.passport_series')}
+                    name="passport_series"
+                    maxLength={2}
+                    placeholder="AA"
+                    className="uppercase"
+                    value={card.passport_series}
+                    onChange={(event) =>
+                        setCard({
+                            ...card,
+                            passport_series: event.target.value,
+                        })
+                    }
+                    error={errors.passport_series}
+                />
+                <Field
+                    label={t('customer.passport_number')}
+                    name="passport_number"
+                    inputMode="numeric"
+                    maxLength={7}
+                    placeholder="1234567"
+                    className="num"
+                    value={card.passport_number}
+                    onChange={(event) =>
+                        setCard({
+                            ...card,
+                            passport_number: event.target.value.replace(
+                                /\D/g,
+                                '',
+                            ),
+                        })
+                    }
+                    error={errors.passport_number}
+                />
+            </div>
+            <Field
+                label={t('field.address')}
+                name="customer_address"
+                placeholder={t('customer.address.hint')}
+                value={card.address}
+                onChange={(event) =>
+                    setCard({ ...card, address: event.target.value })
+                }
+                error={errors.customer_address}
+            />
+            <div className="flex flex-col gap-1.5">
+                <label
+                    htmlFor="passport_files"
+                    className="text-xs font-semibold text-muted-foreground"
+                >
+                    {t('customer.passport_photo')}
+                </label>
+                <input
+                    id="passport_files"
+                    type="file"
+                    multiple
+                    accept="image/*,application/pdf"
+                    onChange={(event) =>
+                        setFiles(Array.from(event.target.files ?? []))
+                    }
+                    className="min-h-11 w-full rounded-[14px] border border-dashed border-ink-mid/45 bg-white/40 p-2 text-sm file:mr-3 file:min-h-9 file:cursor-pointer file:rounded-full file:border-0 file:bg-white file:px-4 file:text-sm file:font-semibold"
+                />
+                {savedFiles > 0 && (
+                    <span className="text-xs text-success">
+                        {t('customer.files.exist', { count: savedFiles })}
+                    </span>
+                )}
+                <InputError message={errors.passport_files} />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+                <span className="text-xs font-semibold text-muted-foreground">
+                    {t('pos.term')}
+                </span>
+                <Segmented
+                    label={t('pos.term')}
+                    options={rates.map((row) => ({
+                        value: String(row.months),
+                        label: t('pos.term.option', {
+                            months: row.months,
+                            pct: row.markup_pct,
+                        }),
+                    }))}
+                    value={months}
+                    onChange={setMonths}
+                />
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+                <Field
+                    label={t('pos.down_payment')}
+                    name="down_payment"
+                    inputMode="decimal"
+                    placeholder="0"
+                    className="num"
+                    value={downPayment}
+                    onChange={(event) =>
+                        setDownPayment(
+                            event.target.value.replace(/[^\d.]/g, ''),
+                        )
+                    }
+                />
+                <SelectField
+                    label={t('pos.pay_day')}
+                    name="pay_day"
+                    value={payDay}
+                    onChange={(event) => setPayDay(event.target.value)}
+                >
+                    {payDays.map((day) => (
+                        <option key={day} value={day}>
+                            {day}
+                        </option>
+                    ))}
+                </SelectField>
+                <SelectField
+                    label={t('stock.currency')}
+                    name="plan_currency"
+                    value={planCurrency}
+                    disabled={currencyLocked}
+                    onChange={(event) =>
+                        setPlanCurrency(event.target.value as Currency)
+                    }
+                >
+                    <option value="UZS">So'm</option>
+                    <option value="USD">Dollar</option>
+                </SelectField>
+            </div>
+
+            {quote && (
+                <>
+                    <p className="glass-inner px-3.5 py-3 text-[13px] leading-relaxed text-ink-mid">
+                        <strong className="text-ink">
+                            {quote.mode === 'A'
+                                ? t('pos.mode_a.title')
+                                : t('pos.mode_b.title')}
+                        </strong>{' '}
+                        {quote.mode === 'A'
+                            ? t('pos.mode_a.text', { day: payDay })
+                            : t('pos.mode_b.text', {
+                                  count: months,
+                                  day: payDay,
+                              })}
+                    </p>
+                    <StatList
+                        items={[
+                            { label: t('pos.debt'), value: quote.debt_label },
+                            {
+                                label: t('pos.monthly'),
+                                value: quote.monthly_label,
+                            },
+                            {
+                                label: t('pos.due_today'),
+                                value: quote.due_today_label,
+                                strong: true,
+                            },
+                        ]}
+                    />
+                    <DataTable minWidth={300}>
+                        <thead>
+                            <tr>
+                                <Th>№</Th>
+                                <Th>{t('sales.col.date')}</Th>
+                                <Th right>{t('pos.amount')}</Th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {quote.rows.map((row) => (
+                                <tr key={`${row.no}-${row.date}`}>
+                                    <Td className="py-2 text-muted-foreground">
+                                        {row.no}
+                                    </Td>
+                                    <Td className="py-2 num">
+                                        {row.date}
+                                        <span className="block text-xs text-muted-foreground">
+                                            {row.note}
+                                        </span>
+                                    </Td>
+                                    <Td right className="py-2 font-bold num">
+                                        {row.amount_label}
+                                    </Td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </DataTable>
+                    <p className="text-xs text-muted-foreground">
+                        {t('pos.no_penalty')}
+                    </p>
+                </>
+            )}
+        </>
+    );
+}
+
+type Props = {
+    rate: string | null;
+    installmentRates: { months: number; markup_pct: string }[];
+};
+
+const payDays = Array.from({ length: 28 }, (_, i) => String(i + 1));
+const today = Math.min(new Date().getDate(), 28);
+
+export default function Pos({ rate, installmentRates }: Props) {
     const pageErrors = usePage().props.errors as Record<string, string>;
     const [code, setCode] = useState('');
     const [searching, setSearching] = useState(false);
@@ -83,7 +404,26 @@ export default function Pos({ rate }: { rate: string | null }) {
     const [customerPhone, setCustomerPhone] = useState('');
     const [customerName, setCustomerName] = useState('');
     const [submitting, setSubmitting] = useState(false);
+    const [mode, setMode] = useState<Mode>('full');
+    const [months, setMonths] = useState(
+        String(installmentRates[0]?.months ?? 3),
+    );
+    const [planCurrency, setPlanCurrency] = useState<Currency>('UZS');
+    const [payDay, setPayDay] = useState(String(today));
+    const [downPayment, setDownPayment] = useState('');
+    const [card, setCard] = useState({
+        phone2: '',
+        passport_series: '',
+        passport_number: '',
+        pinfl: '',
+        address: '',
+    });
+    const [files, setFiles] = useState<File[]>([]);
+    const [knownCustomer, setKnownCustomer] = useState<CustomerCard | null>(
+        null,
+    );
     const scanRef = useRef<HTMLInputElement>(null);
+    const installment = mode === 'installment';
 
     const payloadItems = cart.map((item) => ({
         stock_unit_id: item.unitId,
@@ -91,7 +431,19 @@ export default function Pos({ rate }: { rate: string | null }) {
         qty: item.qty,
         discount: item.discount === '' ? '0' : item.discount,
     }));
-    const cartSignature = JSON.stringify(payloadItems);
+    const terms = installment
+        ? {
+              currency: planCurrency,
+              months,
+              pay_day: payDay,
+              down_payment: downPayment === '' ? '0' : downPayment,
+          }
+        : null;
+    const cartSignature = JSON.stringify({
+        items: payloadItems,
+        mode,
+        installment: terms,
+    });
 
     // Savat o'zgarganda jami serverda qayta hisoblanadi: ekrandagi raqam saqlanadigan raqam bilan bir xil.
     useEffect(() => {
@@ -104,9 +456,10 @@ export default function Pos({ rate }: { rate: string | null }) {
 
         let cancelled = false;
         const timer = setTimeout(() => {
-            void postJson<Totals>(preview().url, {
-                items: JSON.parse(cartSignature) as unknown,
-            }).then((result) => {
+            void postJson<Totals>(
+                preview().url,
+                JSON.parse(cartSignature) as unknown,
+            ).then((result) => {
                 if (cancelled) {
                     return;
                 }
@@ -241,8 +594,43 @@ export default function Pos({ rate }: { rate: string | null }) {
             ),
         );
 
-    const saleCurrency: Currency = totals?.currency ?? 'UZS';
-    const total = totals ? Number(totals.total) : 0;
+    const quote = installment ? (totals?.installment ?? null) : null;
+    // Muddatli savdoda bugun faqat boshlang'ich yoki 1-oylik to'lanadi, shartnoma valyutasida.
+    const saleCurrency: Currency = quote?.currency ?? totals?.currency ?? 'UZS';
+    const total = quote
+        ? Number(quote.due_today)
+        : totals && !installment
+          ? Number(totals.total)
+          : 0;
+
+    const findCustomer = async () => {
+        if (customerPhone.replace(/\D/g, '').length < 9) {
+            return;
+        }
+
+        const result = await getJson<{ customer: CustomerCard | null }>(
+            lookupCustomer({ query: { phone: customerPhone } }).url,
+        );
+
+        if (!result.ok || !result.data.customer) {
+            setKnownCustomer(null);
+
+            return;
+        }
+
+        const found = result.data.customer;
+
+        // Topilgan mijoz kartasi bilan maydonlar to'ldiriladi; sotuvchi tuzatishi mumkin.
+        setKnownCustomer(found);
+        setCustomerName(found.full_name);
+        setCard({
+            phone2: found.phone2 ?? '',
+            passport_series: found.passport_series ?? '',
+            passport_number: found.passport_number ?? '',
+            pinfl: found.pinfl ?? '',
+            address: found.address ?? '',
+        });
+    };
     const rateValue = rate ? Number(rate) : 0;
 
     // Har to'lovni savdo valyutasiga keltirib yig'adi (ekranda ko'rsatish uchun; yakuniy tekshiruv serverda).
@@ -287,9 +675,22 @@ export default function Pos({ rate }: { rate: string | null }) {
                 ),
                 customer_phone: customerPhone,
                 customer_name: customerName,
+                mode,
+                installment: terms,
+                ...(installment
+                    ? {
+                          customer_phone2: card.phone2,
+                          passport_series: card.passport_series,
+                          passport_number: card.passport_number,
+                          pinfl: card.pinfl,
+                          customer_address: card.address,
+                          passport_files: files,
+                      }
+                    : {}),
             },
             {
                 preserveScroll: true,
+                forceFormData: installment && files.length > 0,
                 onFinish: () => setSubmitting(false),
             },
         );
@@ -298,7 +699,7 @@ export default function Pos({ rate }: { rate: string | null }) {
     const errorMessages = [
         cartError,
         ...Object.entries(pageErrors)
-            .filter(([key]) => !key.startsWith('customer_'))
+            .filter(([key]) => generalErrorKeys.includes(key))
             .map(([, message]) => message),
     ].filter(Boolean);
 
@@ -551,7 +952,7 @@ export default function Pos({ rate }: { rate: string | null }) {
                 <aside className="flex min-w-0 flex-[1_1_340px] flex-col gap-4">
                     <Panel className="gap-1.5">
                         <span className="text-xs font-semibold text-muted-foreground">
-                            {t('pos.total')}
+                            {installment ? t('pos.price') : t('pos.total')}
                         </span>
                         <span className="text-4xl font-extrabold num tracking-tight">
                             {totals?.total_label ?? money(0, 'UZS')}
@@ -572,9 +973,27 @@ export default function Pos({ rate }: { rate: string | null }) {
                     </Panel>
 
                     <Panel>
+                        <Segmented
+                            label={t('pos.mode')}
+                            className="self-stretch [&>button]:flex-1"
+                            options={[
+                                { value: 'full', label: t('pos.mode.full') },
+                                {
+                                    value: 'installment',
+                                    label: t('pos.mode.installment'),
+                                },
+                            ]}
+                            value={mode}
+                            onChange={setMode}
+                        />
+
                         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                             <Field
-                                label={t('pos.customer.phone')}
+                                label={
+                                    installment
+                                        ? t('pos.customer.phone.required')
+                                        : t('pos.customer.phone')
+                                }
                                 name="customer_phone"
                                 type="tel"
                                 inputMode="tel"
@@ -583,10 +1002,15 @@ export default function Pos({ rate }: { rate: string | null }) {
                                 onChange={(event) =>
                                     setCustomerPhone(event.target.value)
                                 }
+                                onBlur={() => void findCustomer()}
                                 error={pageErrors.customer_phone}
                             />
                             <Field
-                                label={t('pos.customer.name')}
+                                label={
+                                    installment
+                                        ? t('pos.customer.fullname')
+                                        : t('pos.customer.name')
+                                }
                                 name="customer_name"
                                 value={customerName}
                                 onChange={(event) =>
@@ -595,6 +1019,27 @@ export default function Pos({ rate }: { rate: string | null }) {
                                 error={pageErrors.customer_name}
                             />
                         </div>
+
+                        {installment && (
+                            <InstallmentFields
+                                card={card}
+                                setCard={setCard}
+                                errors={pageErrors}
+                                setFiles={setFiles}
+                                savedFiles={knownCustomer?.files.length ?? 0}
+                                rates={installmentRates}
+                                months={months}
+                                setMonths={setMonths}
+                                downPayment={downPayment}
+                                setDownPayment={setDownPayment}
+                                payDay={payDay}
+                                setPayDay={setPayDay}
+                                planCurrency={quote?.currency ?? planCurrency}
+                                setPlanCurrency={setPlanCurrency}
+                                currencyLocked={totals?.mixed === true}
+                                quote={quote}
+                            />
+                        )}
 
                         <div className="grid grid-cols-[72px_minmax(0,1fr)_minmax(0,92px)] items-center gap-2">
                             <span />
@@ -671,12 +1116,15 @@ export default function Pos({ rate }: { rate: string | null }) {
                                 submitting ||
                                 cart.length === 0 ||
                                 !totals ||
+                                (installment && !quote) ||
                                 remaining > 0
                             }
                             onClick={submit}
                         >
                             {submitting && <Spinner />}
-                            {t('pos.close')}
+                            {installment
+                                ? t('pos.close.installment')
+                                : t('pos.close')}
                         </Button>
                     </Panel>
                 </aside>

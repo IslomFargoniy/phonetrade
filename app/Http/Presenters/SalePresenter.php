@@ -2,6 +2,8 @@
 
 namespace App\Http\Presenters;
 
+use App\Enums\PlanStatus;
+use App\Enums\SaleType;
 use App\Models\Sale;
 use App\Models\SaleItem;
 use App\Models\SalePayment;
@@ -25,6 +27,7 @@ final class SalePresenter
             'id' => $sale->id,
             'number' => $sale->number,
             'date' => $sale->created_at?->format('d.m.Y H:i'),
+            'type' => $sale->type->value,
             'type_label' => $sale->type->label(),
             'status' => $sale->status->value,
             'status_label' => $sale->status->label(),
@@ -68,7 +71,7 @@ final class SalePresenter
                 'has_discount' => Money::of($item->discount, $item->currency)->isPositive(),
                 'final_label' => $money($item->final_price),
                 'warranty_until' => $item->warranty_until?->format('d.m.Y'),
-                ...($viewer->isOwner() ? [
+                ...($viewer->isOwner() && $sale->type === SaleType::Full ? [
                     'cost_label' => $money($item->cost_snapshot),
                     'profit_label' => $money($item->profit),
                 ] : []),
@@ -91,6 +94,20 @@ final class SalePresenter
             );
 
             $data['profit_label'] = $profit->minus($reversed)->format();
+
+            // Nasiyada foyda pul tushgan sari tan olinadi: shu paytgacha tushgan to'lovlardagi ulush ko'rsatiladi.
+            if ($sale->type === SaleType::Installment && $sale->plan !== null) {
+                $plan = $sale->plan;
+                $recognised = $plan->status === PlanStatus::Cancelled
+                    ? Money::zero($plan->currency)
+                    : Money::of((string) $plan->payments()->sum('profit_amount'), $plan->currency);
+
+                $data['profit_label'] = $recognised->format();
+                $data['profit_note'] = sprintf(
+                    'Shartnoma bo\'yicha jami %s; pul tushgan sari tan olinadi',
+                    Money::of($plan->total_profit, $plan->currency)->format(),
+                );
+            }
         }
 
         return $data;

@@ -5,7 +5,10 @@ namespace App\Http\Controllers\Sales;
 use App\Actions\Sales\CloseSale;
 use App\Actions\Sales\ReturnSale;
 use App\Enums\CashAccountType;
+use App\Enums\SaleType;
+use App\Exceptions\BusinessRuleException;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Customers\CustomerController;
 use App\Http\Presenters\SalePresenter;
 use App\Http\Requests\Sales\CartRequest;
 use App\Models\Customer;
@@ -56,15 +59,16 @@ class SaleController extends Controller
         $branch = $this->branch($request);
 
         $sale = DB::transaction(function () use ($request, $closeSale, $branch): Sale {
-            $phone = $request->string('customer_phone')->toString();
-            $name = $request->string('customer_name')->trim()->toString();
+            $customer = $this->resolveCustomer($request);
 
-            // To'liq to'lovda mijoz ixtiyoriy; telefon kiritilsa topiladi yoki yaratiladi.
-            $customerId = $phone !== ''
-                ? Customer::query()->firstOrCreate(['phone' => $phone], ['full_name' => $name !== '' ? $name : Phone::format($phone)])->id
-                : null;
-
-            return $closeSale->handle($branch, $this->user($request), $request->items(), $request->payments(), $customerId);
+            return $closeSale->handle(
+                $branch,
+                $this->user($request),
+                $request->items(),
+                $request->payments(),
+                $customer?->id,
+                $request->terms(),
+            );
         });
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Savdo yopildi.']);
@@ -77,7 +81,7 @@ class SaleController extends Controller
         $user = $this->user($request);
         $this->authorizeSale($user, $sale);
 
-        $sale->load(['items.unit', 'items.variant', 'payments', 'returns', 'branch', 'user:id,name', 'customer']);
+        $sale->load(['items.unit', 'items.variant', 'payments', 'returns', 'branch', 'user:id,name', 'customer', 'plan']);
         $tenant = Tenant::query()->findOrFail($user->tenant_id);
 
         return Inertia::render('sales/show', [
@@ -100,7 +104,8 @@ class SaleController extends Controller
         abort_unless($user->canRefund(), 403);
 
         $data = $request->validate([
-            'items' => ['required', 'array', 'min:1'],
+            // Nasiyali savdo faqat to'liq qaytariladi, shuning uchun tovarlar tanlanmaydi.
+            'items' => [$sale->type === SaleType::Installment ? 'nullable' : 'required', 'array'],
             'items.*.sale_item_id' => ['required', 'integer', Rule::exists(SaleItem::class, 'id')->where('sale_id', $sale->id)],
             'items.*.qty' => ['nullable', 'integer', 'min:0'],
             'refund_from' => ['required', Rule::enum(CashAccountType::class)],
@@ -109,7 +114,7 @@ class SaleController extends Controller
 
         $items = [];
 
-        foreach (array_values((array) $data['items']) as $item) {
+        foreach (array_values((array) ($data['items'] ?? [])) as $item) {
             if ((int) ($item['qty'] ?? 0) > 0) {
                 $items[] = ['sale_item_id' => (int) $item['sale_item_id'], 'qty' => (int) $item['qty']];
             }
@@ -126,6 +131,46 @@ class SaleController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Savdo qaytarildi.']);
 
         return to_route('sales.show', $sale);
+    }
+
+    /**
+     * To'liq to'lovda mijoz ixtiyoriy: telefon kiritilsa topiladi yoki yaratiladi.
+     * Muddatli savdoda karta to'liq to'ldiriladi va pasport rasmi bo'lishi shart.
+     */
+    private function resolveCustomer(CartRequest $request): ?Customer
+    {
+        $phone = $request->string('customer_phone')->toString();
+
+        if ($phone === '') {
+            return null;
+        }
+
+        $name = $request->string('customer_name')->trim()->toString();
+        $customer = Customer::query()->firstOrCreate(
+            ['phone' => $phone],
+            ['full_name' => $name !== '' ? $name : Phone::format($phone)],
+        );
+
+        if (! $request->isInstallment()) {
+            return $customer;
+        }
+
+        $customer->update([
+            'full_name' => $name,
+            'phone2' => $request->string('customer_phone2')->toString() ?: null,
+            'passport_series' => $request->string('passport_series')->toString(),
+            'passport_number' => $request->string('passport_number')->toString(),
+            'pinfl' => $request->string('pinfl')->toString(),
+            'address' => $request->string('customer_address')->toString(),
+        ]);
+
+        CustomerController::storeFiles($customer, $request->file('passport_files'));
+
+        if ($customer->files()->doesntExist()) {
+            throw new BusinessRuleException('PASSPORT_PHOTO_REQUIRED', 'Pasport rasmini yuklang.', 'passport_files');
+        }
+
+        return $customer;
     }
 
     private function authorizeSale(User $user, Sale $sale): void

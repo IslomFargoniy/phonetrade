@@ -23,6 +23,39 @@ export const uzSales = {
     'pos.close': 'Savdoni yopish · chek',
     'pos.error.preview': "Savatni hisoblab bo'lmadi.",
 
+    'pos.price': 'Tovar narxi',
+    'pos.mode': "To'lov turi",
+    'pos.mode.full': "To'liq to'lov",
+    'pos.mode.installment': 'Muddatli',
+    'pos.customer.phone.required': 'Mijoz telefoni',
+    'pos.customer.fullname': 'F.I.Sh',
+    'pos.term': 'Muddat (ustama filial sozlamasidan)',
+    'pos.term.option': ':months oy · +:pct%',
+    'pos.down_payment': "Boshlang'ich",
+    'pos.pay_day': "To'lov kuni",
+    'pos.mode_a.title': "A rejim — boshlang'ich to'lovsiz.",
+    'pos.mode_a.text':
+        'Ustama butun narxga, 1-oylik savdo paytida, qolganlari har oyning :day-sanasida.',
+    'pos.mode_b.title': "B rejim — boshlang'ich to'lov bilan.",
+    'pos.mode_b.text':
+        'Ustama faqat qoldiqqa, :count ta oylik keyingi oydan har oyning :day-sanasida.',
+    'pos.debt': 'Ustamali qarz',
+    'pos.monthly': "Oylik to'lov",
+    'pos.due_today': "Bugun to'lanadi",
+    'pos.amount': 'Summa',
+    'pos.no_penalty':
+        "Oylik yuqoriga yaxlitlanadi, farq oxirgi oyda. Jarima va qo'shimcha foiz yo'q.",
+    'pos.close.installment': 'Shartnomani tasdiqlash · chek',
+
+    'customer.phone2': "Qo'shimcha telefon",
+    'customer.pinfl': 'JSHSHIR',
+    'customer.pinfl.hint': '14 raqam',
+    'customer.passport_series': 'Pasport seriyasi',
+    'customer.passport_number': 'Pasport raqami',
+    'customer.address.hint': "Tuman, ko'cha, uy",
+    'customer.passport_photo': 'Pasport rasmi',
+    'customer.files.exist': 'Mijozning :count ta rasmi saqlangan',
+
     'sales.title': 'Savdolar',
     'sales.subtitle': 'Chek, kafolat va qaytarish',
     'sales.search': 'Savdoni qidirish',
@@ -49,6 +82,8 @@ export const uzSales = {
     'sales.refund.description':
         'Pul tanlangan kassadan savdo valyutasida qaytariladi. Kassada yetmasa bajarilmaydi.',
     'sales.refund.max': ':count donagacha',
+    'sales.refund.installment':
+        "Nasiyali savdo faqat to'liq qaytariladi: shartnoma bekor bo'ladi va mijoz to'lagan hamma summa qaytariladi.",
     'sales.refund.from': 'Qaysi kassadan',
     'sales.refund.reason': 'Sabab',
     'sales.refund.submit': 'Qaytarishni tasdiqlash',
