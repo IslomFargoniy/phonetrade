@@ -33,6 +33,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -79,6 +80,9 @@ private fun CartStep(model: SaleViewModel) {
     var query by rememberSaveable { mutableStateOf("") }
     var scanning by remember { mutableStateOf(false) }
     var discountFor by remember { mutableStateOf<String?>(null) }
+
+    // Tovar savatga tushgach qidiruv maydoni keyingi tovar uchun bo'shatiladi.
+    LaunchedEffect(state.entries.size) { query = "" }
 
     if (scanning) {
         ScannerDialog(
@@ -216,9 +220,10 @@ private fun CartStep(model: SaleViewModel) {
                         Text("Jami", color = Palette.InkMid, fontSize = 13.sp)
                         Text(
                             state.totals?.totalLabel ?: "…",
-                            fontSize = 24.sp,
+                            fontSize = 21.sp,
                             fontWeight = FontWeight.ExtraBold,
                             color = Palette.Ink,
+                            maxLines = 1,
                         )
                         if (state.totals?.mixed == true) {
                             Text("Aralash savat: so'mda, kurs ${state.totals.rate.orEmpty()}", color = Palette.InkSoft, fontSize = 12.sp)
@@ -227,7 +232,7 @@ private fun CartStep(model: SaleViewModel) {
                     PrimaryButton(
                         text = "To'lov",
                         onClick = model::openCheckout,
-                        modifier = Modifier.width(140.dp),
+                        modifier = Modifier.width(120.dp),
                         enabled = state.totals != null && state.previewError == null,
                         loading = state.calculating,
                     )

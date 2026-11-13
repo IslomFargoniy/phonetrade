@@ -171,7 +171,7 @@ private fun InstallmentTerms(model: SaleViewModel, months: List<Pair<Int, String
         AppField(
             value = state.payDay.toString(),
             onChange = { input -> input.filter(Char::isDigit).take(2).toIntOrNull()?.let(model::setPayDay) },
-            label = "To'lov kuni (1–28)",
+            label = "To'lov kuni",
             keyboard = KeyboardType.Number,
             modifier = Modifier.weight(1f),
         )
@@ -188,7 +188,7 @@ private fun InstallmentTerms(model: SaleViewModel, months: List<Pair<Int, String
         if (state.totals?.installment?.mode == "B") {
             "Boshlang'ich to'lov ustamasiz; ustama qolgan summaga qo'shiladi."
         } else {
-            "Boshlang'ich to'lovsiz: birinchi oylik savdo paytida olinadi."
+            "Boshlang'ich to'lovsiz: birinchi oylik savdo paytida olinadi. To'lov kuni: oyning 1–28-kuni."
         },
         color = Palette.InkMid,
         fontSize = 13.sp,
