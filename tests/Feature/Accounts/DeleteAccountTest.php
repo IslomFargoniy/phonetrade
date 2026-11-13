@@ -1,9 +1,12 @@
 <?php
 
+use App\Actions\Sales\CloseSale;
+use App\Enums\Currency;
 use App\Models\Customer;
 use App\Models\Sale;
 use App\Models\Tenant;
 use App\Models\User;
+use App\Services\Installments\InstallmentTerms;
 use App\Tenancy\TenantContext;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\Sanctum;
@@ -82,8 +85,23 @@ it('lets the superadmin purge a store with everything in it', function () {
     $tenant = $this->store->tenant;
 
     app(TenantContext::class)->runFor($tenant, function () use ($tenant) {
-        $this->store->receivePhone(1);
+        // Ishlab turgan do'kon: kirim, aksesuar, to'liq savdo va nasiya shartnomasi.
+        $first = $this->store->receivePhone(1);
+        $second = $this->store->receivePhone(2, ['unit_cost' => '450000', 'sale_price' => '500000', 'max_discount_pct' => '0'], 'UZS');
+        $this->store->receiveCases(5);
         $customer = Customer::query()->create(['full_name' => 'Aliyev Jasur', 'phone' => '998901234567']);
+
+        app(CloseSale::class)->handle($this->store->branch, $this->store->owner, [['stock_unit_id' => $first->id]], [
+            ['method' => 'cash', 'currency' => 'UZS', 'amount' => '4850000'],
+        ]);
+        app(CloseSale::class)->handle(
+            $this->store->branch,
+            $this->store->owner,
+            [['stock_unit_id' => $second->id]],
+            [['method' => 'cash', 'currency' => 'UZS', 'amount' => '200000']],
+            $customer->id,
+            new InstallmentTerms(Currency::UZS, 3, 13, '0'),
+        );
         Storage::disk('local')->put("customers/{$tenant->id}/{$customer->id}/passport.jpg", 'x');
     });
 
