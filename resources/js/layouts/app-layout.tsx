@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { AppBackground } from '@/components/app-background';
 import { AppBrand } from '@/components/app-brand';
 import { AppNav } from '@/components/app-nav';
+import { BranchSwitcher } from '@/components/branch-switcher';
+import { RateBadge } from '@/components/rate-badge';
 import { Button } from '@/components/ui/button';
 import {
     Sheet,
@@ -33,6 +35,7 @@ export default function AppLayout({
                 <aside className="hidden w-[232px] shrink-0 flex-col glass p-3 lg:sticky lg:top-4 lg:flex">
                     <AppBrand />
                     <AppNav />
+                    <RateBadge />
                 </aside>
 
                 <div className="flex min-w-0 flex-1 flex-col gap-4">
@@ -63,6 +66,7 @@ export default function AppLayout({
                                     <AppNav
                                         onNavigate={() => setMenuOpen(false)}
                                     />
+                                    <RateBadge />
                                 </SheetContent>
                             </Sheet>
 
@@ -78,7 +82,10 @@ export default function AppLayout({
                             </div>
                         </div>
 
-                        <UserMenu />
+                        <div className="flex flex-wrap items-center gap-2">
+                            <BranchSwitcher />
+                            <UserMenu />
+                        </div>
                     </header>
 
                     <main className="flex min-w-0 flex-col gap-4">

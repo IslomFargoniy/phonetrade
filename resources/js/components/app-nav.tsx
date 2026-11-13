@@ -1,14 +1,15 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { mainNavigation } from '@/lib/navigation';
 import { cn, toUrl } from '@/lib/utils';
 
 export function AppNav({ onNavigate }: { onNavigate?: () => void }) {
+    const { auth } = usePage().props;
     const { currentUrl, isCurrentUrl } = useCurrentUrl();
 
     return (
         <nav className="flex flex-col gap-1">
-            {mainNavigation().map((item) => {
+            {mainNavigation(auth.user.role).map((item) => {
                 const active = item.matchPrefix
                     ? currentUrl.startsWith(item.matchPrefix)
                     : isCurrentUrl(item.href);
