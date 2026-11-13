@@ -1,9 +1,11 @@
+import { uzInstallments } from '@/lang/uz-installments';
 import { uzSales } from '@/lang/uz-sales';
 import { uzStock } from '@/lang/uz-stock';
 
 export const uz = {
     ...uzStock,
     ...uzSales,
+    ...uzInstallments,
 
     'action.save': 'Saqlash',
     'action.cancel': 'Bekor qilish',

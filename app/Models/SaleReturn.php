@@ -20,10 +20,11 @@ use Illuminate\Support\Carbon;
  * @property int|null $user_id
  * @property string|null $reason
  * @property string $refund_amount
+ * @property string|null $currency
  * @property string $profit_reversed
  * @property Carbon|null $created_at
  */
-#[Fillable(['sale_id', 'user_id', 'reason', 'refund_amount', 'profit_reversed'])]
+#[Fillable(['sale_id', 'user_id', 'reason', 'refund_amount', 'currency', 'profit_reversed'])]
 class SaleReturn extends Model
 {
     /** @use HasFactory<SaleReturnFactory> */

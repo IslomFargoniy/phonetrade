@@ -1,5 +1,7 @@
 import {
     ArrowLeftRight,
+    CalendarClock,
+    Users,
     Building2,
     LayoutGrid,
     PackagePlus,
@@ -11,6 +13,8 @@ import {
 import { t } from '@/lib/i18n';
 import { dashboard } from '@/routes';
 import { index as tenants } from '@/routes/admin/tenants';
+import { index as customers } from '@/routes/customers';
+import { index as installments } from '@/routes/installments';
 import { index as pos } from '@/routes/pos';
 import { edit as editProfile } from '@/routes/profile';
 import { create as receipt } from '@/routes/receipts';
@@ -59,6 +63,18 @@ export function mainNavigation(role: Role): NavItem[] {
             href: sales(),
             icon: Receipt,
             matchPrefix: '/sales',
+        },
+        {
+            title: t('plan.title'),
+            href: installments(),
+            icon: CalendarClock,
+            matchPrefix: '/installments',
+        },
+        {
+            title: t('customers.title'),
+            href: customers(),
+            icon: Users,
+            matchPrefix: '/customers',
         },
         {
             title: t('receipt.title'),

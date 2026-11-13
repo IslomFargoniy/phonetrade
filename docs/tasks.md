@@ -122,18 +122,18 @@ Maqsad: to'liq to'lovli savdo va qaytarish boshidan oxirigacha ishlaydi.
 
 Maqsad: nasiyaga sotish va oylik to'lovlarni yig'ish ishlaydi.
 
-- [ ] 4.1 Nasiya kalkulyatori service: A va B rejim, yaxlitlash, to'lov sanalari + testlar (plan.md misollari)
-- [ ] 4.2 Foyda ulushi service: ulush, har to'lovdan foyda, oxirgi to'lovda tuzatish + testlar
-- [ ] 4.3 `installment_plans`, `installment_schedule`, `installment_payments` jadvallari
-- [ ] 4.4 Mijoz kartasi to'liq: pasport, JSHSHIR, manzil, qo'shimcha telefon
-- [ ] 4.5 Pasport rasmlari: yopiq disk, vaqtinchalik havola, ruxsat tekshiruvi
-- [ ] 4.6 `CloseSale` ni nasiya bilan kengaytirish: shartnoma va jadval yaratish, savdo kuni to'lovi
-- [ ] 4.7 Shartnoma ekrani: jonli hisob (`preview`), jadval, tasdiqlash
-- [ ] 4.8 `AcceptInstallmentPayment` service: eng eski oylikdan taqsimlash, ortiqcha summa, dollarli qarzni so'mda qabul qilish + testlar
-- [ ] 4.9 Shartnomalar ro'yxati, filtrlar (bugun, kechikkan, faol, yopilgan), to'lov qabul qilish paneli
-- [ ] 4.10 To'lov kvitansiyasi va shartnoma hujjati (chop etish)
-- [ ] 4.11 Nasiyali savdoni qaytarish: shartnomani bekor qilish, to'langanini qaytarish
-- [ ] 4.12 Mijozlar ekrani: karta, xaridlar va nasiya tarixi
+- [x] 4.1 Nasiya kalkulyatori service: A va B rejim, yaxlitlash, to'lov sanalari + testlar (plan.md misollari)
+- [x] 4.2 Foyda ulushi service: ulush, har to'lovdan foyda, oxirgi to'lovda tuzatish + testlar
+- [x] 4.3 `installment_plans`, `installment_schedule`, `installment_payments` jadvallari
+- [x] 4.4 Mijoz kartasi to'liq: pasport, JSHSHIR, manzil, qo'shimcha telefon
+- [x] 4.5 Pasport rasmlari: yopiq disk, vaqtinchalik havola, ruxsat tekshiruvi
+- [x] 4.6 `CloseSale` ni nasiya bilan kengaytirish: shartnoma va jadval yaratish, savdo kuni to'lovi
+- [x] 4.7 Shartnoma ekrani: jonli hisob (`preview`), jadval, tasdiqlash
+- [x] 4.8 `AcceptInstallmentPayment` service: eng eski oylikdan taqsimlash, ortiqcha summa, dollarli qarzni so'mda qabul qilish + testlar
+- [x] 4.9 Shartnomalar ro'yxati, filtrlar (bugun, kechikkan, faol, yopilgan), to'lov qabul qilish paneli
+- [x] 4.10 To'lov kvitansiyasi va shartnoma hujjati (chop etish)
+- [x] 4.11 Nasiyali savdoni qaytarish: shartnomani bekor qilish, to'langanini qaytarish
+- [x] 4.12 Mijozlar ekrani: karta, xaridlar va nasiya tarixi
 
 **Tayyor:** ikkala rejimda shartnoma tuziladi, raqamlar plan.md misollari bilan tiyingacha mos; qisman va ortiqcha to'lov to'g'ri taqsimlanadi.
 

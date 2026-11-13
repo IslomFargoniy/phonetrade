@@ -4,8 +4,10 @@ namespace App\Http\Requests\Sales;
 
 use App\Enums\CashAccountType;
 use App\Enums\Currency;
+use App\Models\InstallmentRate;
 use App\Models\ProductVariant;
 use App\Models\StockUnit;
+use App\Services\Installments\InstallmentTerms;
 use App\Support\Phone;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -18,8 +20,14 @@ class CartRequest extends FormRequest
 {
     protected function prepareForValidation(): void
     {
-        if (is_string($this->input('customer_phone')) && $this->input('customer_phone') !== '') {
-            $this->merge(['customer_phone' => Phone::normalize($this->input('customer_phone')) ?? $this->input('customer_phone')]);
+        foreach (['customer_phone', 'customer_phone2'] as $field) {
+            if (is_string($this->input($field)) && $this->input($field) !== '') {
+                $this->merge([$field => Phone::normalize($this->input($field)) ?? $this->input($field)]);
+            }
+        }
+
+        if (is_string($this->input('passport_series'))) {
+            $this->merge(['passport_series' => strtoupper(trim($this->input('passport_series')))]);
         }
     }
 
@@ -42,9 +50,52 @@ class CartRequest extends FormRequest
             'payments.*.currency' => ['required', Rule::enum(Currency::class)],
             'payments.*.amount' => ['nullable', 'numeric', 'min:0'],
 
-            'customer_phone' => ['nullable', 'string', 'regex:'.Phone::PATTERN],
-            'customer_name' => ['nullable', 'string', 'max:255'],
+            'mode' => ['nullable', Rule::in(['full', 'installment'])],
+            'installment' => ['nullable', 'required_if:mode,installment', 'array'],
+            'installment.currency' => ['nullable', 'required_if:mode,installment', Rule::enum(Currency::class)],
+            'installment.months' => ['nullable', 'required_if:mode,installment', 'integer', Rule::in(array_keys(InstallmentRate::DEFAULTS))],
+            'installment.pay_day' => ['nullable', 'required_if:mode,installment', 'integer', 'min:1', 'max:28'],
+            'installment.down_payment' => ['nullable', 'numeric', 'min:0'],
+
+            // To'liq to'lovda mijoz ixtiyoriy; muddatli savdoda karta to'liq to'ldiriladi.
+            'customer_phone' => ['nullable', $this->routeIs('sales.store') ? 'required_if:mode,installment' : 'nullable', 'string', 'regex:'.Phone::PATTERN],
+            'customer_name' => ['nullable', $this->requiredForContract(), 'string', 'max:255'],
+            'customer_phone2' => ['nullable', 'string', 'regex:'.Phone::PATTERN],
+            'passport_series' => ['nullable', $this->requiredForContract(), 'string', 'regex:/^[A-Za-z]{2}$/'],
+            'passport_number' => ['nullable', $this->requiredForContract(), 'string', 'regex:/^\d{7}$/'],
+            'pinfl' => ['nullable', $this->requiredForContract(), 'string', 'regex:/^\d{14}$/'],
+            'customer_address' => ['nullable', $this->requiredForContract(), 'string', 'max:255'],
+            'passport_files' => ['nullable', 'array', 'max:5'],
+            'passport_files.*' => ['file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:8192'],
         ];
+    }
+
+    /**
+     * Mijoz kartasi maydonlari faqat muddatli savdoni yopishda majburiy
+     * (oldindan ko'rishda hali to'ldirilmagan bo'lishi mumkin).
+     */
+    private function requiredForContract(): string
+    {
+        return $this->routeIs('sales.store') ? 'required_if:mode,installment' : 'nullable';
+    }
+
+    public function isInstallment(): bool
+    {
+        return $this->input('mode') === 'installment';
+    }
+
+    public function terms(): ?InstallmentTerms
+    {
+        if (! $this->isInstallment()) {
+            return null;
+        }
+
+        return new InstallmentTerms(
+            currency: Currency::from((string) $this->input('installment.currency')),
+            months: (int) $this->input('installment.months'),
+            payDay: (int) $this->input('installment.pay_day'),
+            downPayment: (string) ($this->input('installment.down_payment') ?: '0'),
+        );
     }
 
     /**
@@ -58,6 +109,16 @@ class CartRequest extends FormRequest
             'items.*.qty' => 'Miqdor',
             'payments.*.amount' => "To'lov summasi",
             'customer_phone' => 'Mijoz telefoni',
+            'customer_phone2' => "Qo'shimcha telefon",
+            'customer_name' => 'F.I.Sh',
+            'passport_series' => 'Pasport seriyasi',
+            'passport_number' => 'Pasport raqami',
+            'pinfl' => 'JSHSHIR',
+            'customer_address' => 'Manzil',
+            'passport_files' => 'Pasport rasmi',
+            'installment.months' => 'Muddat',
+            'installment.pay_day' => "To'lov kuni",
+            'installment.down_payment' => "Boshlang'ich to'lov",
         ];
     }
 

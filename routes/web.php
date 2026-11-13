@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Admin\TenantController;
+use App\Http\Controllers\Customers\CustomerController;
+use App\Http\Controllers\Installments\InstallmentController;
 use App\Http\Controllers\Sales\PosController;
 use App\Http\Controllers\Sales\SaleController;
 use App\Http\Controllers\Stock\CatalogController;
@@ -45,6 +47,14 @@ Route::middleware(['auth', 'role:owner,seller'])->group(function () {
     Route::post('sales', [SaleController::class, 'store'])->name('sales.store');
     Route::get('sales/{sale}', [SaleController::class, 'show'])->name('sales.show');
     Route::post('sales/{sale}/refund', [SaleController::class, 'refund'])->name('sales.refund');
+
+    Route::get('installments', [InstallmentController::class, 'index'])->name('installments.index');
+    Route::post('installments/{plan}/pay', [InstallmentController::class, 'pay'])->name('installments.pay');
+
+    Route::get('customers', [CustomerController::class, 'index'])->name('customers.index');
+    Route::get('customers/lookup', [CustomerController::class, 'lookup'])->name('customers.lookup');
+    Route::post('customers/{customer}', [CustomerController::class, 'update'])->name('customers.update');
+    Route::get('customers/files/{file}', [CustomerController::class, 'file'])->name('customers.files.show');
 
     Route::get('stock', [StockController::class, 'index'])->name('stock.index');
     Route::post('stock/units/{unit}/restock', [StockController::class, 'restock'])->middleware('role:owner')->name('stock.units.restock');

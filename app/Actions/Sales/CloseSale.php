@@ -2,6 +2,7 @@
 
 namespace App\Actions\Sales;
 
+use App\Actions\Installments\OpenInstallmentPlan;
 use App\Enums\CashAccountType;
 use App\Enums\Currency;
 use App\Enums\SaleStatus;
@@ -16,6 +17,8 @@ use App\Models\SaleItem;
 use App\Models\StockUnit;
 use App\Models\User;
 use App\Services\Cash\CashService;
+use App\Services\Installments\InstallmentPlanner;
+use App\Services\Installments\InstallmentTerms;
 use App\Services\Rates\CurrencyRateService;
 use App\Services\Sales\CartCalculator;
 use App\Services\Sales\CartLine;
@@ -41,40 +44,63 @@ class CloseSale
         private readonly CurrencyRateService $rates,
         private readonly BatchConsumer $batches,
         private readonly SaleNumber $numbers,
+        private readonly InstallmentPlanner $planner,
+        private readonly OpenInstallmentPlan $openPlan,
     ) {}
 
     /**
+     * To'liq to'lovda mijoz to'lovlari savat jamini, muddatli savdoda esa savdo kuni
+     * to'lanadigan summani (boshlang'ich yoki 1-oylik) yopishi kerak.
+     *
      * @param  list<Item>  $items
      * @param  list<Payment>  $payments
      */
-    public function handle(Branch $branch, User $user, array $items, array $payments, ?int $customerId = null): Sale
-    {
+    public function handle(
+        Branch $branch,
+        User $user,
+        array $items,
+        array $payments,
+        ?int $customerId = null,
+        ?InstallmentTerms $terms = null,
+    ): Sale {
         $rate = $this->rates->current()?->usd_uzs;
 
-        return DB::transaction(function () use ($branch, $user, $items, $payments, $customerId, $rate): Sale {
+        return DB::transaction(function () use ($branch, $user, $items, $payments, $customerId, $terms, $rate): Sale {
             $totals = $this->calculator->calculate($this->loadItems($branch, $items), $rate);
-            $paid = $this->convertPayments($payments, $totals->currency, $rate);
+            $quote = null;
+            $due = $totals->total;
 
-            if ($paid['total']->lessThan($totals->total)) {
+            if ($terms !== null) {
+                if ($customerId === null) {
+                    throw new BusinessRuleException('CUSTOMER_REQUIRED', 'Muddatli savdoda mijoz kartasi majburiy.', 'customer_phone');
+                }
+
+                $quote = $this->planner->quote($branch, $totals, $terms, $rate);
+                $due = $quote->dueToday;
+            }
+
+            $paid = $this->convertPayments($payments, $due->currency, $rate);
+
+            if ($paid['total']->lessThan($due)) {
                 throw new BusinessRuleException(
                     'PAYMENT_NOT_BALANCED',
                     sprintf(
-                        "To'lov yetarli emas: jami %s, to'landi %s.",
-                        $totals->total->format(),
+                        "To'lov yetarli emas: kerak %s, to'landi %s.",
+                        $due->format(),
                         $paid['total']->format(),
                     ),
                     'payments',
                 );
             }
 
-            $change = $paid['total']->minus($totals->total);
+            $change = $paid['total']->minus($due);
 
             $sale = Sale::query()->create([
                 'branch_id' => $branch->id,
                 'user_id' => $user->id,
                 'customer_id' => $customerId,
                 'number' => $this->numbers->next(),
-                'type' => SaleType::Full,
+                'type' => $quote !== null ? SaleType::Installment : SaleType::Full,
                 'currency' => $totals->currency,
                 'rate' => $rate,
                 'subtotal' => $totals->subtotal->amount,
@@ -91,7 +117,7 @@ class CloseSale
             foreach ($paid['lines'] as $payment) {
                 $account = $this->account($branch, $payment['method']);
 
-                $this->cash->deposit($account, $payment['amount'], 'sale', $sale, $rate);
+                $this->cash->deposit($account, $payment['amount'], $quote !== null ? 'installment_initial' : 'sale', $sale, $rate);
 
                 $sale->payments()->create([
                     'cash_account_id' => $account->id,
@@ -103,9 +129,13 @@ class CloseSale
                 ]);
             }
 
-            // Qaytim savdo valyutasida, naqd kassadan beriladi.
+            // Qaytim naqd kassadan beriladi.
             if ($change->isPositive()) {
                 $this->cash->withdraw($this->account($branch, CashAccountType::Cash), $change, 'change', $sale, $rate);
+            }
+
+            if ($quote !== null) {
+                $this->openPlan->handle($sale, $branch, $user, $customerId, $quote, $rate);
             }
 
             Audit::log('sale.closed', $sale, null, ['number' => $sale->number, 'total' => $sale->total]);

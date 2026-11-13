@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
 
 /**
@@ -55,6 +56,14 @@ class Sale extends Model
             'change' => 'decimal:2',
             'status' => SaleStatus::class,
         ];
+    }
+
+    /**
+     * @return HasOne<InstallmentPlan, $this>
+     */
+    public function plan(): HasOne
+    {
+        return $this->hasOne(InstallmentPlan::class);
     }
 
     /**

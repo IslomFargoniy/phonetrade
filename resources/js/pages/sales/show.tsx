@@ -47,6 +47,7 @@ type SaleDetail = Omit<SaleSummary, 'items'> & {
     items: SaleItem[];
     payments: { id: number; label: string; amount_label: string }[];
     profit_label?: string;
+    profit_note?: string;
 };
 
 type Props = {
@@ -65,7 +66,10 @@ export default function SaleShow({
     receipt,
 }: Props) {
     const showProfit = sale.profit_label !== undefined;
+    // Nasiyada qator bo'yicha foyda ko'rsatilmaydi: u to'lovlar bilan tan olinadi.
+    const showItemProfit = showProfit && sale.type === 'full';
     const returnable = sale.items.filter((item) => item.returnable_qty > 0);
+    const installment = sale.type === 'installment';
 
     // Savdo yopilgandan keyin chek darhol chop etishga chiqadi.
     useEffect(() => {
@@ -94,6 +98,9 @@ export default function SaleShow({
                         .join(' · ')}
                     action={
                         <div className="flex flex-wrap items-center gap-2">
+                            {installment && (
+                                <Chip tone="info">{sale.type_label}</Chip>
+                            )}
                             <Chip tone={saleStatusTone[sale.status]}>
                                 {sale.status_label}
                             </Chip>
@@ -137,6 +144,11 @@ export default function SaleShow({
                                 <span className="text-lg font-bold num text-success">
                                     {sale.profit_label}
                                 </span>
+                                {sale.profit_note && (
+                                    <span className="text-xs text-muted-foreground">
+                                        {sale.profit_note}
+                                    </span>
+                                )}
                             </div>
                         )}
                     </div>
@@ -147,16 +159,16 @@ export default function SaleShow({
                         title={t('sales.show.items')}
                         className="min-w-0 flex-[999_1_520px]"
                     >
-                        <DataTable minWidth={showProfit ? 720 : 560}>
+                        <DataTable minWidth={showItemProfit ? 720 : 560}>
                             <thead>
                                 <tr>
                                     <Th>{t('stock.col.product')}</Th>
                                     <Th right>{t('sales.col.qty')}</Th>
                                     <Th right>{t('stock.col.price')}</Th>
-                                    {showProfit && (
+                                    {showItemProfit && (
                                         <Th right>{t('stock.col.cost')}</Th>
                                     )}
-                                    {showProfit && (
+                                    {showItemProfit && (
                                         <Th right>{t('sales.show.profit')}</Th>
                                     )}
                                     <Th right>{t('sales.col.total')}</Th>
@@ -211,12 +223,12 @@ export default function SaleShow({
                                                 </div>
                                             )}
                                         </Td>
-                                        {showProfit && (
+                                        {showItemProfit && (
                                             <Td right className="num">
                                                 {item.cost_label}
                                             </Td>
                                         )}
-                                        {showProfit && (
+                                        {showItemProfit && (
                                             <Td right className="num">
                                                 {item.profit_label}
                                             </Td>
@@ -267,43 +279,51 @@ export default function SaleShow({
                                 >
                                     {({ processing, errors }) => (
                                         <>
-                                            {returnable.map((item, i) => (
-                                                <div
-                                                    key={item.id}
-                                                    className="flex items-center justify-between gap-3"
-                                                >
-                                                    <input
-                                                        type="hidden"
-                                                        name={`items[${i}][sale_item_id]`}
-                                                        value={item.id}
-                                                    />
-                                                    <label
-                                                        htmlFor={`refund-${item.id}`}
-                                                        className="min-w-0 text-sm"
+                                            {installment && (
+                                                <p className="text-sm leading-relaxed text-ink-mid">
+                                                    {t(
+                                                        'sales.refund.installment',
+                                                    )}
+                                                </p>
+                                            )}
+                                            {!installment &&
+                                                returnable.map((item, i) => (
+                                                    <div
+                                                        key={item.id}
+                                                        className="flex items-center justify-between gap-3"
                                                     >
-                                                        {item.name}
-                                                        <span className="block text-xs text-muted-foreground">
-                                                            {t(
-                                                                'sales.refund.max',
-                                                                {
-                                                                    count: item.returnable_qty,
-                                                                },
-                                                            )}
-                                                        </span>
-                                                    </label>
-                                                    <Input
-                                                        id={`refund-${item.id}`}
-                                                        name={`items[${i}][qty]`}
-                                                        type="number"
-                                                        min={0}
-                                                        max={
-                                                            item.returnable_qty
-                                                        }
-                                                        defaultValue={0}
-                                                        className="w-24 text-right num"
-                                                    />
-                                                </div>
-                                            ))}
+                                                        <input
+                                                            type="hidden"
+                                                            name={`items[${i}][sale_item_id]`}
+                                                            value={item.id}
+                                                        />
+                                                        <label
+                                                            htmlFor={`refund-${item.id}`}
+                                                            className="min-w-0 text-sm"
+                                                        >
+                                                            {item.name}
+                                                            <span className="block text-xs text-muted-foreground">
+                                                                {t(
+                                                                    'sales.refund.max',
+                                                                    {
+                                                                        count: item.returnable_qty,
+                                                                    },
+                                                                )}
+                                                            </span>
+                                                        </label>
+                                                        <Input
+                                                            id={`refund-${item.id}`}
+                                                            name={`items[${i}][qty]`}
+                                                            type="number"
+                                                            min={0}
+                                                            max={
+                                                                item.returnable_qty
+                                                            }
+                                                            defaultValue={0}
+                                                            className="w-24 text-right num"
+                                                        />
+                                                    </div>
+                                                ))}
                                             <InputError
                                                 message={errors.items}
                                             />
