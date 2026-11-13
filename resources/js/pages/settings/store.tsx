@@ -12,6 +12,7 @@ import {
     installmentRates,
     rate as rateRoute,
 } from '@/routes/store-settings';
+import { unlink as unlinkTelegram } from '@/routes/store-settings/telegram';
 
 type RateRow = {
     date: string;
@@ -32,6 +33,7 @@ type Props = {
     roundStepUzs: string;
     roundStepUsd: string;
     receipt: { name: string; phone: string | null; footer: string | null };
+    telegram: { enabled: boolean; linked: boolean; link: string | null };
 };
 
 export default function StoreSettings({
@@ -41,6 +43,7 @@ export default function StoreSettings({
     roundStepUzs,
     roundStepUsd,
     receipt,
+    telegram,
 }: Props) {
     return (
         <>
@@ -181,6 +184,64 @@ export default function StoreSettings({
                             </>
                         )}
                     </Form>
+                </Panel>
+
+                <Panel
+                    title={t('store.telegram.title')}
+                    description={t('store.telegram.description')}
+                    action={
+                        telegram.linked ? (
+                            <Chip tone="success">
+                                {t('store.telegram.linked')}
+                            </Chip>
+                        ) : undefined
+                    }
+                >
+                    {!telegram.enabled ? (
+                        <p className="text-sm text-muted-foreground">
+                            {t('store.telegram.disabled')}
+                        </p>
+                    ) : telegram.linked ? (
+                        <Form
+                            {...unlinkTelegram.form()}
+                            options={{ preserveScroll: true }}
+                            className="flex flex-col gap-3"
+                        >
+                            {({ processing }) => (
+                                <>
+                                    <p className="text-sm text-muted-foreground">
+                                        {t('store.telegram.linked_hint')}
+                                    </p>
+                                    <Button
+                                        type="submit"
+                                        variant="outline"
+                                        className="self-start"
+                                        disabled={processing}
+                                    >
+                                        {processing && <Spinner />}
+                                        {t('store.telegram.unlink')}
+                                    </Button>
+                                </>
+                            )}
+                        </Form>
+                    ) : (
+                        <div className="flex flex-col gap-3">
+                            <p className="text-sm text-muted-foreground">
+                                {t('store.telegram.link_hint')}
+                            </p>
+                            {telegram.link && (
+                                <Button asChild className="self-start">
+                                    <a
+                                        href={telegram.link}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                    >
+                                        {t('store.telegram.link')}
+                                    </a>
+                                </Button>
+                            )}
+                        </div>
+                    )}
                 </Panel>
 
                 {branches.map((branch) => (

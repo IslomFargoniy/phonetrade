@@ -20,3 +20,12 @@ Schedule::command('rates:fetch')->dailyAt('12:00');
 
 // Har kecha hisob yozuvlari o'zaro solishtiriladi; nomuvofiqlik jurnalga yoziladi.
 Schedule::command('ledger:check')->dailyAt('03:00');
+
+/*
+ * Telegram bot. Token o'rnatilmagan bo'lsa buyruqlar hech narsa yubormaydi.
+ * Eslatma kuniga ikki marta ishlaydi: ertalabki urinish o'tmasa, tushdagi to'ldiradi
+ * (bitta eslatma baribir bir marta ketadi).
+ */
+Schedule::command('telegram:remind')->dailyAt('10:00');
+Schedule::command('telegram:remind')->dailyAt('14:00');
+Schedule::command('telegram:daily-report')->dailyAt('21:00');

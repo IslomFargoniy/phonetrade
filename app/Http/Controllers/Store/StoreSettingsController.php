@@ -8,6 +8,8 @@ use App\Models\CurrencyRate;
 use App\Models\InstallmentRate;
 use App\Models\Tenant;
 use App\Services\Rates\CurrencyRateService;
+use App\Services\Telegram\TelegramBot;
+use App\Services\Telegram\TelegramClient;
 use App\Support\Audit;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -21,9 +23,10 @@ use Inertia\Response;
  */
 class StoreSettingsController extends Controller
 {
-    public function edit(Request $request, CurrencyRateService $rates): Response
+    public function edit(Request $request, CurrencyRateService $rates, TelegramBot $bot, TelegramClient $telegram): Response
     {
         $tenant = $this->tenant($request);
+        $linked = $request->user()->telegram_chat_id !== null;
 
         return Inertia::render('settings/store', [
             'rateHistory' => CurrencyRate::query()
@@ -56,7 +59,22 @@ class StoreSettingsController extends Controller
                 'phone' => $tenant->setting('receipt.phone'),
                 'footer' => $tenant->setting('receipt.footer'),
             ],
+            'telegram' => [
+                'enabled' => $telegram->enabled() && $telegram->username() !== null,
+                'linked' => $linked,
+                // Bir martalik havola: 30 daqiqa amal qiladi, faqat shu foydalanuvchini ulaydi.
+                'link' => $linked ? null : $bot->linkFor($request->user(), $telegram),
+            ],
         ]);
+    }
+
+    public function unlinkTelegram(Request $request): RedirectResponse
+    {
+        $request->user()->forceFill(['telegram_chat_id' => null])->save();
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('Telegram uzildi.')]);
+
+        return to_route('store-settings.edit');
     }
 
     public function updateRate(Request $request, CurrencyRateService $rates): RedirectResponse

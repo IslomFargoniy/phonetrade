@@ -23,6 +23,7 @@ use Laravel\Sanctum\HasApiTokens;
  * @property Role $role
  * @property bool $is_active
  * @property bool $can_refund
+ * @property int|null $telegram_chat_id
  * @property string $password
  * @property string|null $two_factor_secret
  * @property string|null $two_factor_recovery_codes

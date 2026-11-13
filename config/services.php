@@ -35,4 +35,14 @@ return [
         ],
     ],
 
+    /*
+     * Telegram bot: egasiga kunlik hisobot, mijozga to'lov eslatmasi.
+     * Token bo'sh bo'lsa bot o'chiq hisoblanadi va hech narsa yuborilmaydi.
+     */
+    'telegram' => [
+        'token' => env('TELEGRAM_BOT_TOKEN'),
+        'username' => env('TELEGRAM_BOT_USERNAME'),
+        'webhook_secret' => env('TELEGRAM_WEBHOOK_SECRET'),
+    ],
+
 ];

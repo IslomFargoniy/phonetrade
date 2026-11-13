@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $passport_number
  * @property string|null $pinfl
  * @property string|null $address
+ * @property int|null $telegram_chat_id
  */
 #[Fillable(['full_name', 'phone', 'phone2', 'passport_series', 'passport_number', 'pinfl', 'address'])]
 class Customer extends Model
