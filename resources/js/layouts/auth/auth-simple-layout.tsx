@@ -18,7 +18,7 @@ export default function AuthSimpleLayout({
                 <div className="flex flex-col gap-7">
                     <div className="flex flex-col items-center gap-4">
                         <div className="flex items-center gap-3">
-                            <AppMark name={name} />
+                            <AppMark />
                             <span className="text-[15px] font-bold">
                                 {name}
                             </span>

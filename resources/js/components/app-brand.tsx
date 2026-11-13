@@ -10,7 +10,7 @@ export function AppBrand() {
 
     return (
         <div className="flex items-center gap-3 px-2.5 pt-1.5 pb-4">
-            <AppMark name={title} />
+            <AppMark />
             <div className="flex min-w-0 flex-col">
                 <span className="truncate text-[15px] font-bold">{title}</span>
                 {store?.branch && (
