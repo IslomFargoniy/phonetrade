@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Route;
  */
 Route::prefix('v1')->name('api.')->group(function () {
     Route::post('login', [AuthController::class, 'login'])->middleware('throttle:10,1')->name('login');
+    Route::post('demo-login', [AuthController::class, 'demo'])->middleware('throttle:10,1')->name('demo-login');
 
     Route::middleware(['auth:sanctum', 'role:owner,seller', 'throttle:240,1'])->group(function () {
         Route::post('logout', [AuthController::class, 'logout'])->name('logout');

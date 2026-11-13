@@ -224,4 +224,33 @@ class ApiTest extends TestCase
 
         $this->withToken($token)->getJson('/api/v1/me')->assertStatus(403)->assertJsonPath('code', 'ACCOUNT_DISABLED');
     }
+
+    public function test_demo_login_works_only_when_configured_and_only_for_the_demo_user(): void
+    {
+        $seller = $this->inStore(fn () => $this->store->seller());
+        app(TenantContext::class)->forget();
+
+        // Sozlanmagan: demo rejimi yo'q.
+        $this->postJson('/api/v1/demo-login')->assertNotFound()->assertJsonPath('code', 'DEMO_UNAVAILABLE');
+
+        config(['app.demo_phone' => $seller->phone]);
+
+        $token = $this->postJson('/api/v1/demo-login')
+            ->assertOk()
+            ->assertJsonPath('user.id', $seller->id)
+            ->assertJsonPath('user.role', 'seller')
+            ->json('token');
+
+        $this->withToken($token)->getJson('/api/v1/stock')->assertOk();
+
+        // Demo akkauntni tashrif buyuruvchi o'chira olmaydi.
+        $this->withToken($token)->deleteJson('/api/v1/account', ['password' => 'password'])
+            ->assertStatus(422)
+            ->assertJsonPath('code', 'ACCOUNT_NOT_DELETABLE');
+        $this->assertTrue($seller->refresh()->is_active);
+
+        // O'chirilgan demo xodim bilan kirib bo'lmaydi.
+        $seller->update(['is_active' => false]);
+        $this->postJson('/api/v1/demo-login')->assertNotFound();
+    }
 }

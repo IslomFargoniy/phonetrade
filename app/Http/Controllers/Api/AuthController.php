@@ -52,6 +52,31 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * Demo rejimi: namuna do'konning demo xodimi nomidan parolsiz kirish.
+     * Faqat `APP_DEMO_PHONE` sozlangan bo'lsa ishlaydi; demo xodim faqat namuna do'kon ma'lumotini ko'radi.
+     */
+    public function demo(Request $request, TenantContext $context): JsonResponse
+    {
+        $phone = Phone::normalize((string) config('app.demo_phone'));
+        $user = $phone !== null ? User::query()->where('phone', $phone)->where('is_active', true)->first() : null;
+        $tenant = $user?->tenant_id !== null ? Tenant::query()->find($user->tenant_id) : null;
+
+        if ($user === null || $tenant === null || $tenant->isBlocked()) {
+            return response()->json(['code' => 'DEMO_UNAVAILABLE', 'message' => 'Demo rejimi hozir mavjud emas.'], 404);
+        }
+
+        $context->set($tenant);
+
+        // Eski demo tokenlar to'planib qolmasligi uchun bir kundan oshganlari o'chiriladi.
+        $user->tokens()->where('name', 'demo')->where('created_at', '<', now()->subDay())->delete();
+
+        return response()->json([
+            'token' => $user->createToken('demo')->plainTextToken,
+            ...$this->profile($user, $request),
+        ]);
+    }
+
     public function logout(Request $request): JsonResponse
     {
         $this->user($request)->currentAccessToken()->delete();

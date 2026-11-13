@@ -6,6 +6,7 @@ use App\Exceptions\BusinessRuleException;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Support\Audit;
+use App\Support\Phone;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -33,6 +34,11 @@ class DeleteAccount
     {
         if ($user->isSuperadmin()) {
             throw new BusinessRuleException('ACCOUNT_NOT_DELETABLE', "Superadmin akkaunti bu yerdan o'chirilmaydi.", 'password');
+        }
+
+        // Demo akkaunt hamma uchun umumiy: uni bitta tashrif buyuruvchi o'chirib yubora olmaydi.
+        if ($user->phone === Phone::normalize((string) config('app.demo_phone'))) {
+            throw new BusinessRuleException('ACCOUNT_NOT_DELETABLE', "Demo akkauntni o'chirib bo'lmaydi.", 'password');
         }
 
         if ($user->isOwner()) {

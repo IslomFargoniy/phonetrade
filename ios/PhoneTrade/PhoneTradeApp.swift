@@ -64,6 +64,18 @@ struct LoginView: View {
                     .disabled(loading || phone.filter(\.isNumber).count < 9 || password.isEmpty)
                 }
 
+                Button("Demo rejimida ko'rish") {
+                    loading = true
+                    error = nil
+                    Task {
+                        do { try await session.demoSignIn() } catch { self.error = error.localizedDescription }
+                        loading = false
+                    }
+                }
+                .font(.headline)
+                .frame(maxWidth: .infinity)
+                .disabled(loading)
+
                 Text("Akkauntni tizim administratori ochadi.")
                     .font(.footnote)
                     .foregroundStyle(Palette.inkSoft)
