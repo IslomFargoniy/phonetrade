@@ -15,7 +15,10 @@ import { formatNumber } from '@/lib/format';
 import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { index } from '@/routes/stock';
-import { update as updateUnit } from '@/routes/stock/units';
+import {
+    restock as restockUnit,
+    update as updateUnit,
+} from '@/routes/stock/units';
 import { store as storeTransfer } from '@/routes/transfers';
 import type { BranchOption, StockUnitRow, StockVariantRow } from '@/types';
 
@@ -436,6 +439,22 @@ export default function StockIndex({
                                     {selected.received_at}
                                 </dd>
                             </dl>
+
+                            {canEdit && selected.status === 'returned' && (
+                                <Button
+                                    variant="secondary"
+                                    className="self-start"
+                                    onClick={() =>
+                                        router.post(
+                                            restockUnit(selected.id).url,
+                                            {},
+                                            { preserveScroll: true },
+                                        )
+                                    }
+                                >
+                                    {t('stock.restock')}
+                                </Button>
+                            )}
 
                             {canEdit && selected.status === 'in_stock' && (
                                 <Form

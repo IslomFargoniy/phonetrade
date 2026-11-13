@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Admin\TenantController;
+use App\Http\Controllers\Sales\PosController;
+use App\Http\Controllers\Sales\SaleController;
 use App\Http\Controllers\Stock\CatalogController;
 use App\Http\Controllers\Stock\ReceiptController;
 use App\Http\Controllers\Stock\StockController;
@@ -35,7 +37,17 @@ Route::middleware(['auth'])->group(function () {
  * Ombor: do'kon egasi va sotuvchi. Tannarx sotuvchiga berilmaydi (StockPresenter).
  */
 Route::middleware(['auth', 'role:owner,seller'])->group(function () {
+    Route::get('pos', [PosController::class, 'index'])->name('pos.index');
+    Route::get('pos/lookup', [PosController::class, 'lookup'])->name('pos.lookup');
+    Route::post('pos/preview', [PosController::class, 'preview'])->name('pos.preview');
+
+    Route::get('sales', [SaleController::class, 'index'])->name('sales.index');
+    Route::post('sales', [SaleController::class, 'store'])->name('sales.store');
+    Route::get('sales/{sale}', [SaleController::class, 'show'])->name('sales.show');
+    Route::post('sales/{sale}/refund', [SaleController::class, 'refund'])->name('sales.refund');
+
     Route::get('stock', [StockController::class, 'index'])->name('stock.index');
+    Route::post('stock/units/{unit}/restock', [StockController::class, 'restock'])->middleware('role:owner')->name('stock.units.restock');
     Route::patch('stock/units/{unit}', [StockController::class, 'updateUnit'])->middleware('role:owner')->name('stock.units.update');
 
     Route::get('receipts/create', [ReceiptController::class, 'create'])->name('receipts.create');

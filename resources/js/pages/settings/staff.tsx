@@ -17,6 +17,7 @@ type Member = {
     role: 'owner' | 'seller';
     role_label: string;
     is_active: boolean;
+    can_refund: boolean;
     branch_ids: number[];
     branch_names: string[];
 };
@@ -174,6 +175,31 @@ function MemberRow({
                                 className="size-4 accent-primary"
                             />
                             {t('staff.state.off')}
+                        </label>
+                    </fieldset>
+                    <fieldset className="flex flex-wrap items-center gap-4 text-sm">
+                        <legend className="sr-only">
+                            {t('staff.field.refund')}
+                        </legend>
+                        <label className="flex min-h-11 items-center gap-2">
+                            <input
+                                type="radio"
+                                name="can_refund"
+                                value="0"
+                                defaultChecked={!member.can_refund}
+                                className="size-4 accent-primary"
+                            />
+                            {t('staff.refund.no')}
+                        </label>
+                        <label className="flex min-h-11 items-center gap-2">
+                            <input
+                                type="radio"
+                                name="can_refund"
+                                value="1"
+                                defaultChecked={member.can_refund}
+                                className="size-4 accent-primary"
+                            />
+                            {t('staff.refund.yes')}
                         </label>
                     </fieldset>
                     <div className="flex flex-wrap gap-2">

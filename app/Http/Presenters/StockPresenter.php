@@ -5,21 +5,20 @@ namespace App\Http\Presenters;
 use App\Enums\Currency;
 use App\Models\ProductVariant;
 use App\Models\StockUnit;
-use App\Models\User;
 use App\Support\Money;
 
 /**
  * Ombor yozuvlarini sahifaga beriladigan ko'rinishga keltiradi.
  *
- * Tannarx faqat do'kon egasiga beriladi: sotuvchi uchun bu maydonlar javobga
- * umuman qo'shilmaydi (interfeysda yashirish yetarli emas).
+ * Tannarx faqat $withCost berilganda qo'shiladi. Sotuvchi uchun va kassa oynasida
+ * bu maydonlar javobga umuman kirmaydi (interfeysda yashirish yetarli emas).
  */
 final class StockPresenter
 {
     /**
      * @return array<string, mixed>
      */
-    public static function unit(StockUnit $unit, User $viewer): array
+    public static function unit(StockUnit $unit, bool $withCost): array
     {
         $data = [
             'id' => $unit->id,
@@ -40,7 +39,7 @@ final class StockPresenter
             'received_at' => $unit->created_at?->format('d.m.Y'),
         ];
 
-        if ($viewer->isOwner()) {
+        if ($withCost) {
             $data['cost'] = $unit->cost;
             $data['cost_currency'] = $unit->cost_currency->value;
             $data['cost_label'] = Money::of($unit->cost, $unit->cost_currency)->format();
@@ -53,7 +52,7 @@ final class StockPresenter
     /**
      * @return array<string, mixed>
      */
-    public static function variant(ProductVariant $variant, int $qty, User $viewer): array
+    public static function variant(ProductVariant $variant, int $qty): array
     {
         return [
             'id' => $variant->id,

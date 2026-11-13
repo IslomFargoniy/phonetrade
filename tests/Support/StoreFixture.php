@@ -2,6 +2,7 @@
 
 namespace Tests\Support;
 
+use App\Actions\Stock\ReceiveStock;
 use App\Actions\Tenants\CreateTenant;
 use App\Enums\CashAccountType;
 use App\Enums\Role;
@@ -11,6 +12,8 @@ use App\Models\CashAccount;
 use App\Models\Category;
 use App\Models\CurrencyRate;
 use App\Models\Product;
+use App\Models\ProductVariant;
+use App\Models\StockUnit;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Tenancy\TenantContext;
@@ -80,6 +83,49 @@ class StoreFixture
             ->where('branch_id', ($branch ?? $this->branch)->id)
             ->where('type', $type)
             ->firstOrFail();
+    }
+
+    /**
+     * Omborga bitta telefon kiritadi.
+     *
+     * @param  array<string, mixed>  $overrides
+     */
+    public function receivePhone(int $n = 1, array $overrides = [], string $currency = 'USD'): StockUnit
+    {
+        app(ReceiveStock::class)->handle($this->branch, $this->owner, ['type' => 'opening', 'currency' => $currency, 'lines' => [[
+            'product_id' => $this->phone->id,
+            'unit_cost' => '320',
+            'sale_price' => '4850000',
+            'sale_currency' => 'UZS',
+            'max_discount_pct' => '15',
+            'warranty_months' => 12,
+            'units' => [['imei1' => self::imei($n)]],
+            ...$overrides,
+        ]]]);
+
+        return StockUnit::query()->latest('id')->firstOrFail();
+    }
+
+    /**
+     * Omborga aksesuar partiyasini kiritadi va variantni qaytaradi.
+     */
+    public function receiveCases(int $qty, string $unitCost = '20000', string $salePrice = '60000'): ProductVariant
+    {
+        app(ReceiveStock::class)->handle($this->branch, $this->owner, ['type' => 'opening', 'currency' => 'UZS', 'lines' => [[
+            'product_id' => $this->case->id,
+            'barcode' => '4780012345678',
+            'unit_cost' => $unitCost,
+            'sale_price' => $salePrice,
+            'sale_currency' => 'UZS',
+            'qty' => $qty,
+        ]]]);
+
+        return ProductVariant::query()->where('barcode', '4780012345678')->firstOrFail();
+    }
+
+    public function setRate(string $rate): void
+    {
+        CurrencyRate::query()->whereDate('date', now()->toDateString())->firstOrFail()->update(['usd_uzs' => $rate]);
     }
 
     public function seller(): User

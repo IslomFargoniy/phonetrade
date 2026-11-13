@@ -34,6 +34,7 @@ class StaffController extends Controller
                     'role' => $user->role->value,
                     'role_label' => $user->role->label(),
                     'is_active' => $user->is_active,
+                    'can_refund' => $user->can_refund,
                     'branch_ids' => $user->branches->modelKeys(),
                     'branch_names' => $user->branches->pluck('name')->values(),
                 ]),
@@ -51,6 +52,7 @@ class StaffController extends Controller
                 'phone' => $data['phone'],
                 'password' => $data['password'],
                 'role' => Role::Seller,
+                'can_refund' => (bool) ($data['can_refund'] ?? false),
             ]);
 
             $user->branches()->sync($data['branch_ids']);
@@ -77,6 +79,7 @@ class StaffController extends Controller
                 'name' => $data['name'],
                 'phone' => $data['phone'],
                 'is_active' => $data['is_active'] ?? $staff->is_active,
+                'can_refund' => $data['can_refund'] ?? $staff->can_refund,
             ]);
 
             if (! empty($data['password'])) {
