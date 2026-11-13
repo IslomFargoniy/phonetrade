@@ -17,6 +17,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import uz.simulator.phonetrade.data.PasswordBody
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.CalendarMonth
@@ -261,6 +267,7 @@ private fun ProfileSheet(app: PhoneTradeApp, profile: Profile, onBranch: (Int) -
         }
 
         Spacer(Modifier.height(8.dp))
+        DeleteAccountButton(app, profile)
         OutlinedButton(
             onClick = {
                 scope.launch {
@@ -281,3 +288,82 @@ private fun ChoiceRow(label: String, selected: Boolean, onClick: () -> Unit) {
         Text(label, fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal)
     }
 }
+
+/**
+ * Akkauntni o'chirish (ilova do'konlari talabi). Sotuvchi darhol o'chiriladi;
+ * do'kon egasi butun do'konni o'chirish so'rovini yuboradi.
+ */
+@Composable
+private fun DeleteAccountButton(app: PhoneTradeApp, profile: Profile) {
+    val scope = rememberCoroutineScope()
+    var open by remember { mutableStateOf(false) }
+    var password by remember { mutableStateOf("") }
+    var loading by remember { mutableStateOf(false) }
+    var error by remember { mutableStateOf<String?>(null) }
+    var done by remember { mutableStateOf<String?>(null) }
+    val owner = profile.user.isOwner
+
+    TextButton(onClick = { open = true }) {
+        Text(if (owner) "Do'konni o'chirish" else "Akkauntni o'chirish", color = Palette.Danger)
+    }
+    done?.let { Text(it, color = Palette.InkMid, fontSize = 14.sp) }
+
+    if (!open) return
+
+    AlertDialog(
+        onDismissRequest = { if (!loading) open = false },
+        title = { Text(if (owner) "Do'konni o'chirish" else "Akkauntni o'chirish") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text(
+                    if (owner) {
+                        "Butun do'konni — xodimlar, mijozlar, pasport rasmlari, ombor va savdo yozuvlari bilan — " +
+                            "o'chirish so'rovi yuboriladi. 30 kun ichida bajariladi; web paneldagi Sozlamalar → Profil " +
+                            "bo'limida bekor qilishingiz mumkin."
+                    } else {
+                        "Akkauntingiz darhol o'chiriladi: ism, telefon va parol tozalanadi. " +
+                            "Siz qilgan savdolar do'kon hisobida shaxsiy ma'lumotsiz qoladi."
+                    },
+                    fontSize = 14.sp,
+                )
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text("Parolingiz") },
+                    singleLine = true,
+                    visualTransformation = PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                )
+                ErrorBanner(error)
+            }
+        },
+        confirmButton = {
+            TextButton(
+                enabled = password.isNotEmpty() && !loading,
+                onClick = {
+                    loading = true
+                    error = null
+                    scope.launch {
+                        try {
+                            val result = app.client.call { deleteAccount(PasswordBody(password)) }
+                            open = false
+                            password = ""
+
+                            if (result.status == "deleted") {
+                                app.session.signOut()
+                            } else {
+                                done = result.message
+                            }
+                        } catch (exception: ApiException) {
+                            error = exception.message
+                        } finally {
+                            loading = false
+                        }
+                    }
+                },
+            ) { Text(if (owner) "So'rov yuborish" else "O'chirish", color = Palette.Danger) }
+        },
+        dismissButton = { TextButton(onClick = { open = false }, enabled = !loading) { Text("Bekor qilish") } },
+    )
+}
+

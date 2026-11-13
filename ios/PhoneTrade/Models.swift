@@ -232,3 +232,15 @@ struct Sale: Decodable {
     let items: [SaleItem]?
     let payments: [SalePayment]?
 }
+
+// MARK: - Akkauntni o'chirish
+
+struct PasswordBody: Encodable {
+    let password: String
+}
+
+struct DeleteAccountResponse: Decodable {
+    let status: String?
+    let message: String?
+}
+

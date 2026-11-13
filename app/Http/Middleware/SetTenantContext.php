@@ -75,7 +75,7 @@ class SetTenantContext
      */
     private function readOnlyResponse(Request $request, User $user): ?Response
     {
-        if ($request->isMethodSafe() || $request->routeIs('logout', 'api.logout', 'branches.select')) {
+        if ($request->isMethodSafe() || $request->routeIs('logout', 'api.logout', 'branches.select', 'account.destroy', 'account.cancel-deletion', 'api.account.destroy')) {
             return null;
         }
 

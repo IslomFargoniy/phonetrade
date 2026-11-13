@@ -76,6 +76,15 @@ final class Session {
         clear()
     }
 
+    /// Akkauntni o'chirish. Sotuvchi darhol o'chiriladi va chiqariladi; egasida so'rov yuboriladi.
+    func deleteAccount(password: String) async throws -> String {
+        let result: DeleteAccountResponse = try await send(method: "DELETE", "account", body: PasswordBody(password: password))
+
+        if result.status == "deleted" { clear() }
+
+        return result.message ?? ""
+    }
+
     private func apply(_ profile: Profile) {
         self.profile = profile
         branchId = profile.store.branch?.id
@@ -106,8 +115,12 @@ final class Session {
     }
 
     func post<T: Decodable, B: Encodable>(_ path: String, body: B, idempotencyKey: String? = nil) async throws -> T {
+        try await send(method: "POST", path, body: body, idempotencyKey: idempotencyKey)
+    }
+
+    private func send<T: Decodable, B: Encodable>(method: String, _ path: String, body: B, idempotencyKey: String? = nil) async throws -> T {
         var request = URLRequest(url: baseURL.appendingPathComponent(path))
-        request.httpMethod = "POST"
+        request.httpMethod = method
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try encoder.encode(body)
 

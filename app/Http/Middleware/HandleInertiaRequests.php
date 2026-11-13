@@ -76,6 +76,7 @@ class HandleInertiaRequests extends Middleware
 
         return [
             'name' => $tenant->name,
+            'deletion_requested_at' => $tenant->deletion_requested_at?->format('d.m.Y'),
             'subscription' => [
                 'state' => $subscription->state($tenant),
                 'plan' => $tenant->plan?->name,

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Actions\Accounts\DeleteAccount;
 use App\Enums\Role;
 use App\Http\Controllers\Controller;
 use App\Models\Branch;
@@ -37,6 +38,7 @@ class BillingController extends Controller
                 'plan' => $tenant->plan?->name,
                 'paid_until' => $tenant->paid_until?->toDateString(),
                 'paid_until_label' => $tenant->paid_until?->format('d.m.Y'),
+                'deletion_requested_at' => $tenant->deletion_requested_at?->format('d.m.Y'),
                 'state' => $subscription->state($tenant),
                 'days_left' => $subscription->daysLeft($tenant),
                 'branches' => Branch::query()->where('tenant_id', $tenant->id)->where('is_active', true)->count(),
@@ -89,6 +91,26 @@ class BillingController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Obuna saqlandi.')]);
 
         return to_route('admin.tenants.show', $tenant);
+    }
+
+    /**
+     * Do'konni butunlay o'chiradi (egasi so'ragan bo'lsa yoki superadmin qarori bilan).
+     * Xato bosishdan himoya: do'kon nomini aynan yozish kerak.
+     */
+    public function destroy(Request $request, Tenant $tenant, DeleteAccount $deleteAccount): RedirectResponse
+    {
+        $request->validate(['confirm' => ['required', 'string']], attributes: ['confirm' => "Do'kon nomi"]);
+
+        if (trim((string) $request->input('confirm')) !== $tenant->name) {
+            return back()->withErrors(['confirm' => "Do'kon nomi mos kelmadi."]);
+        }
+
+        Audit::log('tenant.purged', $tenant, ['name' => $tenant->name]);
+        $deleteAccount->purgeTenant($tenant);
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => __("Do'kon butunlay o'chirildi.")]);
+
+        return to_route('admin.tenants.index');
     }
 
     public function storePayment(Request $request, Tenant $tenant, Subscription $subscription): RedirectResponse

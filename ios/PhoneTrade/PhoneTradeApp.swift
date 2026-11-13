@@ -178,6 +178,10 @@ struct MainView: View {
 struct ProfileSheet: View {
     @Environment(Session.self) private var session
     @Environment(\.dismiss) private var dismiss
+    @State private var deletePassword = ""
+    @State private var confirmDelete = false
+    @State private var deleting = false
+    @State private var deleteMessage: String?
 
     var body: some View {
         NavigationStack {
@@ -221,6 +225,23 @@ struct ProfileSheet: View {
                     }
                 }
 
+                if let profile = session.profile {
+                    Section {
+                        SecureField("Parolingiz", text: $deletePassword)
+                        Button(profile.user.isOwner ? "Do'konni o'chirish so'rovini yuborish" : "Akkauntni o'chirish", role: .destructive) {
+                            confirmDelete = true
+                        }
+                        .disabled(deletePassword.isEmpty || deleting)
+                        if let deleteMessage { Text(deleteMessage).font(.footnote).foregroundStyle(.secondary) }
+                    } header: {
+                        Text(profile.user.isOwner ? "Do'konni o'chirish" : "Akkauntni o'chirish")
+                    } footer: {
+                        Text(profile.user.isOwner
+                            ? "Butun do'kon — xodimlar, mijozlar, pasport rasmlari, ombor va savdo yozuvlari bilan — 30 kun ichida o'chiriladi. Web paneldagi Sozlamalar → Profil bo'limida bekor qilish mumkin."
+                            : "Akkauntingiz darhol o'chiriladi: ism, telefon va parol tozalanadi. Siz qilgan savdolar do'kon hisobida shaxsiy ma'lumotsiz qoladi.")
+                    }
+                }
+
                 Section {
                     Button("Chiqish", role: .destructive) {
                         Task {
@@ -232,6 +253,26 @@ struct ProfileSheet: View {
             }
             .navigationTitle("Profil")
             .navigationBarTitleDisplayMode(.inline)
+            .confirmationDialog("Bu amalni qaytarib bo'lmaydi.", isPresented: $confirmDelete, titleVisibility: .visible) {
+                Button("Ha, davom etish", role: .destructive) { deleteAccount() }
+                Button("Bekor qilish", role: .cancel) {}
+            }
+        }
+    }
+
+    private func deleteAccount() {
+        deleting = true
+        deleteMessage = nil
+
+        Task {
+            do {
+                deleteMessage = try await session.deleteAccount(password: deletePassword)
+                deletePassword = ""
+                if session.token == nil { dismiss() }
+            } catch {
+                deleteMessage = error.localizedDescription
+            }
+            deleting = false
         }
     }
 }
