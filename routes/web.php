@@ -1,6 +1,10 @@
 <?php
 
 use App\Http\Controllers\Admin\TenantController;
+use App\Http\Controllers\Stock\CatalogController;
+use App\Http\Controllers\Stock\ReceiptController;
+use App\Http\Controllers\Stock\StockController;
+use App\Http\Controllers\Stock\TransferController;
 use App\Http\Controllers\Store\BranchController;
 use App\Http\Controllers\Store\StaffController;
 use App\Http\Controllers\Store\StoreSettingsController;
@@ -28,6 +32,22 @@ Route::middleware(['auth'])->group(function () {
 });
 
 /*
+ * Ombor: do'kon egasi va sotuvchi. Tannarx sotuvchiga berilmaydi (StockPresenter).
+ */
+Route::middleware(['auth', 'role:owner,seller'])->group(function () {
+    Route::get('stock', [StockController::class, 'index'])->name('stock.index');
+    Route::patch('stock/units/{unit}', [StockController::class, 'updateUnit'])->middleware('role:owner')->name('stock.units.update');
+
+    Route::get('receipts/create', [ReceiptController::class, 'create'])->name('receipts.create');
+    Route::post('receipts', [ReceiptController::class, 'store'])->name('receipts.store');
+    Route::get('receipts/{purchase}', [ReceiptController::class, 'show'])->name('receipts.show');
+
+    Route::get('transfers', [TransferController::class, 'index'])->name('transfers.index');
+    Route::post('transfers', [TransferController::class, 'store'])->name('transfers.store');
+    Route::post('transfers/{transfer}/receive', [TransferController::class, 'receive'])->name('transfers.receive');
+});
+
+/*
  * Superadmin paneli. Bu yerda do'kon konteksti o'rnatilmaydi, shuning uchun
  * so'rovlar barcha do'konlarni ko'radi.
  */
@@ -50,6 +70,14 @@ Route::middleware(['auth', 'role:owner'])->prefix('settings')->group(function ()
     Route::get('branches', [BranchController::class, 'index'])->name('branches.index');
     Route::post('branches', [BranchController::class, 'store'])->name('branches.store');
     Route::patch('branches/{branch}', [BranchController::class, 'update'])->name('branches.update');
+
+    Route::get('catalog', [CatalogController::class, 'index'])->name('catalog.index');
+    Route::post('catalog/categories', [CatalogController::class, 'storeCategory'])->name('catalog.categories.store');
+    Route::post('catalog/attributes', [CatalogController::class, 'storeAttribute'])->name('catalog.attributes.store');
+    Route::patch('catalog/attributes/{attribute}', [CatalogController::class, 'updateAttribute'])->name('catalog.attributes.update');
+    Route::post('catalog/products', [CatalogController::class, 'storeProduct'])->name('catalog.products.store');
+    Route::patch('catalog/products/{product}', [CatalogController::class, 'updateProduct'])->name('catalog.products.update');
+    Route::post('catalog/suppliers', [CatalogController::class, 'storeSupplier'])->name('catalog.suppliers.store');
 
     Route::get('staff', [StaffController::class, 'index'])->name('staff.index');
     Route::post('staff', [StaffController::class, 'store'])->name('staff.store');

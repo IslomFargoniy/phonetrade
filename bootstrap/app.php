@@ -1,5 +1,6 @@
 <?php
 
+use App\Exceptions\BusinessRuleException;
 use App\Http\Middleware\EnsureRole;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\SetTenantContext;
@@ -33,6 +34,19 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        // Biznes qoidasi buzilganda: API'ga kod bilan JSON, webda formaga xato sifatida qaytadi.
+        $exceptions->render(function (BusinessRuleException $exception, Request $request) {
+            if ($request->is('api/*') || $request->expectsJson()) {
+                return response()->json([
+                    'code' => $exception->errorCode,
+                    'message' => $exception->getMessage(),
+                    'errors' => [$exception->field => [$exception->getMessage()]],
+                ], 422);
+            }
+
+            return back()->withInput()->withErrors([$exception->field => $exception->getMessage()]);
+        });
+
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );

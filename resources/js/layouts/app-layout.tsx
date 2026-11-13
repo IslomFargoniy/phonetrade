@@ -31,15 +31,15 @@ export default function AppLayout({
         <div className="relative min-h-svh">
             <AppBackground />
 
-            <div className="relative flex min-h-svh flex-col gap-4 p-4 lg:flex-row lg:items-start">
-                <aside className="hidden w-[232px] shrink-0 flex-col glass p-3 lg:sticky lg:top-4 lg:flex">
+            <div className="relative flex min-h-svh flex-col gap-4 p-4 lg:flex-row lg:items-start print:block print:min-h-0 print:p-0">
+                <aside className="hidden w-[232px] shrink-0 flex-col glass p-3 lg:sticky lg:top-4 lg:flex print:hidden">
                     <AppBrand />
                     <AppNav />
                     <RateBadge />
                 </aside>
 
                 <div className="flex min-w-0 flex-1 flex-col gap-4">
-                    <header className="flex flex-wrap items-center justify-between gap-3 glass py-3.5 pr-4 pl-4 lg:pl-6">
+                    <header className="flex flex-wrap items-center justify-between gap-3 glass py-3.5 pr-4 pl-4 lg:pl-6 print:hidden">
                         <div className="flex min-w-0 items-center gap-3">
                             <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
                                 <SheetTrigger asChild>
