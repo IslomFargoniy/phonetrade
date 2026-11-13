@@ -4,11 +4,13 @@ namespace App\Http\Middleware;
 
 use App\Models\Tenant;
 use App\Models\User;
+use App\Services\Billing\Subscription;
 use App\Tenancy\CurrentBranch;
 use App\Tenancy\TenantContext;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -47,6 +49,10 @@ class SetTenantContext
 
             if ($user->tenant_id !== null) {
                 $this->context->set($user->tenant_id);
+
+                if ($response = $this->readOnlyResponse($request, $user)) {
+                    return $response;
+                }
             }
 
             if ($request->is('api/*')) {
@@ -61,6 +67,35 @@ class SetTenantContext
             $this->context->forget();
             $this->currentBranch->forget();
         }
+    }
+
+    /**
+     * Obuna muddati (imtiyozli davr bilan) tugagan do'kon faqat o'qiy oladi:
+     * ma'lumot ko'rinadi, lekin o'zgartiradigan so'rovlar rad etiladi.
+     */
+    private function readOnlyResponse(Request $request, User $user): ?Response
+    {
+        if ($request->isMethodSafe() || $request->routeIs('logout', 'api.logout', 'branches.select')) {
+            return null;
+        }
+
+        $tenant = Tenant::query()->find($user->tenant_id);
+
+        if ($tenant === null || ! app(Subscription::class)->isReadOnly($tenant)) {
+            return null;
+        }
+
+        $message = $user->isOwner()
+            ? "Obuna muddati tugagan. Do'kon faqat o'qish rejimida — davom ettirish uchun to'lovni amalga oshiring."
+            : "Obuna muddati tugagan. Do'kon egasiga murojaat qiling.";
+
+        if ($request->is('api/*') || $request->expectsJson()) {
+            return response()->json(['code' => 'SUBSCRIPTION_EXPIRED', 'message' => $message], 402);
+        }
+
+        Inertia::flash('toast', ['type' => 'error', 'message' => $message]);
+
+        return back()->withErrors(['business' => $message]);
     }
 
     private function denialReason(User $user): ?string

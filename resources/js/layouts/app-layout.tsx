@@ -6,6 +6,7 @@ import { AppBrand } from '@/components/app-brand';
 import { AppNav } from '@/components/app-nav';
 import { BranchSwitcher } from '@/components/branch-switcher';
 import { RateBadge } from '@/components/rate-badge';
+import { SubscriptionBanner } from '@/components/subscription-banner';
 import { Button } from '@/components/ui/button';
 import {
     Sheet,
@@ -87,6 +88,8 @@ export default function AppLayout({
                             <UserMenu />
                         </div>
                     </header>
+
+                    <SubscriptionBanner />
 
                     <main className="flex min-w-0 flex-col gap-4">
                         {children}

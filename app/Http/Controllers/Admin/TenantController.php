@@ -7,10 +7,15 @@ use App\Enums\Role;
 use App\Enums\TenantStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreTenantRequest;
+use App\Models\Sale;
+use App\Models\SubscriptionPayment;
 use App\Models\Tenant;
 use App\Models\User;
+use App\Services\Billing\Subscription;
 use App\Support\Audit;
+use App\Support\Money;
 use App\Support\Phone;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -22,9 +27,10 @@ use Inertia\Response;
  */
 class TenantController extends Controller
 {
-    public function index(): Response
+    public function index(Subscription $subscription): Response
     {
         $tenants = Tenant::query()
+            ->with('plan')
             ->withCount(['branches', 'users'])
             ->orderByDesc('id')
             ->get();
@@ -35,8 +41,24 @@ class TenantController extends Controller
             ->get()
             ->keyBy('tenant_id');
 
+        $monthStart = CarbonImmutable::today()->startOfMonth();
+
         return Inertia::render('admin/tenants', [
+            // Platforma bo'yicha umumiy ko'rsatkichlar (barcha do'konlar).
+            'stats' => [
+                'tenants' => $tenants->count(),
+                'blocked' => $tenants->filter(fn (Tenant $tenant) => $tenant->isBlocked())->count(),
+                'expired' => $tenants->filter(fn (Tenant $tenant) => $subscription->state($tenant) === Subscription::STATE_EXPIRED)->count(),
+                'grace' => $tenants->filter(fn (Tenant $tenant) => $subscription->state($tenant) === Subscription::STATE_GRACE)->count(),
+                'branches' => (int) $tenants->sum('branches_count'),
+                'users' => (int) $tenants->sum('users_count'),
+                'sales_month' => Sale::query()->where('created_at', '>=', $monthStart)->count(),
+                'income_month' => Money::uzs((string) SubscriptionPayment::query()->where('created_at', '>=', $monthStart)->sum('amount'))->format(),
+            ],
             'tenants' => $tenants->map(fn (Tenant $tenant) => [
+                'plan' => $tenant->plan?->name,
+                'paid_until' => $tenant->paid_until?->format('d.m.Y'),
+                'state' => $subscription->state($tenant),
                 'id' => $tenant->id,
                 'name' => $tenant->name,
                 'status' => $tenant->status->value,

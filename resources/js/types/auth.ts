@@ -25,6 +25,14 @@ export type StoreContext = {
     branch: BranchOption | null;
     branches: BranchOption[];
     rate: { usd_uzs: string; date: string; is_today: boolean } | null;
+    subscription: {
+        /** unlimited — muddat qo'yilmagan; grace — imtiyozli davr; expired — faqat o'qish */
+        state: 'unlimited' | 'active' | 'grace' | 'expired';
+        plan: string | null;
+        paid_until: string | null;
+        days_left: number | null;
+        read_only_from: string | null;
+    };
 };
 
 export type TwoFactorSetupData = {

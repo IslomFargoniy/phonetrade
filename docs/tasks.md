@@ -198,11 +198,11 @@ Maqsad: sotuvchi telefon bilan sotadi.
 
 ## 9-bosqich — Obuna
 
-- [ ] 9.1 Tariflar: filial va xodim limitlari, narx
-- [ ] 9.2 Obuna muddati, to'lovlar tarixi (superadmin kiritadi)
-- [ ] 9.3 Limit nazorati: filial va xodim qo'shishda
-- [ ] 9.4 Muddat tugashi: imtiyozli davr, keyin faqat o'qish rejimi + testlar
-- [ ] 9.5 Superadmin statistikasi: barcha do'konlar bo'yicha
+- [x] 9.1 Tariflar: filial va xodim limitlari, narx
+- [x] 9.2 Obuna muddati, to'lovlar tarixi (superadmin kiritadi)
+- [x] 9.3 Limit nazorati: filial va xodim qo'shishda
+- [x] 9.4 Muddat tugashi: imtiyozli davr, keyin faqat o'qish rejimi + testlar
+- [x] 9.5 Superadmin statistikasi: barcha do'konlar bo'yicha
 
 **Tayyor:** muddati o'tgan do'kon ma'lumotini ko'radi, lekin savdo qila olmaydi; to'lovdan keyin darhol ochiladi.
 

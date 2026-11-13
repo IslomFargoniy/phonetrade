@@ -13,6 +13,7 @@ import {
     Warehouse,
 } from 'lucide-react';
 import { t } from '@/lib/i18n';
+import { index as plans } from '@/routes/admin/plans';
 import { index as tenants } from '@/routes/admin/tenants';
 import { index as cash } from '@/routes/cash';
 import { index as customers } from '@/routes/customers';
@@ -44,6 +45,12 @@ export function mainNavigation(role: Role): NavItem[] {
                 href: tenants(),
                 icon: Building2,
                 matchPrefix: '/admin/tenants',
+            },
+            {
+                title: t('plans.title'),
+                href: plans(),
+                icon: Receipt,
+                matchPrefix: '/admin/plans',
             },
             settings,
         ];
