@@ -31,6 +31,13 @@ class SetTenantContext
 
         if ($user instanceof User) {
             if ($reason = $this->denialReason($user)) {
+                if ($request->is('api/*')) {
+                    // Mobil ilova: token bekor qilinadi, ilova login ekraniga qaytadi.
+                    $user->currentAccessToken()->delete();
+
+                    return response()->json(['code' => 'ACCOUNT_DISABLED', 'message' => $reason], 403);
+                }
+
                 Auth::guard('web')->logout();
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
@@ -40,6 +47,10 @@ class SetTenantContext
 
             if ($user->tenant_id !== null) {
                 $this->context->set($user->tenant_id);
+            }
+
+            if ($request->is('api/*')) {
+                $this->currentBranch->selectForRequest($user, $request->integer('branch_id') ?: ((int) $request->header('X-Branch-Id') ?: null));
             }
         }
 

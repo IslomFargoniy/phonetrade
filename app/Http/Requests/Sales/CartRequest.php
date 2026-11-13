@@ -58,7 +58,7 @@ class CartRequest extends FormRequest
             'installment.down_payment' => ['nullable', 'numeric', 'min:0'],
 
             // To'liq to'lovda mijoz ixtiyoriy; muddatli savdoda karta to'liq to'ldiriladi.
-            'customer_phone' => ['nullable', $this->routeIs('sales.store') ? 'required_if:mode,installment' : 'nullable', 'string', 'regex:'.Phone::PATTERN],
+            'customer_phone' => ['nullable', $this->requiredForContract(), 'string', 'regex:'.Phone::PATTERN],
             'customer_name' => ['nullable', $this->requiredForContract(), 'string', 'max:255'],
             'customer_phone2' => ['nullable', 'string', 'regex:'.Phone::PATTERN],
             'passport_series' => ['nullable', $this->requiredForContract(), 'string', 'regex:/^[A-Za-z]{2}$/'],
@@ -76,7 +76,7 @@ class CartRequest extends FormRequest
      */
     private function requiredForContract(): string
     {
-        return $this->routeIs('sales.store') ? 'required_if:mode,installment' : 'nullable';
+        return $this->routeIs('sales.store', 'api.sales.store') ? 'required_if:mode,installment' : 'nullable';
     }
 
     public function isInstallment(): bool
