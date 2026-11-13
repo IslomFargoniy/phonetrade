@@ -7,11 +7,21 @@ export function AppNav({ onNavigate }: { onNavigate?: () => void }) {
     const { auth } = usePage().props;
     const { currentUrl, isCurrentUrl } = useCurrentUrl();
 
+    const items = mainNavigation(auth.user.role);
+    const bestPrefix = items
+        .map((item) => item.matchPrefix)
+        .filter(
+            (prefix): prefix is string =>
+                prefix !== undefined && currentUrl.startsWith(prefix),
+        )
+        .sort((a, b) => b.length - a.length)[0];
+
     return (
         <nav className="flex flex-col gap-1">
-            {mainNavigation(auth.user.role).map((item) => {
+            {items.map((item) => {
+                // Eng uzun mos prefiks yutadi: /stock/history faqat "IMEI tarixi"ni yoqadi, "Ombor"ni emas.
                 const active = item.matchPrefix
-                    ? currentUrl.startsWith(item.matchPrefix)
+                    ? item.matchPrefix === bestPrefix
                     : isCurrentUrl(item.href);
 
                 return (

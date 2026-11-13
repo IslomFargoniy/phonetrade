@@ -1,9 +1,11 @@
 import {
     ArrowLeftRight,
+    BarChart3,
+    History,
+    Wallet,
     CalendarClock,
     Users,
     Building2,
-    LayoutGrid,
     PackagePlus,
     Receipt,
     ScanLine,
@@ -11,15 +13,16 @@ import {
     Warehouse,
 } from 'lucide-react';
 import { t } from '@/lib/i18n';
-import { dashboard } from '@/routes';
 import { index as tenants } from '@/routes/admin/tenants';
+import { index as cash } from '@/routes/cash';
 import { index as customers } from '@/routes/customers';
 import { index as installments } from '@/routes/installments';
 import { index as pos } from '@/routes/pos';
 import { edit as editProfile } from '@/routes/profile';
 import { create as receipt } from '@/routes/receipts';
+import { index as reports } from '@/routes/reports';
 import { index as sales } from '@/routes/sales';
-import { index as stock } from '@/routes/stock';
+import { history, index as stock } from '@/routes/stock';
 import { index as transfers } from '@/routes/transfers';
 import type { NavItem, Role } from '@/types';
 
@@ -46,12 +49,20 @@ export function mainNavigation(role: Role): NavItem[] {
         ];
     }
 
+    const owner: NavItem[] =
+        role === 'owner'
+            ? [
+                  {
+                      title: t('reports.title'),
+                      href: reports(),
+                      icon: BarChart3,
+                      matchPrefix: '/reports',
+                  },
+              ]
+            : [];
+
     return [
-        {
-            title: t('nav.home'),
-            href: dashboard(),
-            icon: LayoutGrid,
-        },
+        ...owner,
         {
             title: t('pos.title'),
             href: pos(),
@@ -87,6 +98,18 @@ export function mainNavigation(role: Role): NavItem[] {
             href: stock(),
             icon: Warehouse,
             matchPrefix: '/stock',
+        },
+        {
+            title: t('cash.title'),
+            href: cash(),
+            icon: Wallet,
+            matchPrefix: '/cash',
+        },
+        {
+            title: t('history.title'),
+            href: history(),
+            icon: History,
+            matchPrefix: '/stock/history',
         },
         {
             title: t('transfers.title'),

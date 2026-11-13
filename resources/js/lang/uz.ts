@@ -1,4 +1,5 @@
 import { uzInstallments } from '@/lang/uz-installments';
+import { uzReports } from '@/lang/uz-reports';
 import { uzSales } from '@/lang/uz-sales';
 import { uzStock } from '@/lang/uz-stock';
 
@@ -6,6 +7,7 @@ export const uz = {
     ...uzStock,
     ...uzSales,
     ...uzInstallments,
+    ...uzReports,
 
     'action.save': 'Saqlash',
     'action.cancel': 'Bekor qilish',
@@ -13,11 +15,7 @@ export const uz = {
 
     'nav.title': 'Asosiy menyu',
     'nav.open': 'Menyuni ochish',
-    'nav.home': 'Bosh sahifa',
     'nav.settings': 'Sozlamalar',
-
-    'home.greeting': 'Assalomu alaykum, :name',
-    'home.empty': "Bo'limlar tayyor bo'lgani sari chap menyuda paydo bo'ladi.",
 
     'security.title': 'Xavfsizlik',
 

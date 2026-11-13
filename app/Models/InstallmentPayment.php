@@ -19,10 +19,11 @@ use Illuminate\Support\Carbon;
  * @property int|null $user_id
  * @property string $amount
  * @property string $profit_amount
+ * @property string|null $rate
  * @property bool $is_initial
  * @property Carbon $paid_at
  */
-#[Fillable(['installment_plan_id', 'user_id', 'amount', 'profit_amount', 'is_initial', 'paid_at'])]
+#[Fillable(['installment_plan_id', 'user_id', 'amount', 'profit_amount', 'rate', 'is_initial', 'paid_at'])]
 class InstallmentPayment extends Model
 {
     /** @use HasFactory<InstallmentPaymentFactory> */
@@ -36,6 +37,7 @@ class InstallmentPayment extends Model
         return [
             'amount' => 'decimal:2',
             'profit_amount' => 'decimal:2',
+            'rate' => 'decimal:2',
             'is_initial' => 'boolean',
             'paid_at' => 'datetime',
         ];

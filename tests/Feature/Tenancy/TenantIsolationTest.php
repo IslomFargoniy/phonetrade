@@ -96,7 +96,7 @@ class TenantIsolationTest extends TestCase
     {
         $owner = User::factory()->create();
 
-        $this->actingAs($owner)->get(route('dashboard'))->assertOk();
+        $this->actingAs($owner)->get(route('profile.edit'))->assertOk();
 
         $this->assertFalse(app(TenantContext::class)->has());
     }

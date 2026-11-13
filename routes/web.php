@@ -1,11 +1,14 @@
 <?php
 
 use App\Http\Controllers\Admin\TenantController;
+use App\Http\Controllers\Cash\CashController;
 use App\Http\Controllers\Customers\CustomerController;
 use App\Http\Controllers\Installments\InstallmentController;
+use App\Http\Controllers\Reports\ReportController;
 use App\Http\Controllers\Sales\PosController;
 use App\Http\Controllers\Sales\SaleController;
 use App\Http\Controllers\Stock\CatalogController;
+use App\Http\Controllers\Stock\HistoryController;
 use App\Http\Controllers\Stock\ReceiptController;
 use App\Http\Controllers\Stock\StockController;
 use App\Http\Controllers\Stock\TransferController;
@@ -15,7 +18,6 @@ use App\Http\Controllers\Store\StoreSettingsController;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 Route::get('/', fn () => redirect()->route(auth()->check() ? 'dashboard' : 'login'))->name('home');
 
@@ -25,9 +27,12 @@ Route::middleware(['auth'])->group(function () {
         /** @var User $user */
         $user = $request->user();
 
-        return $user->isSuperadmin()
-            ? to_route('admin.tenants.index')
-            : Inertia::render('dashboard');
+        // Har rol o'zining asosiy ish joyiga tushadi.
+        return match (true) {
+            $user->isSuperadmin() => to_route('admin.tenants.index'),
+            $user->isOwner() => to_route('reports.index'),
+            default => to_route('pos.index'),
+        };
     })->name('dashboard');
 
     Route::post('branch/{branch}/switch', [BranchController::class, 'select'])
@@ -56,6 +61,17 @@ Route::middleware(['auth', 'role:owner,seller'])->group(function () {
     Route::post('customers/{customer}', [CustomerController::class, 'update'])->name('customers.update');
     Route::get('customers/files/{file}', [CustomerController::class, 'file'])->name('customers.files.show');
 
+    Route::get('cash', [CashController::class, 'index'])->name('cash.index');
+    Route::middleware('role:owner')->group(function () {
+        Route::post('cash/categories', [CashController::class, 'storeCategory'])->name('cash.categories.store');
+        Route::post('cash/expenses', [CashController::class, 'storeExpense'])->name('cash.expenses.store');
+        Route::post('cash/sweep', [CashController::class, 'sweep'])->name('cash.sweep');
+
+        Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
+        Route::get('reports/export', [ReportController::class, 'export'])->name('reports.export');
+    });
+
+    Route::get('stock/history', HistoryController::class)->name('stock.history');
     Route::get('stock', [StockController::class, 'index'])->name('stock.index');
     Route::post('stock/units/{unit}/restock', [StockController::class, 'restock'])->middleware('role:owner')->name('stock.units.restock');
     Route::patch('stock/units/{unit}', [StockController::class, 'updateUnit'])->middleware('role:owner')->name('stock.units.update');

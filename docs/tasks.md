@@ -141,17 +141,17 @@ Maqsad: nasiyaga sotish va oylik to'lovlarni yig'ish ishlaydi.
 
 Maqsad: birinchi ishlaydigan versiya — haqiqiy do'konda sinash.
 
-- [ ] 5.1 Kassalar ekrani: balanslar, jurnal, filtrlar
-- [ ] 5.2 Kassa bo'shatish (filial → admin), admin kassa himoyasi + testlar
-- [ ] 5.3 Xarajatlar: kategoriyalar, kiritish, kassadan chiqim
-- [ ] 5.4 Hisobot: savdo va foyda (filial, sotuvchi, kategoriya, model kesimida)
-- [ ] 5.5 Hisobot: ombor qoldig'i (tannarx, sotuv narxi, necha kun yotgani)
-- [ ] 5.6 Hisobot: qarzdorlar; kutilayotgan foyda (oylar bo'yicha)
-- [ ] 5.7 Hisobot: kassa; sof foyda
-- [ ] 5.8 Hisobot: kirim va yetkazib beruvchilar; kafolat va IMEI tarixi
-- [ ] 5.9 Hisobotlar ekrani: davr, filial, valyuta filtrlari; rolga qarab ustunlar
-- [ ] 5.10 Excel va PDF eksport (navbat orqali)
-- [ ] 5.11 Kunlik solishtirish buyrug'i: kassa balansi = harakatlar yig'indisi, ombor holati = harakatlar
+- [x] 5.1 Kassalar ekrani: balanslar, jurnal, filtrlar
+- [x] 5.2 Kassa bo'shatish (filial → admin), admin kassa himoyasi + testlar
+- [x] 5.3 Xarajatlar: kategoriyalar, kiritish, kassadan chiqim
+- [x] 5.4 Hisobot: savdo va foyda (filial, sotuvchi, kategoriya, model kesimida)
+- [x] 5.5 Hisobot: ombor qoldig'i (tannarx, sotuv narxi, necha kun yotgani)
+- [x] 5.6 Hisobot: qarzdorlar; kutilayotgan foyda (oylar bo'yicha)
+- [x] 5.7 Hisobot: kassa; sof foyda
+- [x] 5.8 Hisobot: kirim va yetkazib beruvchilar; kafolat va IMEI tarixi
+- [x] 5.9 Hisobotlar ekrani: davr, filial, valyuta filtrlari; rolga qarab ustunlar
+- [x] 5.10 Savdolar eksporti (Excel ochadigan CSV). PDF — brauzer orqali chop etish; alohida PDF generatsiya qilinmadi
+- [x] 5.11 Kunlik solishtirish buyrug'i: kassa balansi = harakatlar yig'indisi, ombor holati = harakatlar
 - [ ] 5.12 Sinov do'konida to'liq sinov, topilgan xatolarni tuzatish
 
 **Tayyor:** haqiqiy do'kon bir hafta web orqali ishlaydi; hisobot raqamlari qo'lda hisoblangan bilan mos.
