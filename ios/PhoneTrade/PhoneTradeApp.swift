@@ -145,19 +145,22 @@ struct MainView: View {
 
     private func tabs(_ profile: Profile) -> some View {
         TabView {
+            // Tartib va ikonkalar dizayndagidek: Hisobot, Sotuv, Nasiya, Ombor, Mijozlar.
             if profile.user.isOwner {
-                screen("Hisobot", icon: "chart.bar.fill") { ReportView() }
+                screen("Hisobot", icon: "chart.bar", profile: profile) { ReportView() }
             }
-            screen("Nasiya", icon: "calendar") { InstallmentsView() }
-            screen("Ombor", icon: "shippingbox.fill") { StockView() }
-            screen("Mijozlar", icon: "person.2.fill") { CustomersView() }
-            screen("Sotuv", icon: "cart.fill") { SaleView() }
+            screen("Sotuv", icon: "barcode.viewfinder", profile: profile) { SaleView() }
+            screen("Nasiya", icon: "calendar", profile: profile) { InstallmentsView() }
+            screen("Ombor", icon: "shippingbox", profile: profile) { StockView() }
+            screen("Mijozlar", icon: "person", profile: profile) { CustomersView() }
         }
+        // Chiziqli (to'ldirilmagan) ikonkalar.
+        .environment(\.symbolVariants, .none)
         // Filial almashganda ekranlar noldan ochiladi: ro'yxatlar va savat filialga tegishli.
         .id(profile.store.branch?.id)
     }
 
-    private func screen<Content: View>(_ title: String, icon: String, @ViewBuilder content: () -> Content) -> some View {
+    private func screen<Content: View>(_ title: String, icon: String, profile: Profile, @ViewBuilder content: () -> Content) -> some View {
         NavigationStack {
             ZStack {
                 AppBackground()
@@ -165,6 +168,14 @@ struct MainView: View {
             }
             .navigationTitle(title)
             .toolbar {
+                // Bugungi kurs kapsulasi (dizayndagidek) va profil.
+                ToolbarItem(placement: .topBarTrailing) {
+                    Text(profile.store.rate.map { "1 $ = \(Fmt.money($0).replacingOccurrences(of: " so'm", with: ""))" } ?? "Kurs yo'q")
+                        .font(.footnote.weight(.bold))
+                        .monospacedDigit()
+                        .foregroundStyle(profile.store.rate == nil ? Palette.danger : Palette.ink)
+                        .padding(.horizontal, 6)
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { showProfile = true } label: { Image(systemName: "person.crop.circle") }
                         .accessibilityLabel("Profil")

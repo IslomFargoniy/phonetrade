@@ -4,6 +4,15 @@ import android.Manifest
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
+import uz.simulator.phonetrade.ui.GlassTab
+import uz.simulator.phonetrade.ui.GlassTabBar
+import uz.simulator.phonetrade.ui.NavIcons
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -75,11 +84,23 @@ import uz.simulator.phonetrade.ui.plainAmount
 import uz.simulator.phonetrade.ui.sale.SaleScreen
 import uz.simulator.phonetrade.ui.theme.Palette
 
-private enum class Tab(val label: String) {
-    Sale("Sotuv"),
-    Installments("Nasiya"),
-    Stock("Ombor"),
-    Customers("Mijozlar"),
+private enum class Tab(val label: String, val icon: ImageVector) {
+    Sale("Sotuv", NavIcons.Scan),
+    Installments("Nasiya", NavIcons.Calendar),
+    Stock("Ombor", NavIcons.Box),
+    Customers("Mijozlar", NavIcons.Person),
+}
+
+@Composable
+private fun GlassPill(text: String, color: Color) {
+    Text(
+        text,
+        modifier = Modifier.clip(CircleShape).background(Palette.Glass).border(1.dp, Palette.Stroke, CircleShape).padding(horizontal = 12.dp, vertical = 8.dp),
+        fontSize = 13.sp,
+        fontWeight = FontWeight.Bold,
+        color = color,
+        maxLines = 1,
+    )
 }
 
 @Composable
@@ -146,46 +167,43 @@ private fun Shell(app: PhoneTradeApp, profile: Profile, onBranch: (Int) -> Unit)
         containerColor = Color.Transparent,
         topBar = {
             Row(
-                Modifier.fillMaxWidth().statusBarsPadding().padding(start = 16.dp, end = 4.dp, top = 8.dp, bottom = 4.dp),
+                Modifier.fillMaxWidth().statusBarsPadding().padding(start = 20.dp, end = 16.dp, top = 12.dp, bottom = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Column(Modifier.weight(1f)) {
-                    Text(tab.label, fontSize = 26.sp, fontWeight = FontWeight.ExtraBold, color = Palette.Ink)
+                    Text(tab.label, fontSize = 30.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = (-0.9).sp, color = Palette.Ink)
                     Text(
-                        listOfNotNull(
-                            profile.store.branch?.name,
-                            profile.store.rate?.let { "1 $ = ${grouped(plainAmount(it))} so'm" } ?: "Kurs kiritilmagan",
-                        ).joinToString(" · "),
+                        listOfNotNull(profile.store.branch?.name, profile.user.name).joinToString(" · "),
                         fontSize = 13.sp,
-                        color = if (profile.store.rate == null) Palette.Danger else Palette.InkMid,
+                        color = Palette.InkMid,
+                        maxLines = 1,
                     )
                 }
-                IconButton(onClick = { showProfile = true }) {
-                    Icon(Icons.Default.AccountCircle, contentDescription = "Profil", tint = Palette.Primary)
+                // Bugungi kurs: kiritilmagan bo'lsa qizil ogohlantirish.
+                GlassPill(
+                    text = profile.store.rate?.let { "$ ${grouped(plainAmount(it))}" } ?: "Kurs yo'q",
+                    color = if (profile.store.rate == null) Palette.Danger else Palette.Ink,
+                )
+                Box(
+                    Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(Palette.Glass)
+                        .border(1.dp, Palette.Stroke, CircleShape)
+                        .clickable(onClickLabel = "Profil") { showProfile = true },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(profile.user.name.take(1).uppercase(), fontWeight = FontWeight.ExtraBold, color = Palette.Primary)
                 }
             }
         },
         bottomBar = {
-            NavigationBar(containerColor = Palette.Glass) {
-                Tab.entries.forEach { item ->
-                    NavigationBarItem(
-                        selected = tab == item,
-                        onClick = { tab = item },
-                        icon = {
-                            Icon(
-                                when (item) {
-                                    Tab.Sale -> Icons.Default.ShoppingCart
-                                    Tab.Installments -> Icons.Default.CalendarMonth
-                                    Tab.Stock -> Icons.Default.Inventory2
-                                    Tab.Customers -> Icons.Default.People
-                                },
-                                contentDescription = null,
-                            )
-                        },
-                        label = { Text(item.label, fontWeight = FontWeight.SemiBold) },
-                    )
-                }
-            }
+            GlassTabBar(
+                tabs = Tab.entries.map { GlassTab(it.label, it.icon) },
+                selected = tab.ordinal,
+                onSelect = { tab = Tab.entries[it] },
+            )
         },
     ) { padding ->
         Box(Modifier.fillMaxSize().padding(padding)) {

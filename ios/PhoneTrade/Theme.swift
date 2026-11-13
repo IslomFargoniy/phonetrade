@@ -138,7 +138,16 @@ struct LoadState<Value, Content: View>: View {
 enum Fmt {
     /// "4700000.00" -> "4 700 000 so'm"; USD: "460.50" -> "460.5 $"
     static func money(_ amount: String?, currency: String = "UZS") -> String {
-        let plain = plain(amount)
+        var plain = plain(amount)
+
+        // So'mda tiyin ko'rsatilmaydi (web hisobotlaridagidek butun songa yaxlitlanadi).
+        if currency != "USD", plain.contains("."), let value = Decimal(string: plain) {
+            var rounded = Decimal()
+            var source = value
+            NSDecimalRound(&rounded, &source, 0, .plain)
+            plain = NSDecimalNumber(decimal: rounded).stringValue
+        }
+
         let parts = plain.split(separator: ".", maxSplits: 1).map(String.init)
         let negative = parts.first?.hasPrefix("-") ?? false
         let whole = String((parts.first ?? "0").drop { $0 == "-" })
