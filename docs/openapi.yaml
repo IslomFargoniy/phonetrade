@@ -458,7 +458,12 @@ paths:
         post:
             summary: Telefonga rasm qo'shish (kvadrat JPEG qilib saqlanadi)
             parameters:
-                - { name: unit, in: path, required: true, schema: { type: integer } }
+                - {
+                      name: unit,
+                      in: path,
+                      required: true,
+                      schema: { type: integer },
+                  }
             requestBody:
                 content:
                     multipart/form-data:
@@ -475,7 +480,12 @@ paths:
         delete:
             summary: Telefon rasmini o'chirish
             parameters:
-                - { name: photo, in: path, required: true, schema: { type: integer } }
+                - {
+                      name: photo,
+                      in: path,
+                      required: true,
+                      schema: { type: integer },
+                  }
             responses: { '200': { description: Yangilangan StockUnit. } }
     /customers/lookup:
         get:
