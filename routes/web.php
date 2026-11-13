@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\BillingController;
+use App\Http\Controllers\Admin\PlanController;
 use App\Http\Controllers\Admin\TenantController;
 use App\Http\Controllers\Cash\CashController;
 use App\Http\Controllers\Customers\CustomerController;
@@ -93,6 +95,12 @@ Route::middleware(['auth', 'role:superadmin'])->prefix('admin')->name('admin.')-
     Route::get('tenants', [TenantController::class, 'index'])->name('tenants.index');
     Route::post('tenants', [TenantController::class, 'store'])->name('tenants.store');
     Route::patch('tenants/{tenant}/status', [TenantController::class, 'updateStatus'])->name('tenants.status');
+    Route::get('tenants/{tenant}', [BillingController::class, 'show'])->name('tenants.show');
+    Route::put('tenants/{tenant}/subscription', [BillingController::class, 'update'])->name('tenants.subscription');
+    Route::post('tenants/{tenant}/payments', [BillingController::class, 'storePayment'])->name('tenants.payments');
+    Route::get('plans', [PlanController::class, 'index'])->name('plans.index');
+    Route::post('plans', [PlanController::class, 'store'])->name('plans.store');
+    Route::put('plans/{plan}', [PlanController::class, 'update'])->name('plans.update');
 });
 
 /*

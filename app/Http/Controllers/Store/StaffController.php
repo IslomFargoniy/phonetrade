@@ -6,7 +6,9 @@ use App\Enums\Role;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Store\StaffRequest;
 use App\Models\Branch;
+use App\Models\Tenant;
 use App\Models\User;
+use App\Services\Billing\Subscription;
 use App\Support\Audit;
 use App\Support\Phone;
 use Illuminate\Http\RedirectResponse;
@@ -42,9 +44,10 @@ class StaffController extends Controller
         ]);
     }
 
-    public function store(StaffRequest $request): RedirectResponse
+    public function store(StaffRequest $request, Subscription $subscription): RedirectResponse
     {
         $data = $request->validated();
+        $subscription->ensureCanAddUser(Tenant::query()->findOrFail($request->user()->tenant_id));
 
         $user = DB::transaction(function () use ($data): User {
             $user = User::query()->create([
@@ -67,11 +70,16 @@ class StaffController extends Controller
         return to_route('staff.index');
     }
 
-    public function update(StaffRequest $request, User $staff): RedirectResponse
+    public function update(StaffRequest $request, User $staff, Subscription $subscription): RedirectResponse
     {
         abort_unless($staff->isSeller(), 403);
 
         $data = $request->validated();
+
+        // O'chirilgan xodimni qayta yoqish ham tarif limitiga kiradi.
+        if (($data['is_active'] ?? $staff->is_active) && ! $staff->is_active) {
+            $subscription->ensureCanAddUser(Tenant::query()->findOrFail($request->user()->tenant_id));
+        }
         $old = $staff->only(['name', 'phone', 'is_active']) + ['branch_ids' => $staff->branches()->pluck('branches.id')->all()];
 
         DB::transaction(function () use ($staff, $data): void {

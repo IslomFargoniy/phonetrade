@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Models\Branch;
 use App\Models\Tenant;
 use App\Models\User;
+use App\Services\Billing\Subscription;
 use App\Services\Rates\CurrencyRateService;
 use App\Tenancy\CurrentBranch;
 use Illuminate\Http\Request;
@@ -70,8 +71,18 @@ class HandleInertiaRequests extends Middleware
         $current = $branches->resolve($user);
         $rate = app(CurrencyRateService::class)->current();
 
+        $tenant = Tenant::query()->with('plan')->findOrFail($user->tenant_id);
+        $subscription = app(Subscription::class);
+
         return [
-            'name' => Tenant::query()->whereKey($user->tenant_id)->value('name'),
+            'name' => $tenant->name,
+            'subscription' => [
+                'state' => $subscription->state($tenant),
+                'plan' => $tenant->plan?->name,
+                'paid_until' => $tenant->paid_until?->format('d.m.Y'),
+                'days_left' => $subscription->daysLeft($tenant),
+                'read_only_from' => $subscription->readOnlyFrom($tenant)?->format('d.m.Y'),
+            ],
             'branch' => $current ? ['id' => $current->id, 'name' => $current->name] : null,
             'branches' => $branches->available($user)
                 ->map(fn (Branch $branch) => ['id' => $branch->id, 'name' => $branch->name])

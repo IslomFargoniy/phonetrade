@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Store;
 use App\Actions\Branches\CreateBranch;
 use App\Http\Controllers\Controller;
 use App\Models\Branch;
+use App\Models\Tenant;
+use App\Services\Billing\Subscription;
 use App\Support\Audit;
 use App\Support\Phone;
 use App\Tenancy\CurrentBranch;
@@ -34,9 +36,12 @@ class BranchController extends Controller
         ]);
     }
 
-    public function store(Request $request, CreateBranch $createBranch): RedirectResponse
+    public function store(Request $request, CreateBranch $createBranch, Subscription $subscription): RedirectResponse
     {
-        $branch = $createBranch->handle($this->validated($request));
+        $data = $this->validated($request);
+        $subscription->ensureCanAddBranch(Tenant::query()->findOrFail($request->user()->tenant_id));
+
+        $branch = $createBranch->handle($data);
 
         Audit::log('branch.created', $branch, null, ['name' => $branch->name]);
 
@@ -45,11 +50,16 @@ class BranchController extends Controller
         return to_route('branches.index');
     }
 
-    public function update(Request $request, Branch $branch): RedirectResponse
+    public function update(Request $request, Branch $branch, Subscription $subscription): RedirectResponse
     {
         $data = $this->validated($request, $branch) + [
             'is_active' => $request->boolean('is_active', $branch->is_active),
         ];
+
+        // Yopilgan filialni qayta ochish ham tarif limitiga kiradi.
+        if ($data['is_active'] && ! $branch->is_active) {
+            $subscription->ensureCanAddBranch(Tenant::query()->findOrFail($request->user()->tenant_id));
+        }
 
         if (! $data['is_active'] && $branch->is_active && Branch::query()->where('is_active', true)->count() === 1) {
             return back()->withErrors(['is_active' => __("Oxirgi faol filialni o'chirib bo'lmaydi.")]);

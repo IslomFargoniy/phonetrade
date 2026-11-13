@@ -66,6 +66,8 @@ components:
                         - PAYMENT_EXCEEDS_DEBT
                         - AMOUNT_INVALID
                         - CASH_EMPTY
+                        - PLAN_LIMIT_REACHED
+                        - SUBSCRIPTION_EXPIRED
                 message:
                     {
                         type: string,

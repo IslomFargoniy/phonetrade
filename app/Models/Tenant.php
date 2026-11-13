@@ -7,6 +7,7 @@ use Database\Factories\TenantFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
@@ -17,6 +18,9 @@ use Illuminate\Support\Carbon;
  * @property string $name
  * @property TenantStatus $status
  * @property array<string, mixed>|null $settings
+ * @property int|null $plan_id
+ * @property Carbon|null $paid_until
+ * @property-read Plan|null $plan
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
@@ -39,6 +43,7 @@ class Tenant extends Model
         return [
             'status' => TenantStatus::class,
             'settings' => 'array',
+            'paid_until' => 'date',
         ];
     }
 
@@ -50,6 +55,22 @@ class Tenant extends Model
     public function setting(string $key, mixed $default = null): mixed
     {
         return data_get($this->settings, $key, $default);
+    }
+
+    /**
+     * @return BelongsTo<Plan, $this>
+     */
+    public function plan(): BelongsTo
+    {
+        return $this->belongsTo(Plan::class);
+    }
+
+    /**
+     * @return HasMany<SubscriptionPayment, $this>
+     */
+    public function subscriptionPayments(): HasMany
+    {
+        return $this->hasMany(SubscriptionPayment::class);
     }
 
     /**
