@@ -11,6 +11,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import uz.simulator.phonetrade.ui.GlassTab
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.navigationBarsPadding
+import uz.simulator.phonetrade.ui.GlassBarBottomMargin
+import uz.simulator.phonetrade.ui.LocalBottomBarInset
+import uz.simulator.phonetrade.ui.backdropSource
+import uz.simulator.phonetrade.ui.glassBarInset
+import uz.simulator.phonetrade.ui.rememberBackdrop
 import uz.simulator.phonetrade.ui.GlassTabBar
 import uz.simulator.phonetrade.ui.NavIcons
 import androidx.compose.foundation.clickable
@@ -163,8 +171,15 @@ private fun Shell(app: PhoneTradeApp, profile: Profile, onBranch: (Int) -> Unit)
         }
     }
 
+    // Content runs under the floating glass bar; the bar blurs what passes behind it.
+    val backdrop = rememberBackdrop()
+    val inset = glassBarInset()
+
+    Box(Modifier.fillMaxSize()) {
     Scaffold(
+        modifier = Modifier.backdropSource(backdrop),
         containerColor = Color.Transparent,
+        contentWindowInsets = WindowInsets(0),
         topBar = {
             Row(
                 Modifier.fillMaxWidth().statusBarsPadding().padding(start = 20.dp, end = 16.dp, top = 12.dp, bottom = 4.dp),
@@ -198,14 +213,8 @@ private fun Shell(app: PhoneTradeApp, profile: Profile, onBranch: (Int) -> Unit)
                 }
             }
         },
-        bottomBar = {
-            GlassTabBar(
-                tabs = Tab.entries.map { GlassTab(it.label, it.icon) },
-                selected = tab.ordinal,
-                onSelect = { tab = Tab.entries[it] },
-            )
-        },
     ) { padding ->
+        CompositionLocalProvider(LocalBottomBarInset provides inset) {
         Box(Modifier.fillMaxSize().padding(padding)) {
             if (profile.store.branch == null) {
                 ErrorBanner("Sizga filial biriktirilmagan. Do'kon egasiga murojaat qiling.", Modifier.padding(16.dp))
@@ -221,6 +230,15 @@ private fun Shell(app: PhoneTradeApp, profile: Profile, onBranch: (Int) -> Unit)
                 }
             }
         }
+        }
+    }
+        GlassTabBar(
+            tabs = Tab.entries.map { t -> GlassTab(t.label, t.icon, selected = t == tab, onClick = { tab = t }) },
+            backdrop = backdrop,
+            accent = Palette.Primary,
+            accentDark = Palette.Primary,
+            modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(start = 16.dp, end = 16.dp, bottom = GlassBarBottomMargin),
+        )
     }
 }
 

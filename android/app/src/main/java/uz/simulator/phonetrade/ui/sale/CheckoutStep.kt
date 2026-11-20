@@ -1,5 +1,6 @@
 package uz.simulator.phonetrade.ui.sale
 
+import uz.simulator.phonetrade.ui.LocalBottomBarInset
 import uz.simulator.phonetrade.ui.ProductImage
 import android.net.Uri
 import androidx.activity.compose.BackHandler
@@ -72,7 +73,7 @@ fun CheckoutStep(app: PhoneTradeApp, model: SaleViewModel) {
 
     BackHandler(onBack = model::backToCart)
 
-    Column(Modifier.fillMaxSize().imePadding()) {
+    Column(Modifier.fillMaxSize().padding(bottom = LocalBottomBarInset.current).imePadding()) {
         Row(Modifier.fillMaxWidth().padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = model::backToCart) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Savatga qaytish")

@@ -1,5 +1,6 @@
 package uz.simulator.phonetrade.ui.screens
 
+import uz.simulator.phonetrade.ui.LocalBottomBarInset
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -101,7 +102,7 @@ fun StockScreen(app: PhoneTradeApp) {
         when {
             rows == null -> LoadingBox()
             rows.isEmpty() && error == null -> EmptyState(if (query.isBlank()) "Omborda telefon yo'q." else "Hech narsa topilmadi.")
-            else -> LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            else -> LazyColumn(contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 16.dp + LocalBottomBarInset.current), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 item { Text("${rows.size} ta telefon", color = Palette.InkSoft, fontSize = 13.sp) }
                 items(rows, key = { it.id }) { unit ->
                     GlassCard(onClick = { opened = unit }) {

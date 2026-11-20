@@ -22,8 +22,8 @@ android {
         applicationId = "uz.simulator.phonetrade"
         minSdk = 26
         targetSdk = 36
-        versionCode = 3
-        versionName = "1.0.2"
+        versionCode = 4
+        versionName = "1.0.3"
 
         // Lokal serverda sinash: ./gradlew installDebug -PapiUrl=http://10.0.2.2:8000/api/v1/
         val apiUrl = (project.findProperty("apiUrl") as String?) ?: "https://phonetrade.simulator.uz/api/v1/"

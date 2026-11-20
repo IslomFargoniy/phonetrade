@@ -1,5 +1,6 @@
 package uz.simulator.phonetrade.ui.screens
 
+import uz.simulator.phonetrade.ui.LocalBottomBarInset
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -84,7 +85,7 @@ fun CustomersScreen(app: PhoneTradeApp) {
         when {
             rows == null -> LoadingBox()
             rows.isEmpty() && error == null -> EmptyState(if (query.isBlank()) "Mijozlar hali yo'q." else "Hech kim topilmadi.")
-            else -> LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            else -> LazyColumn(contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 16.dp + LocalBottomBarInset.current), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 items(rows, key = { it.id }) { customer ->
                     GlassCard {
                         Row(verticalAlignment = Alignment.CenterVertically) {

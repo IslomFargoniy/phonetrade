@@ -52,53 +52,6 @@ object NavIcons {
             .build()
 }
 
-data class GlassTab(val label: String, val icon: ImageVector)
-
-/**
- * Pastki menyu: ekran ustida suzib turadigan shisha kapsula. Faol bo'lim oq kapsula ichida.
- */
-@Composable
-fun GlassTabBar(tabs: List<GlassTab>, selected: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier) {
-    Row(
-        modifier = modifier
-            .navigationBarsPadding()
-            .padding(start = 16.dp, end = 16.dp, bottom = 12.dp, top = 4.dp)
-            .fillMaxWidth()
-            .shadow(14.dp, CircleShape, ambientColor = Color(0x331C2340), spotColor = Color(0x331C2340))
-            .clip(CircleShape)
-            .background(Color(0xD9FFFFFF))
-            .border(1.dp, Color(0xE6FFFFFF), CircleShape)
-            .padding(6.dp),
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
-    ) {
-        tabs.forEachIndexed { index, tab ->
-            val active = index == selected
-
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .heightIn(min = 56.dp)
-                    .then(if (active) Modifier.shadow(4.dp, CircleShape, spotColor = Color(0x221C2340)) else Modifier)
-                    .clip(CircleShape)
-                    .background(if (active) Color.White else Color.Transparent)
-                    .clickable(role = Role.Tab) { onSelect(index) }
-                    .semantics { this.selected = active },
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterVertically),
-            ) {
-                Icon(tab.icon, contentDescription = null, modifier = Modifier.size(22.dp), tint = if (active) Palette.Primary else Palette.NavInk)
-                Text(
-                    tab.label,
-                    fontSize = 11.sp,
-                    fontWeight = if (active) FontWeight.ExtraBold else FontWeight.SemiBold,
-                    color = if (active) Palette.Primary else Palette.NavInk,
-                    maxLines = 1,
-                )
-            }
-        }
-    }
-}
-
 /** Filtr kapsulalari: faol — ko'k, qolganlari shisha. */
 @Composable
 fun <T> PillFilters(options: List<Pair<T, String>>, selected: T, onSelect: (T) -> Unit, modifier: Modifier = Modifier) {
