@@ -1,5 +1,6 @@
 package uz.simulator.phonetrade.ui.screens
 
+import uz.simulator.phonetrade.ui.LocalBottomBarInset
 import uz.simulator.phonetrade.ui.ProductImage
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -111,7 +112,7 @@ fun InstallmentsScreen(app: PhoneTradeApp) {
                 },
             )
             else -> LazyColumn(
-                contentPadding = PaddingValues(16.dp),
+                contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 16.dp + LocalBottomBarInset.current),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 items(rows, key = { it.id }) { plan ->

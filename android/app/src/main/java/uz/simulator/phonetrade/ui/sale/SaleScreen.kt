@@ -1,5 +1,6 @@
 package uz.simulator.phonetrade.ui.sale
 
+import uz.simulator.phonetrade.ui.LocalBottomBarInset
 import uz.simulator.phonetrade.ui.ProductImage
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -113,7 +114,8 @@ private fun CartStep(model: SaleViewModel) {
         }
     }
 
-    Column(Modifier.fillMaxSize()) {
+    // Cart and its total stay above the floating tab bar.
+    Column(Modifier.fillMaxSize().padding(bottom = LocalBottomBarInset.current)) {
         Row(
             Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
